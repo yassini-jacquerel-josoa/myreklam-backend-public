@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 // Inclure la connexion à la base de données
 include("./db.php");
-include("./AmbassadorAction.php");
+include("./packages/AmbassadorAction.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -27,80 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 
 // Récupérer les données du formulaire
-$method = $_POST['Method']; // "create", "read", "update" ou "delete"
-// $id = $_POST['Id']; // ID de l'enregistrement à modifier ou supprimer
-// $siret = $_POST['Siret']; // Données à insérer ou mettre à jour
-// $page = $_POST['Page'];
-// $category = $_POST['Category'];
-//     $name = isset($_POST['name']) ? trim($_POST['name']) : null;
-//     $logo = isset($_POST['logo']) ? trim($_POST['logo']) : null;
-//     $website = isset($_POST['website']) ? trim($_POST['website']) : null;
-//     $activityId = isset($_POST['activityId']) ? trim($_POST['activityId']) : null;
-//     $addressId = isset($_POST['addressId']) ? trim($_POST['addressId']) : null;
-//     $description = isset($_POST['description']) ? trim($_POST['description']) : null;
-//     $siret = isset($_POST['Siret']) ? trim($_POST['Siret']) : null;
-//     $phone = isset($_POST['phone']) ? trim($_POST['phone']) : null;
-
-//     $line1 = isset($_POST['line1']) ? trim($_POST['line1']) : null;
-//     $line2 = isset($_POST['line2']) ? trim($_POST['line2']) : null;
-//     $line3 = isset($_POST['line3']) ? trim($_POST['line3']) : null;
-//     $zipcode = isset($_POST['zipcode']) ? trim($_POST['zipcode']) : null;
-//     $city = isset($_POST['city']) ? trim($_POST['city']) : null;
-//     $country = isset($_POST['country']) ? trim($_POST['country']) : null;
-//     $placeId = isset($_POST['placeId']) ? trim($_POST['placeId']) : null;
-//     $lat = isset($_POST['lat']) ? trim($_POST['lat']) : null;
-//     $lng = isset($_POST['lng']) ? trim($_POST['lng']) : null;
-
-//     $id = isset($_POST['Id']) ? trim($_POST['Id']) : null;
-//     $userId = isset($_POST['userId']) ? trim($_POST['userId']) : null;
-//     $profileType = isset($_POST['profileType']) ? trim($_POST['profileType']) : null;
-//     $pseudo = isset($_POST['pseudo']) ? trim($_POST['pseudo']) : null;
-//     $photoProfilUrl = isset($_POST['photoProfilUrl']) ? trim($_POST['photoProfilUrl']) : null;
-//     $telephone = isset($_POST['telephone']) ? trim($_POST['telephone']) : null;
-//     $siret = isset($_POST['siret']) ? trim($_POST['siret']) : null;
-//     $nomSociete = isset($_POST['nomSociete']) ? trim($_POST['nomSociete']) : null;
-//     $activite = isset($_POST['activite']) ? trim($_POST['activite']) : null;
-//     $adresse = isset($_POST['adresse']) ? trim($_POST['adresse']) : null;
-//     $ville = isset($_POST['ville']) ? trim($_POST['ville']) : null;
-//     $codePostal = isset($_POST['codePostal']) ? trim($_POST['codePostal']) : null;
-//     $pays = isset($_POST['pays']) ? trim($_POST['pays']) : null;
-//     $facebook = isset($_POST['facebook']) ? trim($_POST['facebook']) : null;
-//     $instagram = isset($_POST['instagram']) ? trim($_POST['instagram']) : null;
-//     $x = isset($_POST['x']) ? trim($_POST['x']) : null;
-//     $linkedin = isset($_POST['linkedin']) ? trim($_POST['linkedin']) : null;
-//     $youtube = isset($_POST['youtube']) ? trim($_POST['youtube']) : null;
-//     $tiktok = isset($_POST['tiktok']) ? trim($_POST['tiktok']) : null;
-//     $snapchat = isset($_POST['snapchat']) ? trim($_POST['snapchat']) : null;
-
-//     $publishadresse = isset($_POST['publishadresse']) ? trim($_POST['publishadresse']) : null;
-//     $publishname = isset($_POST['publishname']) ? trim($_POST['publishname']) : null;
-//     $publishactivity = isset($_POST['publishactivity']) ? trim($_POST['publishactivity']) : null;
-//     $publishtelephone = isset($_POST['publishtelephone']) ? trim($_POST['publishtelephone']) : null;
-
-//     $title = isset($_POST['title']) ? trim($_POST['title']) : null;
-// $description = isset($_POST['description']) ? trim($_POST['description']) : null;
-// $dealType = isset($_POST['dealType']) ? trim($_POST['dealType']) : null;
-// $dealCategory = isset($_POST['dealCategory']) ? trim($_POST['dealCategory']) : null;
-// $showAddress = isset($_POST['showAddress']) ? trim($_POST['showAddress']) : null;
-// $brand = isset($_POST['brand']) ? trim($_POST['brand']) : null;
-// $initialPrice = isset($_POST['initialPrice']) ? trim($_POST['initialPrice']) : null;
-// $discountValue = isset($_POST['discountValue']) ? trim($_POST['discountValue']) : null;
-// $discountType = isset($_POST['discountType']) ? trim($_POST['discountType']) : null;
-// $finalPrice = isset($_POST['finalPrice']) ? trim($_POST['finalPrice']) : null;
-// $website = isset($_POST['website']) ? trim($_POST['website']) : null;
-// $isOnline = isset($_POST['isOnline']) ? trim($_POST['isOnline']) : null;
-// $shippingCost = isset($_POST['shippingCost']) ? trim($_POST['shippingCost']) : null;
-// $startDate = isset($_POST['startDate']) ? trim($_POST['startDate']) : null;
-// $endDate = isset($_POST['endDate']) ? trim($_POST['endDate']) : null;
-// $messageId = isset($_POST['messageId']) ? trim($_POST['messageId']) : null;
-// $userId = isset($_POST['userId']) ? trim($_POST['userId']) : null;
-// $adresse = isset($_POST['adressse']) ? trim($_POST['adressse']) : null;
-// $codePostal = isset($_POST['codepostal']) ? trim($_POST['codepostal']) : null;
-// $ville = isset($_POST['ville']) ? trim($_POST['ville']) : null;
-// $pays = isset($_POST['pays']) ? trim($_POST['pays']) : null;
-
-
-// $searchbar = strtolower($_POST['Searchbar']); // Mettre le terme de recherche en minuscule 
+$method = $_POST['Method'];
 
 
 if (
@@ -121,43 +48,6 @@ function setJsonHeader()
     header('Content-Type: application/json');
 }
 
-// Fonction pour créer un enregistrement
-// function createRecord($conn, $data) {
-//     $columns = array_keys($data);
-//     $values = array_values($data);
-
-//     $quotedColumns = array_map(function($column) {
-//     return "\"$column\"";
-// }, $columns);
-
-// $columnsString = implode(", ", $quotedColumns);
-
-//     $placeholders = implode(", ", array_fill(0, count($columns), "?"));
-
-//     $query = "INSERT INTO \"Reservation\" ($columnsString) VALUES ($placeholders)";
-
-//     $statement = $conn->prepare($query);
-
-//     // Boucler à travers les valeurs et les lier aux placeholders
-//     for ($i = 0; $i < count($values); $i++) {
-//         $statement->bindValue(($i + 1), $values[$i]);
-//     }
-
-
-//     $result = $statement->execute();
-//     setJsonHeader();
-//     if ($result) {
-//         echo json_encode(array("status" => "success", "message" => "Record successfully created"));
-//     } else {
-//         $errorInfo = $statement->errorInfo();
-//         //http_response_code(401); // Erreur de serveur interne
-//         echo json_encode(array(
-//             "status" => "failure",
-//             "message" => "Failed to create record",
-//             "error" => $errorInfo // Message d'erreur détaillé
-//         ));
-//     }
-// }
 
 function logToFile($message)
 {
@@ -239,8 +129,8 @@ function createUser($conn)
 
         // Exécuter la requête
         $result = $statement->execute();
-        
-        if(!empty($_POST['userid'])){
+
+        if (!empty($_POST['userid'])) {
             $coinEvents = new EventCoinsFacade($conn);
             $coinEvents->completeProfile($_POST['userid']);
         }
@@ -330,7 +220,7 @@ function updateUser($conn)
         // Exécuter la requête
         $result = $statement->execute($params);
 
-        if(!empty($_POST['userid'])){
+        if (!empty($_POST['userid'])) {
             $coinEvents = new EventCoinsFacade($conn);
             $coinEvents->completeProfile($_POST['userid']);
         }
@@ -636,7 +526,7 @@ function readAdsByCriteria($conn)
             echo json_encode(["status" => "success", "userInfo" => []]);
         }
     } catch (Exception $e) {
-        setJsonHeader(); 
+        setJsonHeader();
         http_response_code(500); // Erreur interne
         echo json_encode(["status" => "error", "message" => $e->getMessage()]);
     }
