@@ -1,5 +1,5 @@
 <?php
-require 'vendor/autoload.php'; // Assurez-vous que la bibliothèque Google API est installée via Composer
+require_once(__DIR__ . '/vendor/autoload.php');
 
 use Google\Client;
 use Dotenv\Dotenv;
