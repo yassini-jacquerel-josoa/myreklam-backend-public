@@ -1,0 +1,2 @@
+RewriteEngine On
+RewriteBase /test/v2/
