@@ -1,0 +1,10 @@
+assets/
+img/
+logs/
+uploads/
+vendor/
+
+./vendor1.zip
+
+.env
+composer.lock
