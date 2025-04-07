@@ -76,7 +76,7 @@ $snapchat = isset($_POST['snapchat']) ? trim($_POST['snapchat']) : null;
 
 
 if (
-    $method !== 'create' && $method !== 'readAll' && $method !== 'read' && $method !== 'updateUserInfo'
+    $method !== 'create' && $method !== 'createImageAnnoncesByUrls' && $method !== 'readAll' && $method !== 'read' && $method !== 'updateUserInfo'
     && $method !== 'update'  && $method !== 'delete'  && $method !== 'paginate'  && $method !== 'addColumnsToProfileTable'
     && $method !== 'paginateSize'  && $method !== 'searchbar'  && $method !== 'readByName'  && $method !== 'readAllByAnnonceId'
 ) {
