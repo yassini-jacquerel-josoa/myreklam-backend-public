@@ -16,13 +16,21 @@ class EventCoinsFacade
     // Méthodes publiques principales
     public function completeProfile(string $userId): bool
     {
-        log_info("Tentative de complétion de profil", "COMPLETE_PROFILE", ["user_id" => $userId]);
+        if (!$this->checkProfileConditions($userId)) {
+            log_warning("Les conditions du profil ne sont pas remplies", "PROCESS_EVENT", ["user_id" => $userId]);
+            return false;
+        }
+
         return $this->processEvent($userId, 'complete_profile');
     }
 
     public function shareAdSocialMedia(string $userId): bool
     {
-        log_info("Tentative de partage sur les réseaux sociaux", "SHARE_AD", ["user_id" => $userId]);
+        if (!$this->checkShareAdSocialMediaConditions($userId)) {
+            log_warning("Les conditions du profil ne sont pas remplies", "PROCESS_EVENT", ["user_id" => $userId]);
+            return false;
+        }
+
         return $this->processEvent($userId, 'share_ad_social_media');
     }
 
@@ -34,11 +42,6 @@ class EventCoinsFacade
             "event_slug" => $eventSlug,
             "is_recursive" => $isRecursive
         ]);
-
-        if (!$this->checkProfileConditions($userId)) {
-            log_warning("Les conditions du profil ne sont pas remplies", "PROCESS_EVENT", ["user_id" => $userId]);
-            return false;
-        }
 
         if ($this->hasAlreadyProcessedEvent($userId, $eventSlug) && !$isRecursive) {
             log_info("L'événement a déjà été traité", "PROCESS_EVENT", [
@@ -270,15 +273,61 @@ class EventCoinsFacade
                 ]);
                 return false;
             }
-
-            log_debug("Profil valide", "CHECK_PROFILE", [
-                "user_id" => $userId,
-                "profile_type" => $userInfo['profiletype']
-            ]);
+ 
             return true;
 
         } catch (Exception $e) {
             log_error("Erreur lors de la vérification du profil", "CHECK_PROFILE", [
+                "user_id" => $userId,
+                "error" => $e->getMessage()
+            ]);
+            return false;
+        }
+    }
+
+    private function checkShareAdSocialMediaConditions(string $userId): bool
+    {
+        try {
+            log_debug("Vérification des conditions du share ad social media", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
+                "user_id" => $userId
+            ]);
+
+            $stmt = $this->conn->prepare('SELECT * FROM "userInfo" WHERE userid = :id');
+            $stmt->bindValue(':id', $userId, PDO::PARAM_STR);
+            $stmt->execute();
+            
+            $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (empty($userInfo)) {
+                log_warning("Profil utilisateur non trouvé", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
+                    "user_id" => $userId
+                ]);
+                return false;
+            }
+
+            // au moins un des champs validés
+            $minRequiredFields = ['instagram', 'linkedin', 'facebook', 'tiktok', 'snapchat', 'youtube', 'x'];
+            
+            $hasAtLeastOneSocialMedia = false;
+            foreach ($minRequiredFields as $field) {
+                if (!empty($userInfo[$field])) {
+                    $hasAtLeastOneSocialMedia = true;
+                    break;
+                }
+            }
+            
+            if (!$hasAtLeastOneSocialMedia) {
+                log_warning("Aucun réseau social renseigné", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
+                    "user_id" => $userId,
+                    "profile_type" => $userInfo['profiletype']
+                ]);
+                return false;
+            }
+ 
+            return true;
+
+        } catch (Exception $e) {
+            log_error("Erreur lors de la vérification du profil", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
                 "user_id" => $userId,
                 "error" => $e->getMessage()
             ]);
