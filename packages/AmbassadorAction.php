@@ -90,7 +90,7 @@ class EventCoinsFacade
                 LIMIT 1
             ');
             $stmt->bindValue(':userId', $userId, PDO::PARAM_STR);
-            $stmt->bindValue(':eventName', 'Event: ' . $slug, PDO::PARAM_STR);
+            $stmt->bindValue(':eventName', $slug, PDO::PARAM_STR);
             $stmt->execute();
             
             $exists = (bool)$stmt->fetchColumn();
