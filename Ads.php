@@ -672,7 +672,7 @@ if ($method == 'create') {
     $id = $_POST['id'] ?? null;
     $number_view = $_POST['number_view'] ?? null;
 
-    $query = "UPDATE ads SET number_view = :number_view WHERE id = :id";
+    $query = "UPDATE ads SET number_view = :number_view WHERE id = :id AND deletedat IS NULL";
 
     $statement = $conn->prepare($query);
     $statement->bindParam(':number_view', $number_view);

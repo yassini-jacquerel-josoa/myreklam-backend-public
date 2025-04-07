@@ -98,7 +98,7 @@ if ($method == 'create') {
             exit;
         }
 
-        $query = "SELECT * FROM \"ads\" WHERE id = :offre_id";
+        $query = "SELECT * FROM \"ads\" WHERE id = :offre_id AND deletedat IS NULL";
         $statement = $conn->prepare($query);
         $statement->bindValue(':offre_id', $existingConversation["offre_id"]);
         $statement->execute();
@@ -263,7 +263,7 @@ if ($method == 'start_conversation') {
 
         // id = '$offre_id'
 
-        $query = "SELECT * FROM \"ads\" WHERE id = :offre_id";
+        $query = "SELECT * FROM \"ads\" WHERE id = :offre_id AND deletedat IS NULL";
         $statement = $conn->prepare($query);
         $statement->bindValue(':offre_id', $offre_id);
         $statement->execute();
@@ -603,7 +603,7 @@ if ($method == 'get_conversation') {
             $query = "
                 SELECT *
                 FROM \"ads\"
-                WHERE id = :offreId
+                WHERE id = :offreId AND deletedat IS NULL
             ";
             $statement = $conn->prepare($query);
             $statement->bindValue(':offreId', $conversation['offre_id']);
@@ -692,7 +692,7 @@ if ($method == 'get_message') {
 
 
 
-        $query = "SELECT * FROM \"ads\" WHERE id = :offre_id";
+        $query = "SELECT * FROM \"ads\" WHERE id = :offre_id AND deletedat IS NULL";
         $statement = $conn->prepare($query);
         $statement->bindValue(':offre_id', $existingConversation["offre_id"]);
         $statement->execute();

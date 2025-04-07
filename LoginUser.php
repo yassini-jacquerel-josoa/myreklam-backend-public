@@ -778,7 +778,7 @@ if ($method == 'create') {
         }
 
         // Supprimer les annonces et leurs images
-        $query = 'SELECT id FROM "ads" WHERE "userId" = :userId';
+        $query = 'SELECT id FROM "ads" WHERE "userId" = :userId AND "deletedat" IS NULL';
         $statement = $conn->prepare($query);
         $statement->bindValue(':userId', $userId);
         $statement->execute();
@@ -803,7 +803,7 @@ if ($method == 'create') {
         }
 
         // Supprimer les annonces
-        $query = "DELETE FROM \"ads\" WHERE \"userId\" = :userId";
+        $query = "UPDATE \"ads\" SET \"deletedat\" = CURRENT_TIMESTAMP WHERE \"userId\" = :userId";
         $statement = $conn->prepare($query);
         $statement->bindValue(':userId', $userId);
         $statement->execute();

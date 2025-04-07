@@ -392,7 +392,7 @@ if ($method == 'get_application_ads_by_interested_user_id') {
         $query = "SELECT ads.*, ad_applications.* 
                   FROM ad_applications
                   JOIN ads ON ad_applications.ad_id = ads.id 
-                  WHERE interested_user_id = :interested_user_id";
+                  WHERE interested_user_id = :interested_user_id AND ads.deletedat IS NULL";
         $statement = $conn->prepare($query);
         $statement->bindValue(':interested_user_id', $interested_user_id);
         $statement->execute();
@@ -424,7 +424,7 @@ if ($method == 'get_application_ads_by_ad_id') {
 
         foreach ($applications as $application) {
             // Deuxième requête : récupérer les infos de l'annonce
-            $queryAd = 'SELECT * FROM ads WHERE id = :ad_id';
+            $queryAd = 'SELECT * FROM ads WHERE id = :ad_id AND deletedat IS NULL';
             $statementAd = $conn->prepare($queryAd);
             $statementAd->bindValue(':ad_id', $application['ad_id']);
             $statementAd->execute();
