@@ -72,15 +72,18 @@ $youtube = isset($_POST['youtube']) ? trim($_POST['youtube']) : null;
 $tiktok = isset($_POST['tiktok']) ? trim($_POST['tiktok']) : null;
 $snapchat = isset($_POST['snapchat']) ? trim($_POST['snapchat']) : null;
 
-// $searchbar = strtolower($_POST['Searchbar']); // Mettre le terme de recherche en minuscule 
 
+$validMethods = ['create', 'createImageAnnoncesByUrls', 'readAll', 'read', 'updateUserInfo', 
+               'update', 'delete', 'paginate', 'addColumnsToProfileTable',
+               'paginateSize', 'searchbar', 'readByName', 'readAllByAnnonceId'];
 
-if (
-    $method !== 'create' && $method !== 'createImageAnnoncesByUrls' && $method !== 'readAll' && $method !== 'read' && $method !== 'updateUserInfo'
-    && $method !== 'update'  && $method !== 'delete'  && $method !== 'paginate'  && $method !== 'addColumnsToProfileTable'
-    && $method !== 'paginateSize'  && $method !== 'searchbar'  && $method !== 'readByName'  && $method !== 'readAllByAnnonceId'
-) {
+if (!in_array($method, $validMethods)) {
+    log_info("Méthode non valide détectée", "Sécurité", $method);
     http_response_code(404);
+    echo json_encode([
+        "status" => "error",
+        "message" => "Méthode non autorisée"
+    ]);
     exit;
 }
 
