@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 // Inclure la connexion à la base de données
 include("./db.php");
+include("./logger.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -644,6 +645,8 @@ if ($method == 'create') {
 } elseif ($method == 'createImageAnnoncesByUrls') {
     $urls = $_POST['urls'] ?? [];
     $annonceId = $_POST['annonceId'] ?? null;
+
+    log_info("Données POST reçues : " . json_encode($_POST));
 
     if(empty($urls) || !is_array($urls)){
         setJsonHeader();
