@@ -673,7 +673,7 @@ if ($method == 'create') {
     foreach ($urls as $url) {
         $url = trim($url);
         if (!empty($url)) {
-            createImageAnnonce($conn, $annonceId, $url, $isDeleted);
+            createImageAnnonce($conn, $annonceId, $url);
         }
     }
     setJsonHeader();
