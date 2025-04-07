@@ -642,10 +642,10 @@ if ($method == 'create') {
         exit();
     }
 } elseif ($method == 'createImageAnnoncesByUrls') {
-    $urls = $_POST['urls'] ?? "";
+    $urls = $_POST['urls'] ?? [];
     $annonceId = $_POST['annonceId'] ?? null;
 
-    if(empty($urls)){
+    if(empty($urls) || !is_array($urls)){
         setJsonHeader();
         http_response_code(400);
         echo json_encode([
@@ -663,9 +663,7 @@ if ($method == 'create') {
         ]);
         exit();
     }
-    
-    // explode les urls par --//--
-    $urls = explode("--//--", $urls);
+
     foreach ($urls as $url) {
         $url = trim($url);
         if (!empty($url)) {
