@@ -11,7 +11,8 @@ $user = $_ENV['DB_USER'];
 $pass = $_ENV['DB_PASSWORD'];
 $dbname = $_ENV['DB_NAME'];
 $port = $_ENV['DB_PORT'];
- 
+// print_r("pgsql:host=$host;port=$port;dbname=$dbname;user=$user;password=$pass");
+// exit;
 try {
     $conn = new PDO("pgsql:host=$host;port=$port;dbname=$dbname;user=$user;password=$pass");
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

@@ -157,7 +157,7 @@ function createRecord($conn, $email, $password)
 
                     // Envoi de la requête POST vers SendMail.php
                     $ch = curl_init();
-                    curl_setopt($ch, CURLOPT_URL, "http://test.myreklam.fr/v2/SendMail.php");
+                    curl_setopt($ch, CURLOPT_URL, "http://test.myreklam.fr/test/SendMail.php");
                     curl_setopt($ch, CURLOPT_POST, 1);
                     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
                     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -269,7 +269,7 @@ function forgotPassword($conn, $email)
 
             // Envoi de la requête POST vers SendMail.php
             $ch = curl_init();
-            curl_setopt($ch, CURLOPT_URL, "http://test.myreklam.fr/v2/SendMail.php");
+            curl_setopt($ch, CURLOPT_URL, "http://test.myreklam.fr/test/SendMail.php");
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
