@@ -44,6 +44,34 @@ if ($method === "POST") {
         } else {
             echo json_encode(["success" => false, "message" => "Échec de l'upload."]);
         }
+    } 
+    // ➤ TÉLÉCHARGEMENT DE FICHIER À PARTIR D'UNE URL
+    elseif (isset($_POST["fileUrl"])) {
+        $fileUrl = $_POST["fileUrl"];
+        $originalName = basename($fileUrl);
+        $fileExtension = pathinfo($originalName, PATHINFO_EXTENSION);
+        $newFileName = uniqid("file_", true) . "." . $fileExtension;
+        $filePath = $uploadDir . $newFileName;
+        
+        // Télécharger le fichier
+        $fileContent = @file_get_contents($fileUrl);
+        
+        if ($fileContent !== false) {
+            // Enregistrer le fichier
+            if (file_put_contents($filePath, $fileContent)) {
+                echo json_encode([
+                    "success" => true,
+                    "message" => "Fichier téléchargé avec succès depuis l'URL.",
+                    "original_name" => $originalName,
+                    "new_name" => $newFileName,
+                    "url" => "uploads/".$newFileName
+                ]);
+            } else {
+                echo json_encode(["success" => false, "message" => "Échec de l'enregistrement du fichier."]);
+            }
+        } else {
+            echo json_encode(["success" => false, "message" => "Impossible de télécharger le fichier depuis l'URL fournie."]);
+        }
     } else {
         echo json_encode(["success" => false, "message" => "Aucun fichier envoyé."]);
     }
