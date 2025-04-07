@@ -201,7 +201,7 @@ class EventCoinsFacade
             $historyStmt->bindValue(':id', $historyId, PDO::PARAM_STR);
             $historyStmt->bindValue(':userId', $userId, PDO::PARAM_STR);
             $historyStmt->bindValue(':valueCoin', $coinsToAdd, PDO::PARAM_INT);
-            $historyStmt->bindValue(':eventName', 'Event: ' . $slug, PDO::PARAM_STR);
+            $historyStmt->bindValue(':eventName', $slug, PDO::PARAM_STR);
             $historyStmt->bindValue(':description', 'Coins added for: ' . $slug, PDO::PARAM_STR);
             $historyStmt->bindValue(':createdAt', $currentDate);
             $historyStmt->bindValue(':generateBy', 'system_event', PDO::PARAM_STR);
