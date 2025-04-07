@@ -680,7 +680,7 @@ if ($method == 'create') {
     echo json_encode([
         "status" => "success",
         "message" => "Toutes les images ont été téléchargées avec succès.",
-        "uploaded" => $successCount
+        "uploaded" => count($urls)
     ]);
     exit();
 } elseif ($method == 'addColumnsToProfileTable') {
