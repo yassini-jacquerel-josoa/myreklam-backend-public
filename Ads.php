@@ -530,21 +530,7 @@ function addColumnsToProfileTable($conn)
 
 // Vérifier la méthode et appeler la fonction appropriée 
 //updateOrganization($conn, $id, $name = null, $logo = null, $website = null, $activityId = null, $addressId = null, $description = null, $siret = null, $phone = null)
-if ($method == 'create') {
-    // createUserInfo($conn, $userId, $profileType, $pseudo, $photoProfilUrl, $telephone, $siret, $nomSociete, $activite, $adresse, $ville, $codePostal, $pays);
-
-    //     $userId = $_POST['userId'] ?? null;
-    // $pseudo = $_POST['pseudo'] ?? null;
-    // $telephone = $_POST['telephone'] ?? null;
-    // $siret = $_POST['siret'] ?? null;
-    // $nomSociete = $_POST['name'] ?? null;
-    // $activite = $_POST['activity'] ?? null;
-    // $telephone = $_POST['tel'] ?? null;
-    // $adresse = $_POST['address'] ?? null;
-    // $ville = $_POST['ville'] ?? null;
-    // $codePostal = $_POST['codePostal'] ?? null;
-    // $pays = $_POST['pays'] ?? null;
-    // $profileType = $_POST['siret'] ? "professionnel" : "particulier";
+if ($method == 'create') { 
 
     // Vérifier si le fichier photoProfil est présent
     if (isset($_FILES['photoProfil']) && $_FILES['photoProfil']['error'] === UPLOAD_ERR_OK) {
