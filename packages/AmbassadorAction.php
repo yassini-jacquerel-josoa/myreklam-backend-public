@@ -34,15 +34,55 @@ class EventCoinsFacade
         return $this->processEvent($userId, 'share_ad_social_media');
     }
 
+    public function postGoogleReview(string $userId): bool
+    {
+        return $this->processEvent($userId, 'post_google_review');
+    }
+
+    public function followSocialMedia(string $userId): bool
+    {
+        return $this->processEvent($userId, 'follow_social_media');
+    }
+
+    public function subscribeNewsletter(string $userId): bool
+    {
+        return $this->processEvent($userId, 'subscribe_newsletter');
+    }
+
+
+
+
+    public function addComment(string $userId): bool
+    {
+        return $this->processEvent($userId, 'comment_ad', true);
+    }
+
+    public function publishAd(string $userId): bool
+    {
+        return $this->processEvent($userId, 'publish_ad', true);
+    }
+
+    public function applyJobTraining(string $userId): bool
+    {
+        return $this->processEvent($userId, 'apply_job_training', true);
+    }
+
+    public function attendEvent(string $userId): bool
+    {
+        return $this->processEvent($userId, 'attend_event', true);
+    }
+
+    public function leaveReviewCompany(string $userId): bool
+    {
+        return $this->processEvent($userId, 'leave_review_company', true);
+    }
+
+
+
+
     // Méthodes de base pour les événements
     private function processEvent(string $userId, string $eventSlug, bool $isRecursive = false): bool
     {
-        log_debug("Début du traitement de l'événement", "PROCESS_EVENT", [
-            "user_id" => $userId,
-            "event_slug" => $eventSlug,
-            "is_recursive" => $isRecursive
-        ]);
-
         if ($this->hasAlreadyProcessedEvent($userId, $eventSlug) && !$isRecursive) {
             log_info("L'événement a déjà été traité", "PROCESS_EVENT", [
                 "user_id" => $userId,
@@ -52,13 +92,8 @@ class EventCoinsFacade
         }
 
         $result = $this->addEventCoins($userId, $eventSlug);
-        
-        if ($result) {
-            log_info("Événement traité avec succès", "PROCESS_EVENT", [
-                "user_id" => $userId,
-                "event_slug" => $eventSlug
-            ]);
-        } else {
+
+        if (! $result) {
             log_error("Échec du traitement de l'événement", "PROCESS_EVENT", [
                 "user_id" => $userId,
                 "event_slug" => $eventSlug
@@ -92,7 +127,7 @@ class EventCoinsFacade
             $stmt->bindValue(':userId', $userId, PDO::PARAM_STR);
             $stmt->bindValue(':eventName', $slug, PDO::PARAM_STR);
             $stmt->execute();
-            
+
             $exists = (bool)$stmt->fetchColumn();
 
             log_debug("Résultat de la vérification des doublons", "CHECK_DUPLICATE", [
@@ -121,7 +156,7 @@ class EventCoinsFacade
             $stmt = $this->conn->prepare('SELECT 1 FROM user_coins WHERE userid = :id LIMIT 1');
             $stmt->bindValue(':id', $userId, PDO::PARAM_STR);
             $stmt->execute();
-            
+
             $exists = (bool)$stmt->fetchColumn();
 
             log_debug("Résultat de la vérification de l'utilisateur", "CHECK_USER_EXISTS", [
@@ -146,27 +181,27 @@ class EventCoinsFacade
                 "user_id" => $userId,
                 "event_slug" => $slug
             ]);
-    
+
             // Get event coins value
             $stmt = $this->conn->prepare('SELECT coins FROM event_coins WHERE slug = :slug');
             $stmt->bindValue(':slug', $slug, PDO::PARAM_STR);
             $stmt->execute();
-            
+
             $eventCoin = $stmt->fetch(PDO::FETCH_ASSOC);
-            
+
             if (empty($eventCoin['coins'])) {
                 log_warning("Aucun coin trouvé pour l'événement", "ADD_COINS", [
                     "event_slug" => $slug
                 ]);
                 return false;
             }
-    
+
             $coinsToAdd = (int)$eventCoin['coins'];
             $currentDate = date('Y-m-d H:i:s');
-    
+
             // Vérifier d'abord si l'utilisateur existe déjà
             $userExists = $this->checkUserExists($userId);
-            
+
             if ($userExists) {
                 // Mise à jour si l'utilisateur existe
                 $query = '
@@ -184,7 +219,7 @@ class EventCoinsFacade
                         (:id, :value, :updateat)
                 ';
             }
-            
+
             $stmt = $this->conn->prepare($query);
             $stmt->bindValue(':id', $userId, PDO::PARAM_STR);
             $stmt->bindValue(':value', $coinsToAdd, PDO::PARAM_INT);
@@ -198,7 +233,7 @@ class EventCoinsFacade
                 VALUES 
                     (:id, :userId, :valueCoin, :eventName, :description, :createdAt, :generateBy)
             ";
-            
+
             $historyId = $this->generateGUID();
             $historyStmt = $this->conn->prepare($historyQuery);
             $historyStmt->bindValue(':id', $historyId, PDO::PARAM_STR);
@@ -208,7 +243,7 @@ class EventCoinsFacade
             $historyStmt->bindValue(':description', 'Coins added for: ' . $slug, PDO::PARAM_STR);
             $historyStmt->bindValue(':createdAt', $currentDate);
             $historyStmt->bindValue(':generateBy', 'system_event', PDO::PARAM_STR);
-            
+
             $result = $historyStmt->execute();
 
             if ($result) {
@@ -224,7 +259,6 @@ class EventCoinsFacade
             }
 
             return $result;
-
         } catch (Exception $e) {
             log_error("Erreur lors de l'ajout des coins", "ADD_COINS", [
                 "user_id" => $userId,
@@ -244,7 +278,7 @@ class EventCoinsFacade
             $stmt = $this->conn->prepare('SELECT * FROM "userInfo" WHERE userid = :id');
             $stmt->bindValue(':id', $userId, PDO::PARAM_STR);
             $stmt->execute();
-            
+
             $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (empty($userInfo)) {
@@ -254,7 +288,7 @@ class EventCoinsFacade
                 return false;
             }
 
-            $requiredFields = $userInfo['profiletype'] == "particulier" 
+            $requiredFields = $userInfo['profiletype'] == "particulier"
                 ? ['pseudo', 'telephone']
                 : ['nomsociete', 'activite', 'telephone', 'adresse', 'codepostal', 'ville', 'pays'];
 
@@ -273,9 +307,8 @@ class EventCoinsFacade
                 ]);
                 return false;
             }
- 
-            return true;
 
+            return true;
         } catch (Exception $e) {
             log_error("Erreur lors de la vérification du profil", "CHECK_PROFILE", [
                 "user_id" => $userId,
@@ -295,7 +328,7 @@ class EventCoinsFacade
             $stmt = $this->conn->prepare('SELECT * FROM "userInfo" WHERE userid = :id');
             $stmt->bindValue(':id', $userId, PDO::PARAM_STR);
             $stmt->execute();
-            
+
             $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if (empty($userInfo)) {
@@ -307,7 +340,7 @@ class EventCoinsFacade
 
             // au moins un des champs validés
             $minRequiredFields = ['instagram', 'linkedin', 'facebook', 'tiktok', 'snapchat', 'youtube', 'x'];
-            
+
             $hasAtLeastOneSocialMedia = false;
             foreach ($minRequiredFields as $field) {
                 if (!empty($userInfo[$field])) {
@@ -315,7 +348,7 @@ class EventCoinsFacade
                     break;
                 }
             }
-            
+
             if (!$hasAtLeastOneSocialMedia) {
                 log_warning("Aucun réseau social renseigné", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
                     "user_id" => $userId,
@@ -323,9 +356,8 @@ class EventCoinsFacade
                 ]);
                 return false;
             }
- 
-            return true;
 
+            return true;
         } catch (Exception $e) {
             log_error("Erreur lors de la vérification du profil", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
                 "user_id" => $userId,

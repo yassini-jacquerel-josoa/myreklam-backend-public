@@ -130,13 +130,14 @@ function createUser($conn)
         // Exécuter la requête
         $result = $statement->execute();
 
-        if (!empty($_POST['userid'])) {
-            $coinEvents = new EventCoinsFacade($conn);
-            $coinEvents->completeProfile($_POST['userid']);
-        }
-
         setJsonHeader();
         if ($result) {
+
+            if (!empty($_POST['userid'])) {
+                $coinEvents = new EventCoinsFacade($conn);
+                $coinEvents->completeProfile($_POST['userid']);
+            }
+
             echo json_encode([
                 "status" => "success",
                 "message" => "Annonce créée avec succès.",
@@ -220,14 +221,15 @@ function updateUser($conn)
         // Exécuter la requête
         $result = $statement->execute($params);
 
-        if (!empty($_POST['userid'])) {
-            $coinEvents = new EventCoinsFacade($conn);
-            $coinEvents->completeProfile($_POST['userid']);
-            $coinEvents->shareAdSocialMedia($_POST['userid']);
-        }
-
         setJsonHeader();
         if ($result) {
+
+            if (!empty($_POST['userid'])) {
+                $coinEvents = new EventCoinsFacade($conn);
+                $coinEvents->completeProfile($_POST['userid']);
+                $coinEvents->shareAdSocialMedia($_POST['userid']);
+            }
+
             echo json_encode([
                 "status" => "success",
                 "message" => "Utilisateur mis à jour avec succès.",
