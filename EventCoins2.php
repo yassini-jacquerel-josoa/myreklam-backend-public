@@ -1,5 +1,5 @@
 <?php
-
+ 
 // Bloquer l'accès direct depuis un navigateur en renvoyant une erreur 404
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
     http_response_code(404);
