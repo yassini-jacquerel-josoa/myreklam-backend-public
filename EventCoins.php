@@ -1,11 +1,11 @@
 <?php
- 
+
 // Bloquer l'accès direct depuis un navigateur en renvoyant une erreur 404
 if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
     http_response_code(404);
     exit;
 }
-
+ 
 include("./db.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
@@ -18,7 +18,7 @@ header("Access-Control-Allow-Headers: Content-Type");
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(404);
     exit;
-}
+}   
 
 $method = $_POST['Method'];
 $idEventCoin = $_POST['id'];
