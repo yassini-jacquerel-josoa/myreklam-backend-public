@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
     http_response_code(404);
     exit;
 }
- 
+
 include("./db.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
@@ -18,10 +18,11 @@ header("Access-Control-Allow-Headers: Content-Type");
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(404);
     exit;
-}   
+}
 
-$method = $_POST['Method']; 
-$idEventCoin = $_POST['id']; 
+$method = $_POST['Method'];
+$idEventCoin = $_POST['id'];
+
 
 function generateGUID()
 {
@@ -41,10 +42,11 @@ function generateGUID()
         );
     }
 }
-  
 
-//  Event Coins
 
+header('Content-Type: application/json');
+
+//  Event Coins 
 if ($method == 'get_event_coins') {
     try {
         $query = "SELECT * FROM event_coins WHERE status = true";
@@ -64,7 +66,7 @@ if ($method == 'verify_event_coin_already_validate') {
     try {
         $userid = $_POST['userid'];
         $slug = $_POST['slug'];
-        
+
         $query = "SELECT * FROM history_coins WHERE userid = :userid AND slug = :slug";
         $statement = $conn->prepare($query);
         $statement->bindValue(':userid', $userid);
@@ -125,7 +127,7 @@ if ($method == 'create_event_coin') {
 
 if ($method == 'update_event_coin') {
     try {
-     
+
         $slug = $_POST['slug'];
         $title = $_POST['title'];
         $description = $_POST['description'];
@@ -151,7 +153,7 @@ if ($method == 'update_event_coin') {
 
 if ($method == 'delete_event_coin') {
     try {
-        
+
         $query = "DELETE FROM event_coins WHERE id = :id";
         $statement = $conn->prepare($query);
         $statement->bindValue(':id', $idEventCoin);
@@ -163,11 +165,3 @@ if ($method == 'delete_event_coin') {
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
 }
- 
-
-// Fonction pour définir le type de contenu JSON
-function setJsonHeader()
-{
-    header('Content-Type: application/json');
-}
- 

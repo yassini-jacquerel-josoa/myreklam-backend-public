@@ -25,12 +25,7 @@ class EventCoinsFacade
     }
 
     public function shareAdSocialMedia(string $userId): bool
-    {
-        if (!$this->checkShareAdSocialMediaConditions($userId)) {
-            log_warning("Les conditions du profil ne sont pas remplies", "PROCESS_EVENT", ["user_id" => $userId]);
-            return false;
-        }
-
+    { 
         return $this->processEvent($userId, 'share_ad_social_media');
     }
 
@@ -286,7 +281,7 @@ class EventCoinsFacade
                     "user_id" => $userId
                 ]);
                 return false;
-            }
+            }   
 
             $requiredFields = $userInfo['profiletype'] == "particulier"
                 ? ['pseudo', 'telephone']
@@ -299,7 +294,18 @@ class EventCoinsFacade
                 }
             }
 
-            if (!empty($missingFields)) {
+            // au moins un des champs validés
+            $minRequiredFields = ['instagram', 'linkedin', 'facebook', 'tiktok', 'snapchat', 'youtube', 'x'];
+
+            $hasAtLeastOneSocialMedia = false;
+            foreach ($minRequiredFields as $field) {
+                if (!empty($userInfo[$field])) {
+                    $hasAtLeastOneSocialMedia = true;
+                    break;
+                }
+            }
+ 
+            if (!empty($missingFields) || !$hasAtLeastOneSocialMedia) {
                 log_info("Champs de profil manquants", "CHECK_PROFILE", [
                     "user_id" => $userId,
                     "missing_fields" => $missingFields,
@@ -316,54 +322,6 @@ class EventCoinsFacade
             ]);
             return false;
         }
-    }
+    } 
 
-    private function checkShareAdSocialMediaConditions(string $userId): bool
-    {
-        try {
-            log_debug("Vérification des conditions du share ad social media", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
-                "user_id" => $userId
-            ]);
-
-            $stmt = $this->conn->prepare('SELECT * FROM "userInfo" WHERE userid = :id');
-            $stmt->bindValue(':id', $userId, PDO::PARAM_STR);
-            $stmt->execute();
-
-            $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if (empty($userInfo)) {
-                log_warning("Profil utilisateur non trouvé", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
-                    "user_id" => $userId
-                ]);
-                return false;
-            }
-
-            // au moins un des champs validés
-            $minRequiredFields = ['instagram', 'linkedin', 'facebook', 'tiktok', 'snapchat', 'youtube', 'x'];
-
-            $hasAtLeastOneSocialMedia = false;
-            foreach ($minRequiredFields as $field) {
-                if (!empty($userInfo[$field])) {
-                    $hasAtLeastOneSocialMedia = true;
-                    break;
-                }
-            }
-
-            if (!$hasAtLeastOneSocialMedia) {
-                log_warning("Aucun réseau social renseigné", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
-                    "user_id" => $userId,
-                    "profile_type" => $userInfo['profiletype']
-                ]);
-                return false;
-            }
-
-            return true;
-        } catch (Exception $e) {
-            log_error("Erreur lors de la vérification du profil", "CHECK_SHARE_AD_SOCIAL_MEDIA", [
-                "user_id" => $userId,
-                "error" => $e->getMessage()
-            ]);
-            return false;
-        }
-    }
 }

@@ -227,7 +227,6 @@ function updateUser($conn)
             if (!empty($_POST['userid'])) {
                 $coinEvents = new EventCoinsFacade($conn);
                 $coinEvents->completeProfile($_POST['userid']);
-                $coinEvents->shareAdSocialMedia($_POST['userid']);
             }
 
             echo json_encode([
