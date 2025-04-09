@@ -45,23 +45,7 @@ function generateGUID()
 
 
 header('Content-Type: application/json');
-
-//  Event Coins 
-if ($method == 'get_event_coins') {
-    try {
-        $query = "SELECT * FROM event_coins WHERE status = true";
-        $statement = $conn->prepare($query);
-        $statement->execute();
-        $eventCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        header('Content-Type: application/json');
-        echo json_encode(["status" => "success", "event_coins" => $eventCoins]);
-    } catch (\Throwable $th) {
-        http_response_code(500);
-        header('Content-Type: application/json');
-        echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
-    }
-}
+ 
 
 
 if ($method == 'verify_event_coin_already_validate') {
