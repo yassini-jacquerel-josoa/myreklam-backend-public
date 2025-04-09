@@ -7,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 
 include("./db.php");
+include("./packages/AmbassadorAction.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -217,6 +218,17 @@ if ($method == 'create_application') {
         $created_at = date('Y-m-d H:i:s');
         $updated_at = $created_at;
 
+        // recuperer l'annonce
+        $query = "SELECT * FROM ads WHERE id = :ad_id AND deletedat IS NULL";
+        $statement = $conn->prepare($query);
+        $statement->bindValue(':ad_id', $ad_id);
+        $statement->execute();
+        $ad = $statement->fetch(PDO::FETCH_ASSOC);
+
+        if (!$ad) {
+            throw new Exception("L'annonce n'existe pas.");
+        }
+
         // Vérifier si l'utilisateur a déjà postulé à cette annonce
         $query = "SELECT COUNT(*) as count FROM ad_applications WHERE ad_id = :ad_id AND interested_user_id = :interested_user_id";
         $statement = $conn->prepare($query);
@@ -241,6 +253,16 @@ if ($method == 'create_application') {
         $statement->bindValue(':updated_at', $updated_at);
         $statement->bindValue(':interested_participant', $interested_participant, PDO::PARAM_INT);
         $statement->execute();
+
+        if ($ad['category'] == "emplois") {
+            $coinEvents = new EventCoinsFacade($conn);
+            $coinEvents->completeProfile($interested_user_id);
+        }
+        
+        if ($ad['category'] == "emplois") {
+            $coinEvents = new EventCoinsFacade($conn);
+            $coinEvents->completeProfile($interested_user_id);
+        }
 
         echo json_encode([
             "status" => "success",
