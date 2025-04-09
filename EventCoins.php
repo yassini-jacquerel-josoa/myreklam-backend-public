@@ -54,9 +54,11 @@ if ($method == 'get_event_coins') {
         $statement->execute();
         $eventCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
 
+        header('Content-Type: application/json');
         echo json_encode(["status" => "success", "event_coins" => $eventCoins]);
     } catch (\Throwable $th) {
         http_response_code(500);
+        header('Content-Type: application/json');
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
 }
