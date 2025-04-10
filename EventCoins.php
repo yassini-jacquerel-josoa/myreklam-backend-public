@@ -24,18 +24,36 @@ function generateGUID()
         );
     }
 }
- 
+
+header('Content-Type: application/json; charset=utf-8');
+
 if ($method == 'get_event_coins') {
     try {
-        $query = "SELECT * FROM event_coins WHERE status = true";
+        $query = "SELECT * FROM event_coins WHERE status = true ORDER BY rank";
         $statement = $conn->prepare($query);
         $statement->execute();
         $eventCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(["status" => "success", "event_coins" => $eventCoins]);
+        // Nettoyage des données avant encodage
+        $eventCoins = array_map(function($item) {
+            $item['id'] = trim($item['id']); // Supprime les espaces/tabulations
+            return $item;
+        }, $eventCoins);
+
+        // En-têtes corrects + encodage JSON
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            "status" => "success",
+            "event_coins" => $eventCoins
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
     } catch (\Throwable $th) {
         http_response_code(500);
-        echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
+        header('Content-Type: application/json');
+        echo json_encode([
+            "status" => "failure",
+            "message" => "Erreur serveur"
+        ]);
     }
 }
 
