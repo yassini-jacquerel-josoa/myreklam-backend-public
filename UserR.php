@@ -101,8 +101,8 @@ try {
                 return '"' . $id . '"';
             }, $review_ids);
             
-            throw new Exception("SELECT * FROM review_replies WHERE review_id IN (" . implode(',', $review_ids) . ") ORDER BY created_at DESC");
-
+            echo "SELECT * FROM review_replies WHERE review_id IN (" . implode(',', $review_ids) . ") ORDER BY created_at DESC";
+            exit;
             // Récupérer les réponses des avis [les id sont en string]
             $stmt = $conn->prepare("SELECT * FROM review_replies WHERE review_id IN (" . implode(',', $review_ids) . ") ORDER BY created_at DESC");
             $stmt->execute();
