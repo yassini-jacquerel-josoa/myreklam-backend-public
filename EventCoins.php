@@ -27,7 +27,7 @@ function generateGUID()
  
 if ($method == 'get_event_coins') {
     try {
-        $query = "SELECT * FROM event_coins WHERE status = true ORDER BY rank ASC";
+        $query = "SELECT * FROM event_coins WHERE status = true";
         $statement = $conn->prepare($query);
         $statement->execute();
         $eventCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
