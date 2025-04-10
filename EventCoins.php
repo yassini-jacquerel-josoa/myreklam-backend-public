@@ -116,9 +116,8 @@ if ($method == 'update_event_coin') {
             echo json_encode(["status" => "failure", "message" => "Donne manquant"]);
         }
 
-        $query = "UPDATE event_coins SET slug = :slug, title = :title, description = :description, coins = :coins, icon = :icon , rank = :rank, status = :status WHERE id = :id";
+        $query = "UPDATE event_coins SET slug = :slug, title = :title, description = :description, coins = :coins, icon = :icon , rank = :rank, status = :status WHERE slug = :slug";
         $statement = $conn->prepare($query);
-        $statement->bindValue(':id', $idEventCoin);
         $statement->bindValue(':slug', $slug);
         $statement->bindValue(':title', $title);
         $statement->bindValue(':description', $description);
