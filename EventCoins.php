@@ -24,16 +24,10 @@ function generateGUID()
         );
     }
 }
-
-// // debug
-// $stmt = $conn->prepare("UPDATE event_coins SET icon='my-2', rank=10 WHERE id = 'db3e4fe9-f7d7-4621-93b5-3ea243eea66f';");
-// $stmt->execute();
-// echo json_encode(["status" => "success", "event_coins" => "ok"]);
-// exit;
-
+ 
 if ($method == 'get_event_coins') {
     try {
-        $query = "SELECT * FROM event_coins WHERE status = true";
+        $query = "SELECT * FROM event_coins WHERE status = true ORDER BY rank ASC";
         $statement = $conn->prepare($query);
         $statement->execute();
         $eventCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
