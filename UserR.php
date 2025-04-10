@@ -59,6 +59,21 @@ try {
                 exit;
             }
 
+            // Vérifier $userId et $authorId sont egaux
+            if ($userId == $authorId) {
+                echo json_encode(["status" => "error", "message" => "L'utilisateur ne peut pas s'évaluer lui-même"]);
+                exit;
+            }
+
+            // Vérifier si l'utilisateur a dejà un avis
+            $stmt = $conn->prepare("SELECT COUNT(*) FROM user_reviews WHERE user_id = ? AND author_id = ?");
+            $stmt->execute([$userId, $authorId]);
+            $result = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($result['COUNT(*)'] > 0) {
+                echo json_encode(["status" => "error", "message" => "L'utilisateur a déjà un avis"]);
+                exit;
+            }
+
             $id = generateGUID();
             
             $stmt = $conn->prepare("INSERT INTO user_reviews (id, user_id, author_id, rating, comment, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
@@ -83,22 +98,23 @@ try {
             break;
 
         // Modifier un avis
-        case "update_user_reviews":
+        // case "update_user_reviews":
 
-            $id = $_POST['id'] ?? null;
-            $rating = $_POST['rating'] ?? null;
-            $comment = $_POST['comment'] ?? '';
+        //     $id = $_POST['id'] ?? null;
+        //     $rating = $_POST['rating'] ?? null;
+        //     $comment = $_POST['comment'] ?? '';
 
-            if (!$id || !$rating) {
-                echo json_encode(["status" => "error", "message" => "Champs requis manquants"]);
-                exit;
-            }
+        //     if (!$id || !$rating) {
+        //         echo json_encode(["status" => "error", "message" => "Champs requis manquants"]);
+        //         exit;
+        //     }
 
-            $stmt = $conn->prepare("UPDATE user_reviews SET rating = ?, comment = ?, updated_at = NOW() WHERE id = ?");
-            $stmt->execute([$rating, $comment, $id]);
+        //     $stmt = $conn->prepare("UPDATE user_reviews SET rating = ?, comment = ?, updated_at = NOW() WHERE id = ?");
+        //     $stmt->execute([$rating, $comment, $id]);
 
-            echo json_encode(["status" => "success", "message" => "Avis mis à jour"]);
-            break;
+        //     echo json_encode(["status" => "success", "message" => "Avis mis à jour"]);
+        //     break;
+            
 
         case "add_reply":
             $reviewId = $_POST['reviewId'] ?? null;
@@ -107,6 +123,21 @@ try {
 
             if (!$reviewId || !$userId || !$comment) {
                 echo json_encode(["status" => "error", "message" => "Champs requis manquants"]);
+                exit;
+            }
+
+            // Vérifier si l'avis existe
+            $stmt = $conn->prepare("SELECT * FROM user_reviews WHERE id = ?");
+            $stmt->execute([$reviewId]);
+            $review = $stmt->fetch(PDO::FETCH_ASSOC);
+            if (!$review) {
+                echo json_encode(["status" => "error", "message" => "L'avis n'existe pas"]);
+                exit;
+            }
+
+            // Vérifier si l'utilisateur est le propriétaire de l'avis
+            if ($review['user_id'] != $userId) {
+                echo json_encode(["status" => "error", "message" => "Vous n'êtes pas autorisé à ajouter une réponse à cet avis"]);
                 exit;
             }
 
@@ -119,22 +150,22 @@ try {
             break;
 
         // Supprimer un avis
-        case "delete_user_reviews":
-            $id = $_POST['id'] ?? null;
-            if (!$id) {
-                echo json_encode(["status" => "error", "message" => "Paramètre 'id' manquant"]);
-                exit;
-            }
+        // case "delete_user_reviews":
+        //     $id = $_POST['id'] ?? null;
+        //     if (!$id) {
+        //         echo json_encode(["status" => "error", "message" => "Paramètre 'id' manquant"]);
+        //         exit;
+        //     }
 
-            $stmt = $conn->prepare("DELETE FROM user_reviews WHERE id = ?");
-            $stmt->execute([$id]);
+        //     $stmt = $conn->prepare("DELETE FROM user_reviews WHERE id = ?");
+        //     $stmt->execute([$id]);
 
-            echo json_encode(["status" => "success", "message" => "Avis supprimé"]);
-            break;
+        //     echo json_encode(["status" => "success", "message" => "Avis supprimé"]);
+        //     break;
 
-        default:
-            echo json_encode(["status" => "error", "message" => "Méthode inconnue"]);
-            break;
+        // default:
+        //     echo json_encode(["status" => "error", "message" => "Méthode inconnue"]);
+        //     break;
     }
 } catch (PDOException $e) {
     echo json_encode(["status" => "error", "message" => "Erreur : " . $e->getMessage()]);
