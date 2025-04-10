@@ -144,6 +144,24 @@ if ($method == 'delete_event_coin') {
 }
 
 
+if ($method == 'delete_event_coin_by_slug') {
+    try {
+
+        $slug = $_POST['slug'];
+
+        $query = "DELETE FROM event_coins WHERE slug = :slug";
+        $statement = $conn->prepare($query);
+        $statement->bindValue(':slug', $slug);
+        $statement->execute();
+
+        echo json_encode(["status" => "success", "message" => "Event coin deleted successfully"]);
+    } catch (\Throwable $th) {
+        http_response_code(500);
+        echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
+    }
+}
+
+
 // Fonction pour définir le type de contenu JSON
 function setJsonHeader()
 {
