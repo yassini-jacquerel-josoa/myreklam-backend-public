@@ -69,8 +69,8 @@ try {
             $stmt = $conn->prepare("SELECT COUNT(*) as count FROM user_reviews WHERE user_id = ? AND author_id = ?");
             $stmt->execute([$userId, $authorId]);
             $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            echo json_encode($result);
-            exit;
+            // echo json_encode($result);
+            // exit;
             if ($result['count'] > 0) {
                 echo json_encode(["status" => "error", "message" => "L'utilisateur a déjà un avis"]);
                 exit;
