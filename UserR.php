@@ -96,13 +96,11 @@ try {
             $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             $review_ids = array_column($reviews, 'id');
-            // mapper tout les id en "id"
+            // mapper tout les id en 'id'
             $review_ids = array_map(function($id) {
-                return '"' . $id . '"';
+                return "'" . $id . "'";
             }, $review_ids);
-            
-            echo "SELECT * FROM review_replies WHERE review_id IN (" . implode(',', $review_ids) . ") ORDER BY created_at DESC";
-            exit;
+
             // Récupérer les réponses des avis [les id sont en string]
             $stmt = $conn->prepare("SELECT * FROM review_replies WHERE review_id IN (" . implode(',', $review_ids) . ") ORDER BY created_at DESC");
             $stmt->execute();
