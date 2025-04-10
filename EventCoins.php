@@ -103,9 +103,10 @@ if ($method == 'update_event_coin') {
         $title = $_POST['title'];
         $description = $_POST['description'];
         $coins = $_POST['coins'];
-        $status = $_POST['status'];
-        $coins = $_POST['coins'];
-        $status = $_POST['status'];
+        $status = $_POST['status'];  
+
+        $rank = $_POST['rank'];
+        $icon = $_POST['icon'];
 
         if (!$idEventCoin) {
             http_response_code(500);
