@@ -1,28 +1,10 @@
 <?php
-
-// Bloquer l'accès direct depuis un navigateur en renvoyant une erreur 404
-if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SERVER['PHP_SELF'])) {
-    http_response_code(404);
-    exit;
-}
  
+
 include("./db.php");
-
-// Autoriser les requêtes depuis n'importe quel domaine
-header("Access-Control-Allow-Origin: *");
-// La requête est une pré-vérification CORS, donc retourner les en-têtes appropriés sans exécuter le reste du script
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Si la méthode n'est pas POST, retourner un message simple et quitter
-if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    http_response_code(404);
-    exit;
-}   
 
 $method = $_POST['Method'];
 $idEventCoin = $_POST['id'];
-
 
 function generateGUID()
 {
@@ -44,8 +26,21 @@ function generateGUID()
 }
 
 
-header('Content-Type: application/json');
- 
+//  Event Coins
+
+if ($method == 'get_event_coins') {
+    try {
+        $query = "SELECT * FROM event_coins WHERE status = true";
+        $statement = $conn->prepare($query);
+        $statement->execute();
+        $eventCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode(["status" => "success", "event_coins" => $eventCoins]);
+    } catch (\Throwable $th) {
+        http_response_code(500);
+        echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
+    }
+}
 
 
 if ($method == 'verify_event_coin_already_validate') {
@@ -68,33 +63,21 @@ if ($method == 'verify_event_coin_already_validate') {
 }
 
 
-
-if ($method == 'get_event_coins') {
-    try {
-        $query = "SELECT * FROM event_coins WHERE status = true";
-        $statement = $conn->prepare($query);
-        $statement->execute();
-        $eventCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode(["status" => "success", "event_coins" => $eventCoins]);
-    } catch (\Throwable $th) {
-        http_response_code(500);
-        echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
-    }
-}
-
-
-
 if ($method == 'create_event_coin') {
     try {
         $id = generateGUID();
         $slug = $_POST['slug'];
         $title = $_POST['title'];
         $description = $_POST['description'];
+        $rank = $_POST['rank'];
+        $icon = $_POST['icon'];
         $coins = $_POST['coins'];
         $status = $_POST['status'];
-
-        $query = "INSERT INTO event_coins (id, slug, title, description, coins, status) VALUES (:id, :slug, :title, :description, :coins, :status)";
+        if (!$slug || !$title || !$coins) {
+            http_response_code(500);
+            echo json_encode(["status" => "failure", "message" => "Donne manquant"]);
+        }
+        $query = "INSERT INTO event_coins (id, slug, title, description, coins, status , rank , icon) VALUES (:id, :slug, :title, :description, :coins, :status , :rank , :icon)";
         $statement = $conn->prepare($query);
         $statement->bindValue(':id', $id);
         $statement->bindValue(':slug', $slug);
@@ -102,6 +85,8 @@ if ($method == 'create_event_coin') {
         $statement->bindValue(':description', $description);
         $statement->bindValue(':coins', $coins);
         $statement->bindValue(':status', $status);
+        $statement->bindValue(':rank', $rank);
+        $statement->bindValue(':icon', $icon);
         $statement->execute();
 
         echo json_encode(["status" => "success", "message" => "Event coin created successfully"]);
@@ -119,8 +104,15 @@ if ($method == 'update_event_coin') {
         $description = $_POST['description'];
         $coins = $_POST['coins'];
         $status = $_POST['status'];
+        $coins = $_POST['coins'];
+        $status = $_POST['status'];
 
-        $query = "UPDATE event_coins SET slug = :slug, title = :title, description = :description, coins = :coins, status = :status WHERE id = :id";
+        if (!$idEventCoin) {
+            http_response_code(500);
+            echo json_encode(["status" => "failure", "message" => "Donne manquant"]);
+        }
+
+        $query = "UPDATE event_coins SET slug = :slug, title = :title, description = :description, coins = :coins, status = :status WHERE id = :id , icon = :icon , rank = :rank";
         $statement = $conn->prepare($query);
         $statement->bindValue(':id', $idEventCoin);
         $statement->bindValue(':slug', $slug);
@@ -128,6 +120,8 @@ if ($method == 'update_event_coin') {
         $statement->bindValue(':description', $description);
         $statement->bindValue(':coins', $coins);
         $statement->bindValue(':status', $status);
+        $statement->bindValue(':rank', $rank);
+        $statement->bindValue(':icon', $icon);
         $statement->execute();
 
         echo json_encode(["status" => "success", "message" => "Event coin updated successfully"]);
@@ -150,4 +144,11 @@ if ($method == 'delete_event_coin') {
         http_response_code(500);
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
+}
+
+
+// Fonction pour définir le type de contenu JSON
+function setJsonHeader()
+{
+    header('Content-Type: application/json');
 }

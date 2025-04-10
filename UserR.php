@@ -89,8 +89,8 @@ try {
                 echo json_encode(["status" => "error", "message" => "Paramètre 'userId' manquant"]);
                 exit;
             }
-
-            $stmt = $conn->prepare("SELECT * FROM user_reviews WHERE user_id = ? ORDER BY created_at DESC");
+ 
+            $stmt = $conn->prepare("SELECT user_reviews.*, users.user_name, users.user_avatar FROM user_reviews JOIN users ON user_reviews.user_id = users.id WHERE user_reviews.user_id = ? ORDER BY user_reviews.created_at DESC");
             $stmt->execute([$userId]);
             $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
