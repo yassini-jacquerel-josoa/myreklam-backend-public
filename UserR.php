@@ -89,10 +89,23 @@ try {
                 echo json_encode(["status" => "error", "message" => "Paramètre 'userId' manquant"]);
                 exit;
             }
- 
-            $stmt = $conn->prepare("SELECT user_reviews.*, users.user_name, users.user_avatar FROM user_reviews JOIN users ON user_reviews.user_id = users.id WHERE user_reviews.user_id = ? ORDER BY user_reviews.created_at DESC");
+
+            // Récupérer les avis avec user_name et user_avatar
+            $stmt = $conn->prepare("SELECT user_reviews.*, ui.profiletype, ui.pseudo, ui.nomsociete, ui.photoprofilurl FROM user_reviews JOIN \"userInfo\" ui ON user_reviews.user_id = ui.userid WHERE user_reviews.user_id = ? ORDER BY created_at DESC");
             $stmt->execute([$userId]);
             $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Récupérer les réponses des avis
+            $stmt = $conn->prepare("SELECT * FROM review_replies WHERE review_id IN (" . implode(',', array_column($reviews, 'id')) . ") ORDER BY created_at DESC");
+            $stmt->execute();
+            $replies = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Ajouter les réponses aux avis
+            foreach ($reviews as &$review) {
+                $review['replies'] = array_filter($replies, function($reply) use ($review) {
+                    return $reply['review_id'] === $review['id'];
+                });
+            }
 
             echo json_encode(["status" => "success", "reviews" => $reviews]);
             break;
