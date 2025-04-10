@@ -24,6 +24,25 @@ if (!$method) {
     exit;
 }
 
+function generateGUID()
+{
+    if (function_exists('com_create_guid')) {
+        return trim(com_create_guid(), '{}');
+    } else {
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0x0fff) | 0x4000,
+            mt_rand(0, 0x3fff) | 0x8000,
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff)
+        );
+    }
+}
+
 try {
     switch ($method) {
 
@@ -34,14 +53,16 @@ try {
             $authorId = $_POST['authorId'] ?? null;
             $rating = $_POST['rating'] ?? null;
             $comment = $_POST['comment'] ?? '';
-
+            
             if (!$userId || !$authorId || !$rating) {
                 echo json_encode(["status" => "error", "message" => "Champs requis manquants"]);
                 exit;
             }
 
-            $stmt = $conn->prepare("INSERT INTO user_reviews (user_id, author_id, rating, comment, created_at) VALUES (?, ?, ?, ?, NOW())");
-            $stmt->execute([$userId, $authorId, $rating, $comment]);
+            $id = generateGUID();
+            
+            $stmt = $conn->prepare("INSERT INTO user_reviews (id, user_id, author_id, rating, comment, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
+            $stmt->execute([$id, $userId, $authorId, $rating, $comment]);
 
             echo json_encode(["status" => "success", "message" => "Avis ajouté avec succès"]);
             break;
@@ -89,8 +110,10 @@ try {
                 exit;
             }
 
-            $stmt = $conn->prepare("INSERT INTO review_replies (review_id, user_id, comment, created_at) VALUES (?, ?, ?, NOW())");
-            $stmt->execute([$reviewId, $userId, $comment]);
+            $id = generateGUID();
+
+            $stmt = $conn->prepare("INSERT INTO review_replies (id, review_id, user_id, comment, created_at) VALUES (?, ?, ?, ?, NOW())");
+            $stmt->execute([$id, $reviewId, $userId, $comment]);
 
             echo json_encode(["status" => "success", "message" => "Réponse ajoutée"]);
             break;
