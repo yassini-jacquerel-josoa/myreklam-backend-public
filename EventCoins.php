@@ -25,11 +25,11 @@ function generateGUID()
     }
 }
 
-// debug
-$stmt = $conn->prepare("UPDATE event_coins SET icon='my-2', rank=10 WHERE id = 'db3e4fe9-f7d7-4621-93b5-3ea243eea66f';");
-$stmt->execute();
-echo json_encode(["status" => "success", "event_coins" => "ok"]);
-exit;
+// // debug
+// $stmt = $conn->prepare("UPDATE event_coins SET icon='my-2', rank=10 WHERE id = 'db3e4fe9-f7d7-4621-93b5-3ea243eea66f';");
+// $stmt->execute();
+// echo json_encode(["status" => "success", "event_coins" => "ok"]);
+// exit;
 
 if ($method == 'get_event_coins') {
     try {
@@ -116,7 +116,7 @@ if ($method == 'update_event_coin') {
             echo json_encode(["status" => "failure", "message" => "Donne manquant"]);
         }
 
-        $query = "UPDATE event_coins SET slug = :slug, title = :title, description = :description, coins = :coins, icon = :icon , rank = :rank, status = :status WHERE id = :id ";
+        $query = "UPDATE event_coins SET slug = :slug, title = :title, description = :description, coins = :coins, icon = :icon , rank = :rank, status = :status WHERE id = :id";
         $statement = $conn->prepare($query);
         $statement->bindValue(':id', $idEventCoin);
         $statement->bindValue(':slug', $slug);
