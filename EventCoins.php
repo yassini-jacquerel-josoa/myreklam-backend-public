@@ -25,7 +25,6 @@ function generateGUID()
     }
 }
 
-header('Content-Type: application/json; charset=utf-8');
 
 if ($method == 'get_event_coins') {
     try {
