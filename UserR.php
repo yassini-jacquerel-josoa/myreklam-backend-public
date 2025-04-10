@@ -91,7 +91,7 @@ try {
             }
 
             // Récupérer les avis avec user_name et user_avatar
-            $stmt = $conn->prepare("SELECT user_reviews.*, ui.profiletype, ui.pseudo, ui.nomsociete, ui.photoprofilurl FROM user_reviews JOIN \"userInfo\" ui ON user_reviews.user_id = ui.userid WHERE user_reviews.user_id = ? ORDER BY created_at DESC");
+            $stmt = $conn->prepare("SELECT user_reviews.*, ui.profiletype, ui.pseudo, ui.nomsociete, ui.photoprofilurl FROM user_reviews JOIN \"userInfo\" ui ON user_reviews.author_id = ui.userid WHERE user_reviews.user_id = ? ORDER BY created_at DESC");
             $stmt->execute([$userId]);
             $reviews = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
