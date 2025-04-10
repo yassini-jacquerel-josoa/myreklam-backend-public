@@ -69,7 +69,8 @@ if ($method == 'verify_event_coin_already_validate') {
         $statement->execute();
         $historyCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(["status" => "success", "history_coins" => $historyCoins]);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode(["status" => "success", "history_coins" => $historyCoins], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     } catch (\Throwable $th) {
         http_response_code(500);
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
