@@ -1,5 +1,5 @@
 <?php
- 
+
 
 include("./db.php");
 
@@ -103,7 +103,7 @@ if ($method == 'update_event_coin') {
         $title = $_POST['title'];
         $description = $_POST['description'];
         $coins = $_POST['coins'];
-        $status = $_POST['status'];  
+        $status = $_POST['status'];
 
         $rank = $_POST['rank'];
         $icon = $_POST['icon'];
@@ -113,7 +113,7 @@ if ($method == 'update_event_coin') {
             echo json_encode(["status" => "failure", "message" => "Donne manquant"]);
         }
 
-        $query = "UPDATE event_coins SET slug = :slug, title = :title, description = :description, coins = :coins, status = :status WHERE id = :id , icon = :icon , rank = :rank";
+        $query = "UPDATE event_coins SET slug = :slug, title = :title, description = :description, coins = :coins, icon = :icon , rank = :rank, status = :status WHERE id = :id ";
         $statement = $conn->prepare($query);
         $statement->bindValue(':id', $idEventCoin);
         $statement->bindValue(':slug', $slug);
