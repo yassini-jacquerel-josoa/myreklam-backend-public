@@ -8,6 +8,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 
 include("./db.php");
+include("./packages/AmbassadorAction.php");
 
 // Si la méthode n'est pas POST, retourner un message simple et quitter
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -80,6 +81,9 @@ try {
             
             $stmt = $conn->prepare("INSERT INTO user_reviews (id, user_id, author_id, rating, comment, created_at) VALUES (?, ?, ?, ?, ?, NOW())");
             $stmt->execute([$id, $userId, $authorId, $rating, $comment]);
+
+            $coinEvents = new EventCoinsFacade($conn);
+            $coinEvents->leaveReviewCompany($userId);
 
             echo json_encode(["status" => "success", "message" => "Avis ajouté avec succès"]);
             break;

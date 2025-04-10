@@ -256,14 +256,14 @@ if ($method == 'create_application') {
 
         if ($ad['category'] == "emplois") {
             $coinEvents = new EventCoinsFacade($conn);
-            $coinEvents->completeProfile($interested_user_id);
+            $coinEvents->applyJobTraining($interested_user_id);
         }
         
-        if ($ad['category'] == "emplois") {
+        if ($ad['category'] == "formations") {
             $coinEvents = new EventCoinsFacade($conn);
-            $coinEvents->completeProfile($interested_user_id);
+            $coinEvents->applyJobTraining($interested_user_id);
         }
-
+        
         echo json_encode([
             "status" => "success",
             "message" => "Candidature créée avec succès",

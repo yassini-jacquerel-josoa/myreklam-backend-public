@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 // Inclure la connexion à la base de données
 include("./db.php");
+include("./packages/AmbassadorAction.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -128,6 +129,12 @@ function createAd($conn)
 
         setJsonHeader();
         if ($result) {
+
+            if (!empty($_POST['userId'])) {
+                $coinEvents = new EventCoinsFacade($conn);
+                $coinEvents->publishAd($_POST['userId']);
+            }
+
             echo json_encode([
                 "status" => "success",
                 "message" => "Annonce créée avec succès.",
@@ -553,16 +560,8 @@ if ($method == 'create') {
         $uploadDir = __DIR__ . '/img/'; // Dossier 'img' situé au même niveau que ce fichier PHP
         $uploadPath = $uploadDir . $newFileName;
 
-
-        // Définir un répertoire de destination pour le fichier téléchargé
-        // $uploadDir = 'img/'; // Répertoire où les photos seront enregistrées
-        // $filePath = $uploadDir . basename($fileName);
-
-        // Déplacer le fichier téléchargé dans le répertoire cible
-        // if (move_uploaded_file($fileTmpPath, $filePath)) {
-        if (move_uploaded_file($fileTmpName, $uploadPath)) {
-            // Enregistrer l'URL de l'image dans la base de données
-            // $photoProfilUrl = $filePath;
+ 
+        if (move_uploaded_file($fileTmpName, $uploadPath)) { 
             $photoProfilUrl = '/img/' . $newFileName; // L'URL accessible via le web (dossier public 'img')
 
 
