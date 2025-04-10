@@ -25,8 +25,12 @@ function generateGUID()
     }
 }
 
-
-//  Event Coins
+// debug
+$stmt = $conn->prepare("UPDATE event_coins SET icon='my-2', rank=10 WHERE id = 'db3e4fe9-f7d7-4621-93b5-3ea243eea66f';");
+$stmt->execute();
+$eventCoins = $stmt->fetchAll(PDO::FETCH_ASSOC);
+echo json_encode(["status" => "success", "event_coins" => $eventCoins]);
+exit;
 
 if ($method == 'get_event_coins') {
     try {
