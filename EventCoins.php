@@ -66,7 +66,9 @@ if ($method == 'verify_event_coin_already_validate') {
         $userid = $_POST['userid'];
         $slug = $_POST['slug'];
 
-        $query = "SELECT * FROM history_coins WHERE userid = :userid AND slug = :slug";
+        $slug = "%" . $slug . "%";
+
+        $query = "SELECT * FROM history_coins WHERE userid = :userid AND eventname LIKE :slug";
         $statement = $conn->prepare($query);
         $statement->bindValue(':userid', $userid);
         $statement->bindValue(':slug', $slug);
