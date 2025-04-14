@@ -359,6 +359,28 @@ function updateAd($conn)
     }
 }
 
+// Fonction pour récupérer les commentaires par annonceId
+function getCommentairesByAnnonceId($conn)
+{
+    $annonceId = $_POST['annonceid'] ?? null;
+
+    if (!$annonceId) {
+        echo json_encode(["status" => "failure", "message" => "L'ID de l'annonce est requis."]);
+        return;
+    }
+
+    $query = "SELECT commentaires.*, ui.pseudo, ui.nomsociete, ui.photoprofilurl FROM \"commentaires\" JOIN \"userInfo\" ui ON \"commentaires\".\"userid\" = \"userInfo\".\"userid\" WHERE \"annonceid\" = :annonceid";
+    $statement = $conn->prepare($query);
+    $statement->bindParam(':annonceid', $annonceId);
+    $result = $statement->execute();
+
+    setJsonHeader();
+    if ($result) {
+        echo json_encode(["status" => "success", "commentaires" => $result]);
+    } else {
+        echo json_encode(["status" => "failure", "message" => "No commentaires found matching the criteria.", "commentaires" => [] ]);
+    }
+}
 
 // Fonction pour supprimer un enregistrement
 function deleteRecord($conn, $id)
@@ -386,6 +408,8 @@ if ($method == 'create') {
     readRecords($conn);
 } elseif ($method == 'readAdsByCriteria') {
     readAdsByCriteria($conn);
+} elseif ($method == 'getCommentairesByAnnonceId') {
+    getCommentairesByAnnonceId($conn);
 } elseif ($method == 'read') {
     readRecord($conn, $id);
 } elseif ($method == 'delete') {
