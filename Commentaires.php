@@ -369,7 +369,7 @@ function getCommentairesByAnnonceId($conn)
         return;
     }
 
-    $query = "SELECT commentaires.*, ui.pseudo, ui.nomsociete, ui.photoprofilurl FROM \"commentaires\" JOIN \"userInfo\" ui ON \"commentaires\".\"userid\" = \"userInfo\".\"userid\" WHERE \"annonceid\" = :annonceid";
+    $query = "SELECT commentaires.*, ui.pseudo, ui.nomsociete, ui.photoprofilurl FROM \"commentaires\" JOIN \"userInfo\" ui ON \"commentaires\".\"userid\" = ui.\"userid\" WHERE \"annonceid\" = :annonceid";
     $statement = $conn->prepare($query);
     $statement->bindParam(':annonceid', $annonceId);
     $result = $statement->execute();
