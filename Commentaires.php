@@ -372,7 +372,8 @@ function getCommentairesByAnnonceId($conn)
     $query = "SELECT commentaires.*, ui.pseudo, ui.nomsociete, ui.photoprofilurl FROM \"commentaires\" JOIN \"userInfo\" ui ON \"commentaires\".\"userid\" = ui.\"userid\" WHERE \"annonceid\" = :annonceid";
     $statement = $conn->prepare($query);
     $statement->bindParam(':annonceid', $annonceId);
-    $result = $statement->execute();
+    $statement->execute();
+    $result = $statement->fetchAll(PDO::FETCH_ASSOC);
 
     setJsonHeader();
     if ($result) {
