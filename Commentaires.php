@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $method = $_POST['Method'];
 
 if (
-    $method !== 'create' && $method !== 'readAll' && $method !== 'read' && $method !== 'updateAnnonce'
+    $method !== 'create' && $method !== 'readAll' && $method !== 'read' && $method !== 'getCommentairesByAnnonceId'
     && $method !== 'update'  && $method !== 'delete'  && $method !== 'paginate'  && $method !== 'addColumnsToProfileTable'
     && $method !== 'paginateSize'  && $method !== 'searchbar'  && $method !== 'readByName'  && $method !== 'readAdsByCriteria'
 ) {
