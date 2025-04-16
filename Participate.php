@@ -140,7 +140,6 @@ function createParticipation($conn)
                 "id" => $id
             ]);
         } else {
-            http_response_code(500);
             echo json_encode([
                 "status" => "failure",
                 "message" => "Échec de la participation à l'annonce.",
@@ -149,7 +148,6 @@ function createParticipation($conn)
         }
     } catch (Exception $e) {
         setJsonHeader();
-        http_response_code(500);
         echo json_encode([
             "status" => "error",
             "message" => $e->getMessage(),
