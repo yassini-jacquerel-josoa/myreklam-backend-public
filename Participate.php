@@ -119,7 +119,7 @@ function createParticipation($conn)
         }
 
         // Construire la requête d'insertion
-        $query = 'INSERT INTO "partipate" ("id", "userid", "annonceid", "createdAt") VALUES (:id, :userid, :annonceid, :createdAt)';
+        $query = 'INSERT INTO "partipate" ("id", "userid", "annonceid") VALUES (:id, :userid, :annonceid)';
         $statement = $conn->prepare($query);
         $result = $statement->execute();
 
