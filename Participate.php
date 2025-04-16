@@ -92,7 +92,7 @@ function createParticipation($conn)
         $userResult = $userStatement->fetch(PDO::FETCH_ASSOC);
 
         if ($userResult == null) {
-            throw new Exception("L'utilisateur n'existe pas.");
+            throw new Exception("Vous n'êtes pas connecté.");
         }
 
         // Vérifier si l'annonce existe
@@ -103,7 +103,7 @@ function createParticipation($conn)
         $annonceResult = $annonceStatement->fetch(PDO::FETCH_ASSOC);
 
         if ($annonceResult == null) {
-            throw new Exception("L'annonce n'existe pas.");
+            throw new Exception("L'évènement n'existe pas.");
         }
 
         // verifier si l'utilisateur a déjà participé à l'annonce
@@ -115,7 +115,7 @@ function createParticipation($conn)
         $participationResult = $participationStatement->fetch(PDO::FETCH_ASSOC);
 
         if ($participationResult != null) {
-            throw new Exception("Vous avez déjà participé à cette annonce.");
+            throw new Exception("Vous avez déjà participé à cette évènement.");
         }
 
         // Construire la requête d'insertion
@@ -136,13 +136,13 @@ function createParticipation($conn)
 
             echo json_encode([
                 "status" => "success",
-                "message" => "Vous avez participé à l'annonce avec succès.",
+                "message" => "Vous avez participé à cette évènement avec succès.",
                 "id" => $id
             ]);
         } else {
             echo json_encode([
                 "status" => "failure",
-                "message" => "Échec de la participation à l'annonce.",
+                "message" => "Échec de la participation à l'évènement.",
                 "error" => $statement->errorInfo()
             ]);
         }
