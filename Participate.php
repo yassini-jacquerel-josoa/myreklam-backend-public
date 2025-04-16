@@ -72,59 +72,55 @@ function generateGUID()
     }
 }
 
-function createAd($conn)
+function createParticipation($conn)
 {
     try {
-        logToFile("Début de la fonction createAd.");
+        $userid = $_POST['userid'] ?? null;
+        $annonceid = $_POST['annonceid'] ?? null;
 
-        // Générer un ID unique pour l'annonce
-        $id = generateGUID();
-
-        // Préparer les champs à insérer dynamiquement
-        $fields = ['id' => $id];
-        $columns = ['id'];
-        $placeholders = [':id'];
-
-        // Parcourir les données de la requête POST
-        foreach ($_POST as $key => $value) {
-            if ($key !== 'Method' && $value !== null && $value !== '') { // Ajouter uniquement les champs non vides
-                $fields[$key] = $value;
-                $columns[] = '"' . $key . '"'; // Échapper les noms de colonnes
-                $placeholders[] = ':' . $key;
-            }
+        if ($userid == null || $annonceid == null) {
+            throw new Exception("L'ID de l'utilisateur et l'ID de l'annonce sont requis.");
         }
 
-        // Encoder correctement les champs JSONB et TEXT[]
-        foreach ($fields as $key => $value) {
-            if (is_array($value)) {
-                if (isAssocArray($value)) {
-                    // Convertir les tableaux associatifs en JSON pour JSONB
-                    $fields[$key] = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                } else {
-                    // Convertir les tableaux indexés en format TEXT[]
-                    $escapedValues = array_map(function ($item) {
-                        return '"' . str_replace('"', '\\"', $item) . '"';
-                    }, $value);
-                    $fields[$key] = '{' . implode(',', $escapedValues) . '}';
-                }
-            }
+        $id = generateGUID();
+
+        // Vérifier si l'utilisateur existe
+        $userQuery = 'SELECT * FROM "userInfo" WHERE userid = :userid';
+        $userStatement = $conn->prepare($userQuery);
+        $userStatement->bindParam(':userid', $userid);
+        $userStatement->execute();
+        $userResult = $userStatement->fetch(PDO::FETCH_ASSOC);
+
+        if ($userResult == null) {
+            throw new Exception("L'utilisateur n'existe pas.");
+        }
+
+        // Vérifier si l'annonce existe
+        $annonceQuery = 'SELECT * FROM "ads" WHERE id = :annonceid';
+        $annonceStatement = $conn->prepare($annonceQuery);
+        $annonceStatement->bindParam(':annonceid', $annonceid);
+        $annonceStatement->execute();
+        $annonceResult = $annonceStatement->fetch(PDO::FETCH_ASSOC);
+
+        if ($annonceResult == null) {
+            throw new Exception("L'annonce n'existe pas.");
+        }
+
+        // verifier si l'utilisateur a déjà participé à l'annonce
+        $participationQuery = 'SELECT * FROM "partipate" WHERE userid = :userid AND annonceid = :annonceid';
+        $participationStatement = $conn->prepare($participationQuery);
+        $participationStatement->bindParam(':userid', $userid);
+        $participationStatement->bindParam(':annonceid', $annonceid);
+        $participationStatement->execute();
+        $participationResult = $participationStatement->fetch(PDO::FETCH_ASSOC);
+
+        if ($participationResult != null) {
+            throw new Exception("Vous avez déjà participé à cette annonce.");
         }
 
         // Construire la requête d'insertion
-        $query = 'INSERT INTO "partipate" (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
+        $query = 'INSERT INTO "partipate" ("id", "userid", "annonceid", "createdAt") VALUES (:id, :userid, :annonceid, :createdAt)';
         $statement = $conn->prepare($query);
-
-        // Lier les paramètres
-        foreach ($fields as $key => $value) {
-            // Lier les champs JSONB avec le type correspondant
-            if (is_string($value) && isJson($value)) {
-                $statement->bindValue(':' . $key, $value, PDO::PARAM_STR);
-            } else {
-                $statement->bindValue(':' . $key, $value);
-            }
-        }
-
-        // Exécuter la requête
         $result = $statement->execute();
 
         setJsonHeader();
@@ -137,13 +133,13 @@ function createAd($conn)
 
             echo json_encode([
                 "status" => "success",
-                "message" => "Annonce créée avec succès.",
+                "message" => "Vous avez participé à l'annonce avec succès.",
                 "id" => $id
             ]);
         } else {
             echo json_encode([
                 "status" => "failure",
-                "message" => "Échec de la création de l'annonce.",
+                "message" => "Échec de la participation à l'annonce.",
                 "error" => $statement->errorInfo()
             ]);
         }
@@ -173,10 +169,6 @@ function isJson($string)
     json_decode($string);
     return (json_last_error() === JSON_ERROR_NONE);
 }
-
-
-
-
 
 
 function updateAd($conn)
@@ -626,136 +618,18 @@ function addColumnsToProfileTable($conn)
 
 
 
-// Vérifier la méthode et appeler la fonction appropriée 
-//updateOrganization($conn, $id, $name = null, $logo = null, $website = null, $activityId = null, $addressId = null, $description = null, $siret = null, $phone = null)
+// Vérifier la méthode et appeler la fonction appropriée
 if ($method == 'create') {
-    // createUserInfo($conn, $userId, $profileType, $pseudo, $photoProfilUrl, $telephone, $siret, $nomSociete, $activite, $adresse, $ville, $codePostal, $pays);
 
-    //     $userId = $_POST['userId'] ?? null;
-    // $pseudo = $_POST['pseudo'] ?? null;
-    // $telephone = $_POST['telephone'] ?? null;
-    // $siret = $_POST['siret'] ?? null;
-    // $nomSociete = $_POST['name'] ?? null;
-    // $activite = $_POST['activity'] ?? null;
-    // $telephone = $_POST['tel'] ?? null;
-    // $adresse = $_POST['address'] ?? null;
-    // $ville = $_POST['ville'] ?? null;
-    // $codePostal = $_POST['codePostal'] ?? null;
-    // $pays = $_POST['pays'] ?? null;
-    // $profileType = $_POST['siret'] ? "professionnel" : "particulier";
-
-    // Vérifier si le fichier photoProfil est présent
-    if (isset($_FILES['photoProfil']) && $_FILES['photoProfil']['error'] === UPLOAD_ERR_OK) {
-        $fileTmpPath = $_FILES['photoProfil']['tmp_name'];
-        $fileName = $_FILES['photoProfil']['name'];
-        $fileSize = $_FILES['photoProfil']['size'];
-        $fileType = $_FILES['photoProfil']['type'];
-
-        $fileName = $_FILES['photoProfil']['name'];
-        $fileTmpName = $_FILES['photoProfil']['tmp_name'];
-        $fileSize = $_FILES['photoProfil']['size'];
-        $fileError = $_FILES['photoProfil']['error'];
-        // Récupérer l'extension du fichier
-        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-        // Générer un nouveau nom pour l'image avec la fonction generateGUID
-        $newFileName = generateGUID() . '.' . $fileExtension;
-
-        // Définir le chemin du dossier où l'image sera sauvegardée
-        $uploadDir = __DIR__ . '/img/'; // Dossier 'img' situé au même niveau que ce fichier PHP
-        $uploadPath = $uploadDir . $newFileName;
-
-
-        // Définir un répertoire de destination pour le fichier téléchargé
-        // $uploadDir = 'img/'; // Répertoire où les photos seront enregistrées
-        // $filePath = $uploadDir . basename($fileName);
-
-        // Déplacer le fichier téléchargé dans le répertoire cible
-        // if (move_uploaded_file($fileTmpPath, $filePath)) {
-        if (move_uploaded_file($fileTmpName, $uploadPath)) {
-            // Enregistrer l'URL de l'image dans la base de données
-            // $photoProfilUrl = $filePath;
-            $photoProfilUrl = '/img/' . $newFileName; // L'URL accessible via le web (dossier public 'img')
-
-
-            // Ajouter le reste des données à l'insertion dans la base
-            createAd($conn);
-        } else {
-            echo json_encode(["status" => "failure", "message" => "Échec du téléchargement de l'image."]);
-            exit();
-        }
-    } else {
-        // echo json_encode(["status" => "failure", "message" => "Aucune image envoyée."]);
-        // exit();
-        createAd($conn);
-    }
+    // Ajouter le reste des données à l'insertion dans la base
+    createParticipation($conn);
 } elseif ($method == 'readAll') {
     readAds($conn);
 } elseif ($method == 'addColumnsToProfileTable') {
     addColumnsToProfileTable($conn);
 } elseif ($method == 'updateAnnonce') {
-    $userId = $_POST['userId'] ?? null;
-    $pseudo = $_POST['pseudo'] ?? null;
-    $telephone = $_POST['telephone'] ?? null;
-    $siret = $_POST['siret'] ?? null;
-    $nomSociete = $_POST['name'] ?? null;
-    $activite = $_POST['activity'] ?? null;
-    $telephone = $_POST['tel'] ?? null;
-    $adresse = $_POST['address'] ?? null;
-    $ville = $_POST['ville'] ?? null;
-    $codePostal = $_POST['codePostal'] ?? null;
-    $pays = $_POST['pays'] ?? null;
-    // $profileType = $_POST['siret'] ? "professionnel" : "particulier";
 
-    logToFile("Données POST reçues : " . json_encode($_POST));
-    logToFile("Fichiers reçus : " . json_encode($_FILES));
-    // Vérifier si le fichier photoProfil est présent
-    if (isset($_FILES['photoProfil']) && $_FILES['photoProfil']['error'] === UPLOAD_ERR_OK) {
-        $fileTmpPath = $_FILES['photoProfil']['tmp_name'];
-        $fileName = $_FILES['photoProfil']['name'];
-        $fileSize = $_FILES['photoProfil']['size'];
-        $fileType = $_FILES['photoProfil']['type'];
-
-        $fileName = $_FILES['photoProfil']['name'];
-        $fileTmpName = $_FILES['photoProfil']['tmp_name'];
-        $fileSize = $_FILES['photoProfil']['size'];
-        $fileError = $_FILES['photoProfil']['error'];
-        // Récupérer l'extension du fichier
-        $fileExtension = pathinfo($fileName, PATHINFO_EXTENSION);
-
-        // Générer un nouveau nom pour l'image avec la fonction generateGUID
-        $newFileName = generateGUID() . '.' . $fileExtension;
-
-        // Définir le chemin du dossier où l'image sera sauvegardée
-        $uploadDir = __DIR__ . '/img/'; // Dossier 'img' situé au même niveau que ce fichier PHP
-        $uploadPath = $uploadDir . $newFileName;
-
-
-        // Définir un répertoire de destination pour le fichier téléchargé
-        // $uploadDir = 'img/'; // Répertoire où les photos seront enregistrées
-        // $filePath = $uploadDir . basename($fileName);
-
-        // Déplacer le fichier téléchargé dans le répertoire cible
-        // if (move_uploaded_file($fileTmpPath, $filePath)) {
-        if (move_uploaded_file($fileTmpName, $uploadPath)) {
-            // Enregistrer l'URL de l'image dans la base de données
-            // $photoProfilUrl = $filePath;
-            $photoProfilUrl = '/img/' . $newFileName; // L'URL accessible via le web (dossier public 'img')
-
-
-            // Ajouter le reste des données à l'insertion dans la base
-            // createUserInfo($conn, $userId, $profileType, $pseudo, $photoProfilUrl, $telephone, $siret, $nomSociete, $activite, $adresse, $ville, $codePostal, $pays);
-            updateAd($conn);
-        } else {
-            echo json_encode(["status" => "failure", "message" => "Échec du téléchargement de l'image."]);
-            exit();
-        }
-    } else {
-        // echo json_encode(["status" => "failure", "message" => "Aucune image envoyée."]);
-        // exit();
-        updateAd($conn);
-    }
-    // updateUserInfo($conn, $id, $userId , $profileType, $pseudo, $photoProfilUrl, $telephone, $siret, $nomSociete, $activite, $adresse, $ville, $codePostal, $pays);
+    updateAd($conn);
 } elseif ($method == 'readAdsByCriteria') {
     // readRecordsByUserId($conn, $id);
     readAdsByCriteria($conn);
