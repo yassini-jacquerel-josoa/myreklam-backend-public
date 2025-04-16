@@ -121,6 +121,9 @@ function createParticipation($conn)
         // Construire la requête d'insertion
         $query = 'INSERT INTO "partipate" ("id", "userid", "annonceid") VALUES (:id, :userid, :annonceid)';
         $statement = $conn->prepare($query);
+        $statement->bindParam(':id', $id);
+        $statement->bindParam(':userid', $userid);
+        $statement->bindParam(':annonceid', $annonceid);
         $result = $statement->execute();
 
         setJsonHeader();
