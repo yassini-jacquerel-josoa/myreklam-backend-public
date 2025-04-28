@@ -58,39 +58,44 @@ class NotificationBrevoAndWeb
                 'username' => $userInfo['profiletype'] == 'particulier' ? $userInfo['pseudo'] : $userInfo['nomsociete']
             ]
         ];
-        
+
         return $this->sendNotificationWeb($data) || $this->sendNotificationBrevo($data);
     }
 
     // Méthode pour récupérer les informations de l'utilisateur
     public function getUserInfo($userId): array | null
     {
-        $query = 'SELECT * FROM "users" WHERE id = :id';
-        $statement = $this->conn->prepare($query);
-        $statement->bindParam(':id', $userId);
-        $statement->execute();
-        $user = $statement->fetch(PDO::FETCH_ASSOC);
+        try {
+            $query = 'SELECT * FROM "users" WHERE id = :id';
+            $statement = $this->conn->prepare($query);
+            $statement->bindParam(':id', $userId);
+            $statement->execute();
+            $user = $statement->fetch(PDO::FETCH_ASSOC);
 
-        if (empty($user)) {
-            log_debug("Utilisateur non trouvé", "GET_USER", ["userId" => $userId]);
+            if (empty($user)) {
+                log_debug("Utilisateur non trouvé", "GET_USER", ["userId" => $userId]);
+                return null;
+            }
+
+            $query = 'SELECT * FROM "userInfo" WHERE userid = :id';
+            $statement = $this->conn->prepare($query);
+            $statement->bindParam(':id', $userId);
+            $statement->execute();
+            $userInfo = $statement->fetch(PDO::FETCH_ASSOC);
+
+            if (empty($userInfo)) {
+                log_debug("Informations de l'utilisateur non trouvées", "GET_USER_INFO", ["userId" => $userId]);
+                return null;
+            }
+
+            $userInfo['email'] = $user['Email'];
+            $userInfo['username'] =  $userInfo['profiletype'] == 'particulier' ? $userInfo['pseudo'] : $userInfo['nomsociete'];
+
+            return $userInfo;
+        } catch (Exception $e) {
+            log_debug("Exception lors de la récupération des informations de l'utilisateur", "GET_USER_INFO", ["message" => $e->getMessage()]);
             return null;
         }
-
-        $query = 'SELECT * FROM "userInfo" WHERE userid = :id';
-        $statement = $this->conn->prepare($query);
-        $statement->bindParam(':id', $userId);
-        $statement->execute();
-        $userInfo = $statement->fetch(PDO::FETCH_ASSOC);
-
-        if (empty($userInfo)) {
-            log_debug("Informations de l'utilisateur non trouvées", "GET_USER_INFO", ["userId" => $userId]);
-            return null;
-        }
-
-        $userInfo['email'] = $user['Email'];
-        $userInfo['username'] =  $userInfo['profiletype'] == 'particulier' ? $userInfo['pseudo'] : $userInfo['nomsociete'];
-
-        return $userInfo;
     }
 
     // Méthodes send Noitifcation web
