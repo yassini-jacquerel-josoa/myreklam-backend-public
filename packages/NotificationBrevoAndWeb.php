@@ -39,7 +39,7 @@ class NotificationBrevoAndWeb
     public function __construct(PDO $connection)
     {
         $this->conn = $connection;
-        log_info("EventCoinsFacade initialisée   =>", "SYSTEM");
+        log_info("Connection initialisée   =>", "SYSTEM");
     }
 
     public function sendNotificationSubscriptionFree($userId): bool
