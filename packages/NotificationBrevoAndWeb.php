@@ -66,7 +66,7 @@ class NotificationBrevoAndWeb
     public function getUserInfo($userId): array | null
     {
         try {
-            $query = 'SELECT * FROM "users" WHERE id = :id';
+            $query = 'SELECT * FROM "users" WHERE "Id" = :id';
             $statement = $this->conn->prepare($query);
             $statement->bindParam(':id', $userId);
             $statement->execute();
