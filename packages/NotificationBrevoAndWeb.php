@@ -119,7 +119,7 @@ class NotificationBrevoAndWeb
                 return false;
             }
 
-            $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url", "metadata") VALUES (:id, :user_id, :content, :type, :is_read, :return_url, :created_at, :updated_at, :metadata)';
+            $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url", "metadata") VALUES (:id, :user_id, :content, :type, :is_read, :return_url, :metadata)';
             $statement = $this->conn->prepare($query);
             
             $id = $this->generateGUID();
