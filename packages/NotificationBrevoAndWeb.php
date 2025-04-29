@@ -59,6 +59,8 @@ class NotificationBrevoAndWeb
             ]
         ];
 
+        log_info("Données à envoyer", "SEND_NOTIFICATION_SUBSCRIPTION_FREE", ["data" => $data]);
+
         return $this->sendNotificationWeb($data) || $this->sendNotificationBrevo($data);
     }
 
