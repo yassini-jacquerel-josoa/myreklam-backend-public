@@ -152,6 +152,8 @@ class NotificationBrevoAndWeb
                 'headers' => ['X-Mailin-custom' => 'custom_header_1:custom_value_1|custom_header_2:custom_value_2']
             ]);
 
+            log_info("Email à envoyer", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId, "params" => $params]);
+
             // Envoi de l'email
             $result = $apiInstance->sendTransacEmail($sendSmtpEmail);
 
