@@ -35,7 +35,7 @@ function isJson($string) {
 }
 
 // 📸 Gestion d'image
-// function handleImageUpload($inputName = 'urlPhoto') {
+// function handleImageUpload($inputName = 'urlphoto') {
 //     if (!isset($_FILES[$inputName]) || $_FILES[$inputName]['error'] !== UPLOAD_ERR_OK) {
 //         return null;
 //     }
@@ -56,7 +56,7 @@ function isJson($string) {
 //     return null;
 // }
 
-function handleImageUpload($inputName = 'urlPhoto') {
+function handleImageUpload($inputName = 'urlphoto') {
     if (!isset($_FILES[$inputName]) || $_FILES[$inputName]['error'] !== UPLOAD_ERR_OK) {
         return null;
     }
@@ -118,12 +118,12 @@ function createActualite($conn) {
         return;
     }
 
-    $stmt = $conn->prepare('INSERT INTO actualiteEntreprise (id, userId, title, url, urlPhoto) VALUES (:id, :userId, :title, :url, :urlPhoto)');
+    $stmt = $conn->prepare('INSERT INTO actualiteEntreprise (id, userId, title, url, urlphoto) VALUES (:id, :userId, :title, :url, :urlphoto)');
     $stmt->bindParam(':id', $id);
     $stmt->bindParam(':userId', $userId);
     $stmt->bindParam(':title', $title);
     $stmt->bindParam(':url', $url);
-    $stmt->bindParam(':urlPhoto', $photoPath);
+    $stmt->bindParam(':urlphoto', $photoPath);
 
     if ($stmt->execute()) {
         echo json_encode(["status" => "success", "message" => "Actualité créée avec succès.", "id" => $id]);
@@ -166,7 +166,7 @@ function updateActualite($conn) {
 
     $query = 'UPDATE actualiteEntreprise SET title = :title, url = :url';
     if ($photoPath) {
-        $query .= ', urlPhoto = :urlPhoto';
+        $query .= ', urlphoto = :urlphoto';
     }
     $query .= ' WHERE id = :id';
 
@@ -174,7 +174,7 @@ function updateActualite($conn) {
     $stmt->bindParam(':title', $title);
     $stmt->bindParam(':url', $url);
     if ($photoPath) {
-        $stmt->bindParam(':urlPhoto', $photoPath);
+        $stmt->bindParam(':urlphoto', $photoPath);
     }
     $stmt->bindParam(':id', $id);
 
