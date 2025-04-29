@@ -116,13 +116,6 @@ class NotificationBrevoAndWeb
     // Méthodes send Noitifcation brevo
     public function sendNotificationBrevo(array $data = []): bool
     {
-        echo json_encode([
-            "message" => "sendNotificationBrevo",
-            "email" => $data['email'],
-            "name" => $data['name'],
-            "templateId" => $data['templateId'],
-            "params" => $data['params']
-        ]) . "\n";
         try {
             $email = $data['email'] ?? '';
             $name = $data['name'] ?? '';
@@ -174,6 +167,10 @@ class NotificationBrevoAndWeb
                 $config
             );
 
+            echo json_encode([
+                "message" => "sendNotificationBrevo 3", 
+            ]) . "\n";
+
             // Configuration de l'email
             $sendSmtpEmail = new \SendinBlue\Client\Model\SendSmtpEmail([
                 'to' => [['email' => $email, 'name' => $name ?: 'Utilisateur']],
@@ -182,10 +179,16 @@ class NotificationBrevoAndWeb
                 'headers' => ['X-Mailin-custom' => 'custom_header_1:custom_value_1|custom_header_2:custom_value_2']
             ]);
 
-            log_info("Email à envoyer", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId, "params" => $params]);
+            echo json_encode([
+                "message" => "sendNotificationBrevo 4",
+            ]) . "\n";
 
             // Envoi de l'email
             $result = $apiInstance->sendTransacEmail($sendSmtpEmail);
+
+            echo json_encode([
+                "message" => "sendNotificationBrevo 5",
+            ]) . "\n";
 
             if ($result && $result->getMessageId()) {
                 echo json_encode([
