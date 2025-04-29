@@ -73,11 +73,9 @@ class NotificationBrevoAndWeb
             $user = $statement->fetch(PDO::FETCH_ASSOC);
 
             if (empty($user)) {
-                log_info("Utilisateur non trouvé", "GET_USER", ["userId" => $userId]);
+                log_error("Utilisateur non trouvé", "GET_USER", ["userId" => $userId]);
                 return null;
             }
-
-            log_info("Informations de l'utilisateur trouvées", "GET_USER", ["userId" => $userId]);
 
             $query = 'SELECT * FROM "userInfo" WHERE userid = :id';
             $statement = $this->conn->prepare($query);
@@ -86,20 +84,18 @@ class NotificationBrevoAndWeb
             $userInfo = $statement->fetch(PDO::FETCH_ASSOC);
 
             if (empty($userInfo)) {
-                log_info("Informations de l'utilisateur non trouvées", "GET_USER_INFO", ["userId" => $userId]);
+                log_error("Informations de l'utilisateur non trouvées", "GET_USER_INFO", ["userId" => $userId]);
                 return null;
             }
-
-            log_info("Informations de l'utilisateur trouvées", "GET_USER_INFO", ["userId" => $userId]);
 
             $userInfo['email'] = $user['Email'];
             $userInfo['username'] =  $userInfo['profiletype'] == 'particulier' ? $userInfo['pseudo'] : $userInfo['nomsociete'];
 
-            log_info("Informations de l'utilisateur trouvées", "GET_USER_INFO", ["userId" => $userId]);
+            log_info("Informations de l'utilisateur trouvées", "GET_USER_INFO", ["userInfo" => $userInfo]);
 
             return $userInfo;
         } catch (Exception $e) {
-            log_info("Exception lors de la récupération des informations de l'utilisateur", "GET_USER_INFO", ["message" => $e->getMessage()]);
+            log_error("Exception lors de la récupération des informations de l'utilisateur", "GET_USER_INFO", ["message" => $e->getMessage()]);
             return null;
         }
     }
@@ -120,7 +116,7 @@ class NotificationBrevoAndWeb
             $paramsData = $data['params'] ?? [];
 
             if (empty($email) || empty($templateId) || empty($paramsData)) {
-                log_info("Email ou templateId manquant", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
+                log_error("Email ou templateId manquant", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                 return false;
             }
 
@@ -130,7 +126,7 @@ class NotificationBrevoAndWeb
 
             // Vérification si le templateId est valide
             if (!array_key_exists($templateId, $this->templates)) {
-                log_info("TemplateId non reconnu", "SEND_NOTIFICATION_BREVO", ["templateId" => $templateId]);
+                log_error("TemplateId non reconnu", "SEND_NOTIFICATION_BREVO", ["templateId" => $templateId]);
                 return false;
             }
 
@@ -163,11 +159,11 @@ class NotificationBrevoAndWeb
                 log_info("Email envoyé avec succès", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                 return true;
             } else {
-                log_info("Échec de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
+                log_error("Échec de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                 return false;
             }
         } catch (Exception $e) {
-            log_info("Exception lors de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["message" => $e->getMessage()]);
+            log_error("Exception lors de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["message" => $e->getMessage()]);
             return false;
         }
     }
