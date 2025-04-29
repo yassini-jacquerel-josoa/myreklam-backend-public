@@ -5,10 +5,10 @@ include("./logger.php");
 
 class NotificationBrevoAndWeb
 {
-    private PDO $conn;
+    public PDO $conn;
 
     // Mapping des templates et leurs variables
-    private array $templates = [
+    public array $templates = [
         1 => ['username', 'ad.category'],
         2 => ['username'],
         3 => ['username', 'ad.title', 'ad.category'],
@@ -108,13 +108,13 @@ class NotificationBrevoAndWeb
     }
 
     // Méthodes send Noitifcation web
-    private function sendNotificationWeb(array $data = []): bool
+    public function sendNotificationWeb(array $data = []): bool
     {
         return true;
     }
 
     // Méthodes send Noitifcation brevo
-    private function sendNotificationBrevo(array $data = []): bool
+    public function sendNotificationBrevo(array $data = []): bool
     {
         echo json_encode([
             "message" => "sendNotificationBrevo",
