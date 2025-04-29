@@ -122,13 +122,21 @@ class NotificationBrevoAndWeb
             $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url", "created_at", "updated_at", "metadata") VALUES (:id, :user_id, :content, :type, :is_read, :return_url, :created_at, :updated_at, :metadata)';
             $statement = $this->conn->prepare($query);
             $statement->bindParam(':id', $this->generateGUID());
+            echo "User ID ou content manquant 1";
             $statement->bindParam(':user_id', $data['user_id']);
+            echo "User ID ou content manquant 2";
             $statement->bindParam(':content', $data['content']);
+            echo "User ID ou content manquant 3";
             $statement->bindParam(':type', isset($data['type']) ? $data['type'] : "info");
+            echo "User ID ou content manquant 4";
             $statement->bindParam(':is_read', isset($data['is_read']) ? $data['is_read'] : false);
+            echo "User ID ou content manquant 5";
             $statement->bindParam(':return_url', isset($data['return_url']) ? $data['return_url'] : null);
+            echo "User ID ou content manquant 6";
             $statement->bindParam(':metadata', isset($data['metadata']) ? $data['metadata'] : null);
+            echo "User ID ou content manquant 7";
             $result = $statement->execute();
+            echo "User ID ou content manquant 8";
 
             return $result;
         } catch (Exception $e) {
