@@ -135,7 +135,7 @@ class NotificationBrevoAndWeb
             }
 
             echo json_encode([
-                "message" => "sendNotificationBrevo",
+                "message" => "sendNotificationBrevo 1",
                 "email" => $email,
                 "name" => $name,
                 "templateId" => $templateId,
@@ -161,7 +161,7 @@ class NotificationBrevoAndWeb
             }
 
             echo json_encode([
-                "message" => "sendNotificationBrevo",
+                "message" => "sendNotificationBrevo 2",
                 "email" => $email,
                 "name" => $name,
                 "templateId" => $templateId,
@@ -188,9 +188,15 @@ class NotificationBrevoAndWeb
             $result = $apiInstance->sendTransacEmail($sendSmtpEmail);
 
             if ($result && $result->getMessageId()) {
+                echo json_encode([
+                    "message" => "success to ==== sendNotificationBrevo",
+                ]) . "\n";
                 log_info("Email envoyé avec succès", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                 return true;
             } else {
+                echo json_encode([
+                    "message" => "error result to ==== sendNotificationBrevo", 
+                ]) . "\n";
                 log_error("Échec de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                 return false;
             }
