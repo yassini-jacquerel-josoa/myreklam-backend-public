@@ -115,30 +115,51 @@ class NotificationBrevoAndWeb
     {
         try {
             if (empty($data['user_id']) || empty($data['content'])) {
-                echo "User ID ou content manquant";
                 log_error("User ID ou content manquant", "SEND_NOTIFICATION_WEB", ["data" => $data]);
                 return false;
             }
+
             $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url", "created_at", "updated_at", "metadata") VALUES (:id, :user_id, :content, :type, :is_read, :return_url, :created_at, :updated_at, :metadata)';
             $statement = $this->conn->prepare($query);
-            $statement->bindParam(':id', $this->generateGUID());
-            echo "User ID ou content manquant 1";
-            $statement->bindParam(':user_id', $data['user_id']);
-            echo "User ID ou content manquant 2";
-            $statement->bindParam(':content', $data['content']);
-            echo "User ID ou content manquant 3";
-            $statement->bindParam(':type', isset($data['type']) ? $data['type'] : "info");
-            echo "User ID ou content manquant 4";
-            $statement->bindParam(':is_read', isset($data['is_read']) ? $data['is_read'] : false);
-            echo "User ID ou content manquant 5";
-            $statement->bindParam(':return_url', isset($data['return_url']) ? $data['return_url'] : null);
-            echo "User ID ou content manquant 6";
-            $statement->bindParam(':metadata', isset($data['metadata']) ? $data['metadata'] : null);
-            echo "User ID ou content manquant 7";
-            $result = $statement->execute();
-            echo "User ID ou content manquant 8";
+            
+            $id = $this->generateGUID();
+            $created_at = $updated_at = date('Y-m-d H:i:s');
 
-            return $result;
+            // defaut value
+            if (!isset($data['type'])) {
+                $data['type'] = "info";
+            }
+            if (!isset($data['is_read'])) {
+                $data['is_read'] = false;
+            }
+            if (!isset($data['return_url'])) {
+                $data['return_url'] = null;
+            }
+            if (!isset($data['metadata'])) {
+                $data['metadata'] = null;
+            }
+
+            $statement->bindParam(':id', $id);
+            $statement->bindParam(':user_id', $data['user_id']);
+            $statement->bindParam(':content', $data['content']);
+            $statement->bindParam(':type', $data['type']);
+            $statement->bindParam(':is_read', $data['is_read']);
+            $statement->bindParam(':return_url', $data['return_url']);
+            $statement->bindParam(':created_at', $created_at);
+            $statement->bindParam(':updated_at', $updated_at);
+            $statement->bindParam(':metadata', $data['metadata']);
+
+            $result = $statement->execute();
+
+            if ($result) {
+                echo "Notification web envoyée avec succès";
+                log_info("Notification web envoyée avec succès", "SEND_NOTIFICATION_WEB", ["user_id" => $data['user_id']]);
+                return true;
+            }
+
+            echo "Échec de l'envoi de la notification web";
+            log_error("Échec de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["user_id" => $data['user_id']]);
+            return false;
         } catch (Exception $e) {
             echo "Exception lors de l'envoi de la notification web" . $e->getMessage();
             log_error("Exception lors de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["message" => $e->getMessage()]);
