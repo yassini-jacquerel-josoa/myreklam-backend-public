@@ -114,24 +114,21 @@ class NotificationBrevoAndWeb
     private function sendNotificationWeb(array $data = []): bool
     {
         try {
+            if (empty($data['user_id']) || empty($data['content'])) {
+                echo "User ID ou content manquant";
+                log_error("User ID ou content manquant", "SEND_NOTIFICATION_WEB", ["data" => $data]);
+                return false;
+            }
             $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url", "created_at", "updated_at", "metadata") VALUES (:id, :user_id, :content, :type, :is_read, :return_url, :created_at, :updated_at, :metadata)';
             $statement = $this->conn->prepare($query);
             $statement->bindParam(':id', $this->generateGUID());
-            echo "sendNotificationWeb 1";
             $statement->bindParam(':user_id', $data['user_id']);
-            echo "sendNotificationWeb 2";
             $statement->bindParam(':content', $data['content']);
-            echo "sendNotificationWeb 3";
-            $statement->bindParam(':type', $data['type'] ?? "info");
-            echo "sendNotificationWeb 4";
-            $statement->bindParam(':is_read', false);
-            echo "sendNotificationWeb 5";
-            $statement->bindParam(':return_url', $data['return_url'] ?? null);
-            echo "sendNotificationWeb 6";
-            $statement->bindParam(':metadata', $data['metadata'] ?? null);
-            echo "sendNotificationWeb 7";
+            $statement->bindParam(':type', isset($data['type']) ? $data['type'] : "info");
+            $statement->bindParam(':is_read', isset($data['is_read']) ? $data['is_read'] : false);
+            $statement->bindParam(':return_url', isset($data['return_url']) ? $data['return_url'] : null);
+            $statement->bindParam(':metadata', isset($data['metadata']) ? $data['metadata'] : null);
             $result = $statement->execute();
-            echo "sendNotificationWeb 8";
 
             return $result;
         } catch (Exception $e) {
