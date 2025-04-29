@@ -59,7 +59,7 @@ class NotificationBrevoAndWeb
             ]
         ];
 
-        log_info("Données à envoyer", "SEND_NOTIFICATION_SUBSCRIPTION_FREE", ["data" => $data]);
+        echo json_encode($data);
 
         return $this->sendNotificationWeb($data) || $this->sendNotificationBrevo($data);
     }
@@ -111,6 +111,13 @@ class NotificationBrevoAndWeb
     // Méthodes send Noitifcation brevo
     private function sendNotificationBrevo(array $data = []): bool
     {
+        echo json_encode([
+            "message" => "sendNotificationBrevo",
+            "email" => $data['email'],
+            "name" => $data['name'],
+            "templateId" => $data['templateId'],
+            "params" => $data['params']
+        ]);
         try {
             $email = $data['email'] ?? '';
             $name = $data['name'] ?? '';
