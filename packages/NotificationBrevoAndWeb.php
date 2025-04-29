@@ -119,12 +119,10 @@ class NotificationBrevoAndWeb
                 return false;
             }
 
-            $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url", "created_at", "updated_at", "metadata") VALUES (:id, :user_id, :content, :type, :is_read, :return_url, :created_at, :updated_at, :metadata)';
+            $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url", "metadata") VALUES (:id, :user_id, :content, :type, :is_read, :return_url, :created_at, :updated_at, :metadata)';
             $statement = $this->conn->prepare($query);
             
             $id = $this->generateGUID();
-            // date now ajout le timestamp avec le gmt 0
-            $created_at = $updated_at = date('Y-m-d H:i:s', time() - date('Z'));
 
             // defaut value
             if (!isset($data['type'])) {
@@ -146,8 +144,6 @@ class NotificationBrevoAndWeb
             $statement->bindParam(':type', $data['type']);
             $statement->bindParam(':is_read', $data['is_read']);
             $statement->bindParam(':return_url', $data['return_url']);
-            $statement->bindParam(':created_at', $created_at);
-            $statement->bindParam(':updated_at', $updated_at);
             $statement->bindParam(':metadata', $data['metadata']);
 
             $result = $statement->execute();
