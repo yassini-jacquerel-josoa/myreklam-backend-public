@@ -196,7 +196,8 @@ class NotificationBrevoAndWeb
             }
         } catch (Exception $e) {
             echo json_encode([
-                "message" => "sendNotificationBrevo",
+                "message" => "error to ==== sendNotificationBrevo",
+                "error" => $e->getMessage(),
                 "email" => $email,
                 "name" => $name,
                 "templateId" => $templateId,
