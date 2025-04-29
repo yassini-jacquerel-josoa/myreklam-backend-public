@@ -115,6 +115,8 @@ class NotificationBrevoAndWeb
             $templateId = $data['templateId'] ?? null;
             $paramsData = $data['params'] ?? [];
 
+            log_info("Données à envoyer", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId, "params" => $paramsData]);
+
             if (empty($email) || empty($templateId) || empty($paramsData)) {
                 log_error("Email ou templateId manquant", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                 return false;
