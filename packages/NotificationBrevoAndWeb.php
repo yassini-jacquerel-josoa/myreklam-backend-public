@@ -127,7 +127,7 @@ class NotificationBrevoAndWeb
 
             return $result;
         } catch (Exception $e) {
-            echo $e->getMessage();
+            echo "Exception lors de l'envoi de la notification web" . $e->getMessage();
             log_error("Exception lors de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["message" => $e->getMessage()]);
             return false;
         }
