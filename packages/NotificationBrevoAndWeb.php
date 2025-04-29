@@ -123,7 +123,8 @@ class NotificationBrevoAndWeb
             $statement = $this->conn->prepare($query);
             
             $id = $this->generateGUID();
-            $created_at = $updated_at = date('Y-m-d H:i:s');
+            // date now ajout le timestamp avec le gmt 0
+            $created_at = $updated_at = date('Y-m-d H:i:s', time() - date('Z'));
 
             // defaut value
             if (!isset($data['type'])) {
@@ -151,13 +152,11 @@ class NotificationBrevoAndWeb
 
             $result = $statement->execute();
 
-            if ($result) {
-                echo "Notification web envoyée avec succès";
+            if ($result) { 
                 log_info("Notification web envoyée avec succès", "SEND_NOTIFICATION_WEB", ["user_id" => $data['user_id']]);
                 return true;
             }
-
-            echo "Échec de l'envoi de la notification web";
+ 
             log_error("Échec de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["user_id" => $data['user_id']]);
             return false;
         } catch (Exception $e) {
