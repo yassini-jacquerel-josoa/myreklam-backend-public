@@ -117,13 +117,21 @@ class NotificationBrevoAndWeb
             $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url", "created_at", "updated_at", "metadata") VALUES (:id, :user_id, :content, :type, :is_read, :return_url, :created_at, :updated_at, :metadata)';
             $statement = $this->conn->prepare($query);
             $statement->bindParam(':id', $this->generateGUID());
+            echo "sendNotificationWeb 1";
             $statement->bindParam(':user_id', $data['user_id']);
+            echo "sendNotificationWeb 2";
             $statement->bindParam(':content', $data['content']);
+            echo "sendNotificationWeb 3";
             $statement->bindParam(':type', $data['type'] ?? "info");
+            echo "sendNotificationWeb 4";
             $statement->bindParam(':is_read', false);
+            echo "sendNotificationWeb 5";
             $statement->bindParam(':return_url', $data['return_url'] ?? null);
+            echo "sendNotificationWeb 6";
             $statement->bindParam(':metadata', $data['metadata'] ?? null);
+            echo "sendNotificationWeb 7";
             $result = $statement->execute();
+            echo "sendNotificationWeb 8";
 
             return $result;
         } catch (Exception $e) {
