@@ -130,7 +130,7 @@ class NotificationBrevoAndWeb
                 $data['type'] = "info";
             }
             if (!isset($data['is_read'])) {
-                $data['is_read'] = false;
+                $data['is_read'] = $data['is_read'] ? 1 : 0;
             }
             if (!isset($data['return_url'])) {
                 $data['return_url'] = null;
