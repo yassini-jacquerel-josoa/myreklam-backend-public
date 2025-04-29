@@ -59,9 +59,16 @@ class NotificationBrevoAndWeb
             ]
         ];
 
-        echo json_encode($data);
+        $resultWeb = $this->sendNotificationWeb($data);
+        $resultBrevo = $this->sendNotificationBrevo($data);
 
-        return $this->sendNotificationWeb($data) || $this->sendNotificationBrevo($data);
+        echo json_encode([
+            "message" => "sendNotificationSubscriptionFree",
+            "resultWeb" => $resultWeb,
+            "resultBrevo" => $resultBrevo
+        ]);
+
+        return $resultWeb || $resultBrevo;
     }
 
     // Méthode pour récupérer les informations de l'utilisateur
@@ -92,9 +99,7 @@ class NotificationBrevoAndWeb
 
             $userInfo['email'] = $user['Email'];
             $userInfo['username'] =  $userInfo['profiletype'] == 'particulier' ? $userInfo['pseudo'] : $userInfo['nomsociete'];
-
-            log_info("Informations de l'utilisateur trouvées", "GET_USER_INFO", ["userInfo" => $userInfo]);
-
+ 
             return $userInfo;
         } catch (Exception $e) {
             log_error("Exception lors de la récupération des informations de l'utilisateur", "GET_USER_INFO", ["message" => $e->getMessage()]);
