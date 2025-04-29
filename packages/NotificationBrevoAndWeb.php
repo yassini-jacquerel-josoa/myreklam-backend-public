@@ -66,7 +66,7 @@ class NotificationBrevoAndWeb
             "message" => "sendNotificationSubscriptionFree",
             "resultWeb" => $resultWeb,
             "resultBrevo" => $resultBrevo
-        ]);
+        ]) . "\n";
 
         return $resultWeb || $resultBrevo;
     }
@@ -122,19 +122,25 @@ class NotificationBrevoAndWeb
             "name" => $data['name'],
             "templateId" => $data['templateId'],
             "params" => $data['params']
-        ]);
+        ]) . "\n";
         try {
             $email = $data['email'] ?? '';
             $name = $data['name'] ?? '';
             $templateId = $data['templateId'] ?? null;
             $paramsData = $data['params'] ?? [];
 
-            log_info("Données à envoyer", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId, "params" => $paramsData]);
-
             if (empty($email) || empty($templateId) || empty($paramsData)) {
                 log_error("Email ou templateId manquant", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                 return false;
             }
+
+            echo json_encode([
+                "message" => "sendNotificationBrevo",
+                "email" => $email,
+                "name" => $name,
+                "templateId" => $templateId,
+                "params" => $paramsData
+            ]) . "\n";
 
             // Configure API key authorization
             $config = SendinBlue\Client\Configuration::getDefaultConfiguration()
@@ -153,6 +159,14 @@ class NotificationBrevoAndWeb
                     $params[$variable] = $paramsData[$variable];
                 }
             }
+
+            echo json_encode([
+                "message" => "sendNotificationBrevo",
+                "email" => $email,
+                "name" => $name,
+                "templateId" => $templateId,
+                "params" => $params
+            ]) . "\n";
 
             // Initialize API instance
             $apiInstance = new SendinBlue\Client\Api\TransactionalEmailsApi(
@@ -181,6 +195,13 @@ class NotificationBrevoAndWeb
                 return false;
             }
         } catch (Exception $e) {
+            echo json_encode([
+                "message" => "sendNotificationBrevo",
+                "email" => $email,
+                "name" => $name,
+                "templateId" => $templateId,
+                "params" => $params
+            ]) . "\n";
             log_error("Exception lors de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["message" => $e->getMessage()]);
             return false;
         }
