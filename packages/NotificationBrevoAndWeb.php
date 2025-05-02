@@ -9,7 +9,7 @@ class NotificationBrevoAndWeb
 
     // Mapping des templates et leurs variables
     public array $templates = [
-        1 => ['username', 'ad.category'],
+        1 => ['username', 'ad.title ', 'ad.category'],
         2 => ['username'],
         3 => ['username', 'ad.title', 'ad.category'],
         4 => ['username', 'mail_name', 'sender_email', 'recipient_email'],
@@ -42,6 +42,36 @@ class NotificationBrevoAndWeb
         log_info("Connection initialisée   =>", "SYSTEM");
     }
 
+    // Méthode pour envoyer une notification lors de la suppression d'annonce supprimée
+    public function sendNotificationAdDeleted($userId, $ad): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_DELETED", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+        
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été supprimée ' . $ad['title'] . ' dans la catégorie ' . $ad['category'],
+            'return_url' => '/dashboard'
+        ]); 
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => 1,
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.category' => $ad['category']
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
+
+    // Méthode pour envoyer une notification de souscription gratuite
     public function sendNotificationSubscriptionFree($userId): bool
     {
         $userInfo = $this->getUserInfo($userId);
@@ -61,16 +91,10 @@ class NotificationBrevoAndWeb
             'email' => $userInfo['email'],
             'templateId' => 19,
             'params' => [
-                'username' => $userInfo['profiletype'] == 'particulier' ? $userInfo['pseudo'] : $userInfo['nomsociete']
+                'username' => $userInfo['username'],
             ]
         ]);
-
-        echo json_encode([
-            "message" => "sendNotificationSubscriptionFree",
-            "resultWeb" => $resultWeb,
-            "resultBrevo" => $resultBrevo
-        ]) . "\n";
-
+ 
         return $resultWeb || $resultBrevo;
     }
 
