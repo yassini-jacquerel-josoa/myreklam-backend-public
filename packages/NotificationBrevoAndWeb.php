@@ -2,6 +2,7 @@
 
 include("./db.php");
 include("./logger.php");
+include("./GeneralHelper.php");
 
 class NotificationBrevoAndWeb
 {
@@ -42,10 +43,75 @@ class NotificationBrevoAndWeb
         log_info("Connection initialisée   =>", "SYSTEM");
     }
 
-    // Méthode pour envoyer une notification lors de la suppression d'annonce supprimée
-    public function sendNotificationAdDeleted($userId, $ad): bool
+    // Commentaire sur une annonce
+    public function sendNotificationAdComment($userId, $adId, $commentId): bool
     {
         $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        $comment = GeneralHelper::getFormatedComment($commentId);
+
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category']) || empty($comment)) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_COMMENT", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été commentée : ' . $ad['title'] . ' dans la catégorie ' . strtolower($ad['categoryLabel']),
+            'return_url' => '/mes-annonces'
+        ]); 
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => 3,
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.category' => strtolower($ad['categoryLabel']),
+                'comment.username' => $comment['username'],
+                'comment.content' => $comment['content']
+            ]
+        ]);
+        
+        return $resultWeb || $resultBrevo;
+    }
+
+    // Annonce expirée
+    public function sendNotificationAdExpired($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_EXPIRED", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }   
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été expirée ' . $ad['title'] . ' dans la catégorie ' . strtolower($ad['categoryLabel']),
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => 3,
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.category' => strtolower($ad['categoryLabel'])
+            ]
+
+        ]);
+        
+        return $resultWeb || $resultBrevo;
+    }
+
+    // Méthode pour envoyer une notification lors de la suppression d'annonce supprimée
+    public function sendNotificationAdDeleted($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
 
         if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
             log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_DELETED", ["userId" => $userId, "ad" => $ad]);
@@ -54,8 +120,8 @@ class NotificationBrevoAndWeb
         
         $resultWeb = $this->sendNotificationWeb([
             'user_id' => $userId,
-            'content' => 'Votre annonce a été supprimée ' . $ad['title'] . ' dans la catégorie ' . $ad['category'],
-            'return_url' => '/dashboard'
+            'content' => 'Votre annonce a été supprimée ' . $ad['title'] . ' dans la catégorie ' . strtolower($ad['categoryLabel']),
+            'return_url' => '/mes-annonces'
         ]); 
 
         $resultBrevo = $this->sendNotificationBrevo([
@@ -64,7 +130,7 @@ class NotificationBrevoAndWeb
             'params' => [
                 'username' => $userInfo['username'],
                 'ad.title' => $ad['title'],
-                'ad.category' => $ad['category']
+                'ad.category' => strtolower($ad['categoryLabel'])
             ]
         ]);
 
