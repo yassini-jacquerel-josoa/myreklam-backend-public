@@ -10,37 +10,361 @@ class NotificationBrevoAndWeb
 
     // Mapping des templates et leurs variables
     public array $templates = [
-        1 => ['username', 'ad.title ', 'ad.category'],
-        2 => ['username'],
-        3 => ['username', 'ad.title', 'ad.category'],
-        4 => ['username', 'mail_name', 'sender_email', 'recipient_email'],
-        5 => ['plan_name', 'resiliation_date'],
-        6 => [],
-        7 => ['username', 'sender', 'message_content'],
-        8 => ['username', 'sender', 'ad.title', 'message_content'],
-        9 => ['username', 'comment.username', 'ad.title', 'comment.content'],
-        10 => ['username', 'ad.title', 'comment.username', 'comment.content', 'response.content'],
-        12 => ['username'],
-        13 => ['username'],
-        14 => ['username', 'ad.title', 'ad.type'],
-        15 => ['username', 'ad.type', 'ad.title', 'organization.name'],
-        16 => ['username', 'applicant.username', 'ad.title'],
-        17 => ['username', 'event', 'organizator', 'dateStart', 'hoursStart', 'address', 'price'],
-        18 => ['username', 'ad.title', 'ad.organizator', 'startDate', 'startHours', 'localisation', 'price'],
-        19 => ['username'],
-        20 => ['username'],
-        21 => ['username'],
-        22 => ['link'],
-        23 => ['username'],
-        24 => ['username', 'endDate'],
-        25 => [],
-        27 => []
+        [
+            "templateId" => 1,
+            "variables" => ['username', 'ad.title ', 'ad.category']
+        ],
+        [
+            "templateId" => 2,
+            "variables" => ['username']
+        ],
+        [
+            "templateId" => 3,
+            "variables" => ['username', 'ad.title', 'ad.category']
+        ],
+        [
+            "templateId" => 4,
+            "templateName" => "Mail via site",
+            "variables" => ['username', 'mail_name', 'sender_email', 'recipient_email']
+        ],
+        [
+            "templateId" => 5,
+            "templateName" => "Résilisation",
+            "variables" => ['plan_name', 'resiliation_date']
+        ],
+        [
+            "templateId" => 6,
+            "templateName" => "Changement de plan",
+            "variables" => []
+        ],
+        [
+            "templateId" => 7,
+            "variables" => ['username', 'sender', 'message_content']
+        ],  
+        [
+            "templateId" => 8,
+            "templateName" => "Message reçu pour une annonce",
+            "variables" => ['username', 'sender', 'ad.title', 'value', 'link']
+        ],
+        [
+            "templateId" => 9,
+            "templateName" => "Nouveau commentaire",
+            "variables" => ['username', 'comment.username', 'ad.title', 'comment.content']
+        ],
+        [
+            "templateId" => 10,
+            "templateName" => "Réponse à un commentaire",
+            "variables" => ['username', 'ad.title', 'comment.username', 'comment.content', 'response.content', 'link']
+        ],
+        [
+            "templateId" => 11,
+            "variables" => ['username']
+        ],
+        [
+            "templateId" => 12,
+            "templateName" => "suppression compte particulier",
+            "variables" => ['username']
+        ],
+        [
+            "templateId" => 13,
+            "templateName" => "suppression compte professionnel gratuit",
+            "variables" => ['username']
+        ],
+        [
+            "templateId" => 14,
+            "templateName" => "Annonce mise en ligne",
+            "variables" => ['username', 'ad.title', 'ad.type', 'link']
+        ],
+        [
+            "templateId" => 15,
+            "templateName" => "Information postulant",
+            "variables" => ['username', 'ad.type', 'ad.title', 'organization.name']
+        ],
+        [
+            "templateId" => 16,
+            "templateName" => "Candidature reçue",
+            "variables" => ['username', 'applicant.username', 'ad.title']
+        ],
+        [
+            "templateId" => 17,
+            "templateName" => "Mail évènement",
+            "variables" => ['username', 'event', 'organizator', 'dateStart', 'hoursStart', 'address', 'price', 'link']
+        ],
+        [
+            "templateId" => 18,
+            "templateName" => "Mail rappel évènement",
+            "variables" => ['username', 'ad.title', 'ad.organizator', 'startDate', 'startHours', 'localisation', 'price']
+        ],
+        [
+            "templateId" => 19,
+            "templateName" => "Inscription professionnel gratuit",
+            "variables" => ['username']
+        ],
+        [
+            "templateId" => 20,
+            "templateName" => "Inscription professionnel mensuel",
+            "variables" => ['username']
+        ],
+        [
+            "templateId" => 21,
+            "templateName" => "Inscription professionnel annuel",
+            "variables" => ['username']
+        ],
+        [
+            "templateId" => 22,
+            "templateName" => "Connexion",
+            "variables" => ['link']
+        ],
+        [
+            "templateId" => 23,
+            "templateName" => "Signalement",
+            "variables" => ['username']
+        ],
+        [
+            "templateId" => 24,
+            "templateName" => "Bannissement",
+            "variables" => ['username', 'reason', 'endDate']
+        ],
+        [
+            "templateId" => 25,
+            "templateName" => "Mot de passe oublié",
+            "variables" => ['link']
+        ],
+        [
+            "templateId" => 26,
+            "variables" => []
+        ],
+        [
+            "templateId" => 27,
+            "templateName" => "Mot de passe modifié avec succès !",
+            "variables" => []
+        ],
+        [
+            "templateId" => 28,
+            "templateName" => "",
+            "variables" => []
+        ],
+        [
+            "templateId" => 29,
+            "templateName" => "Information postulant FORMATION",
+            "variables" => ['username', 'ad.type', 'ad.title', 'organization.name']
+        ],
+        [
+            "templateId" => 30,
+            "templateName" => "Candidature reçue FORMATION particulier",
+            "variables" => ['username', 'ad.type', 'ad.title']
+        ],
+        [
+            "templateId" => 31,
+            "templateName" => "Candidature reçue FORMATION professionnel",
+            "variables" => ['username', 'applicant.username', 'ad.title', ]
+        ],
+        [
+            "templateId" => 32,
+            "templateName" => "Alerte Annonce correspondant reçu",
+            "variables" => ['username', 'link']
+        ],
     ];
+
+    public function getTemplateId($templateName): int | null
+    {
+        foreach ($this->templates as $template) {
+            if ($template['templateName'] === $templateName) {
+                return $template['templateId'];
+            }
+        }
+        return null;
+    }
 
     public function __construct(PDO $connection)
     {
         $this->conn = $connection;
         log_info("Connection initialisée   =>", "SYSTEM");
+    }
+
+    // candidature "emplois" : celui a poster l'offre
+    public function sendNotificationAdEmploisCandidature($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        
+    }
+
+
+    // creation annonce formation
+    public function sendNotificationAdFormation($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_FORMATION", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'formations') {
+            log_info("L'annonce n'est pas une annonce formations", "SEND_NOTIFICATION_AD_FORMATION", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
+
+    // creation annonce evenements
+    public function sendNotificationAdEvenements($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_EVENEMENTS", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'evenements') {
+            log_info("L'annonce n'est pas une annonce evenements", "SEND_NOTIFICATION_AD_EVENEMENTS", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
+
+    // creation annonce demandes
+    public function sendNotificationAdDemandes($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_DEMANDES", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'demandes') {
+            log_info("L'annonce n'est pas une annonce demandes", "SEND_NOTIFICATION_AD_DEMANDES", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
+
+    // creation annonce emplois
+    public function sendNotificationAdEmplois($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_EMPLOIS", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'emplois') {
+            log_info("L'annonce n'est pas une annonce emplois", "SEND_NOTIFICATION_AD_EMPLOIS", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
+
+    // creation annonce bon plan
+    public function sendNotificationAdBonPlan($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_BON_PLAN", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'bon_plans') {
+            log_info("L'annonce n'est pas une annonce bon plan", "SEND_NOTIFICATION_AD_BON_PLAN", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
     }
 
     // Commentaire sur une annonce
@@ -63,7 +387,7 @@ class NotificationBrevoAndWeb
 
         $resultBrevo = $this->sendNotificationBrevo([
             'email' => $userInfo['email'],
-            'templateId' => 3,
+            'templateId' => $this->getTemplateId(3),
             'params' => [
                 'username' => $userInfo['username'],
                 'ad.title' => $ad['title'],
@@ -95,7 +419,7 @@ class NotificationBrevoAndWeb
 
         $resultBrevo = $this->sendNotificationBrevo([
             'email' => $userInfo['email'],
-            'templateId' => 3,
+            'templateId' => $this->getTemplateId(3),
             'params' => [
                 'username' => $userInfo['username'],
                 'ad.title' => $ad['title'],
@@ -126,7 +450,7 @@ class NotificationBrevoAndWeb
 
         $resultBrevo = $this->sendNotificationBrevo([
             'email' => $userInfo['email'],
-            'templateId' => 1,
+            'templateId' => $this->getTemplateId(1),
             'params' => [
                 'username' => $userInfo['username'],
                 'ad.title' => $ad['title'],
@@ -155,7 +479,7 @@ class NotificationBrevoAndWeb
         ]);
         $resultBrevo = $this->sendNotificationBrevo([
             'email' => $userInfo['email'],
-            'templateId' => 19,
+            'templateId' => $this->getTemplateId(19),
             'params' => [
                 'username' => $userInfo['username'],
             ]
