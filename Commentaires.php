@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 // Inclure la connexion à la base de données
 include("./db.php");
 include("./packages/AmbassadorAction.php");
+include("./packages/NotificationBrevoAndWeb.php");
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
@@ -125,10 +126,54 @@ function createRecord($conn)
 
         setJsonHeader();
         if ($result) {
+            $userId = $_POST['userid'] ?? null;
+            $annonceId = $_POST['annonceid'] ?? null;
 
-            if (!empty($_POST['userid'])) {
+            if (!empty($userId)) {
                 $coinEvents = new EventCoinsFacade($conn);
-                $coinEvents->addComment($_POST['userid']);
+                $coinEvents->addComment($userId);
+                
+                // Obtenir les informations sur l'annonce commentée
+                if ($annonceId) {
+                    $queryAd = 'SELECT * FROM "ads" WHERE id = :id AND deletedat IS NULL';
+                    $statementAd = $conn->prepare($queryAd);
+                    $statementAd->bindParam(':id', $annonceId);
+                    $statementAd->execute();
+                    $ad = $statementAd->fetch(PDO::FETCH_ASSOC);
+                    
+                    // Envoyer une notification au propriétaire de l'annonce
+                    if ($ad && $ad['userId'] != $userId) {
+                        $notificationManager = new NotificationBrevoAndWeb($conn);
+                        $notificationManager->sendNotificationReview($ad['userId'], $annonceId, $userId);
+                        
+                        // Créer une notification dans la base de données
+                        $notifId = generateGUID();
+                        $queryNotif = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url") VALUES (:id, :user_id, :content, :type, :is_read, :return_url)';
+                        $statementNotif = $conn->prepare($queryNotif);
+                        
+                        // Obtenir les informations sur l'utilisateur qui commente
+                        $queryUser = 'SELECT * FROM "userInfo" WHERE userid = :id';
+                        $statementUser = $conn->prepare($queryUser);
+                        $statementUser->bindParam(':id', $userId);
+                        $statementUser->execute();
+                        $user = $statementUser->fetch(PDO::FETCH_ASSOC);
+                        
+                        $userName = $user ? ($user['profiletype'] == 'professionnel' ? $user['nomsociete'] : $user['pseudo']) : 'Quelqu\'un';
+                        
+                        $content = $userName . " a ajouté un commentaire sur votre annonce: " . $ad['title'];
+                        $type = "review";
+                        $is_read = 0;
+                        
+                        $statementNotif->bindParam(':id', $notifId);
+                        $statementNotif->bindParam(':user_id', $ad['userId']);
+                        $statementNotif->bindParam(':content', $content);
+                        $statementNotif->bindParam(':type', $type);
+                        $statementNotif->bindParam(':is_read', $is_read);
+                        $statementNotif->bindParam(':return_url', '/annonce/' . $annonceId);
+                        
+                        $statementNotif->execute();
+                    }
+                }
             }
 
             echo json_encode([

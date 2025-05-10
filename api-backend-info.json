@@ -1,0 +1,423 @@
+{
+    "apiEndpoints": [
+      {
+        "description": "Mettre à jour le nombre de vues d'une annonce",
+        "url": "https://test.myreklam.fr/v2/Ads.php",
+        "method": "POST",
+        "params": {
+          "id": "ID de l'annonce",
+          "number_view": "Nombre de vues mis à jour",
+          "Method": "updateNumberViewAds"
+        }
+      },
+      {
+        "description": "Récupérer les détails d'une annonce par ID",
+        "url": "https://test.myreklam.fr/v2/Ads.php",
+        "method": "POST",
+        "params": {
+          "Method": "readAdsByCriteria",
+          "id": "ID de l'annonce"
+        }
+      },
+      {
+        "description": "Vérifier si une annonce est dans les favoris d'un utilisateur",
+        "url": "https://test.myreklam.fr/v2/Favoris.php",
+        "method": "POST",
+        "params": {
+          "userid": "ID de l'utilisateur",
+          "annonceid": "ID de l'annonce",
+          "Method": "readAdsByCriteria"
+        }
+      },
+      {
+        "description": "Récupérer les annonces d'un utilisateur",
+        "url": "https://test.myreklam.fr/v2/Ads.php",
+        "method": "POST",
+        "params": {
+          "userId": "ID de l'utilisateur",
+          "Method": "readAdsByCriteria"
+        }
+      },
+      {
+        "description": "Récupérer les favoris d'un utilisateur",
+        "url": "https://test.myreklam.fr/v2/Favoris.php",
+        "method": "POST",
+        "params": {
+          "userid": "ID de l'utilisateur",
+          "Method": "readAdsByCriteria"
+        }
+      },
+      {
+        "description": "Récupérer les commentaires d'une annonce",
+        "url": "https://test.myreklam.fr/v2/Commentaires.php",
+        "method": "POST",
+        "params": {
+          "Method": "readAdsByCriteria",
+          "annonceid": "ID de l'annonce"
+        }
+      },
+      {
+        "description": "Obtenir des informations de scraping pour une URL",
+        "url": "https://test.myreklam.fr/v2/Scraping.php",
+        "method": "POST",
+        "params": {
+          "url": "URL à scraper"
+        }
+      },
+      {
+        "description": "Mettre à jour les informations du profil utilisateur",
+        "url": "https://test.myreklam.fr/v2/UserInfo.php",
+        "method": "POST",
+        "params": {
+          "userid": "ID de l'utilisateur",
+          "nomsociete": "Nom de la société",
+          "activite": "Activité",
+          "telephone": "Téléphone",
+          "adresse": "Adresse",
+          "ville": "Ville",
+          "codepostal": "Code postal",
+          "pays": "Pays",
+          "presentation": "Présentation",
+          "facebook": "Facebook",
+          "instagram": "Instagram",
+          "x": "Twitter/X",
+          "linkedin": "LinkedIn",
+          "youtube": "YouTube",
+          "tiktok": "TikTok",
+          "snapchat": "Snapchat",
+          "publishadresse": "Publication de l'adresse",
+          "publishname": "Publication du nom",
+          "publishactivity": "Publication de l'activité",
+          "publishtelephone": "Publication du téléphone",
+          "publishemail": "Publication de l'email",
+          "pseudo": "Pseudo",
+          "id": "ID",
+          "Method": "updateUserInfo"
+        }
+      },
+      {
+        "description": "Mettre à jour les réseaux sociaux de l'utilisateur",
+        "url": "https://test.myreklam.fr/v2/UserInfo.php",
+        "method": "POST",
+        "params": {
+          "userid": "ID de l'utilisateur",
+          "id": "ID",
+          "facebook": "Facebook",
+          "instagram": "Instagram",
+          "x": "Twitter/X",
+          "linkedin": "LinkedIn",
+          "youtube": "YouTube",
+          "tiktok": "TikTok",
+          "snapchat": "Snapchat",
+          "Method": "updateUserInfo"
+        }
+      },
+      {
+        "description": "Récupérer les données de l'entreprise d'un utilisateur",
+        "url": "https://test.myreklam.fr/v2/UserInfo.php",
+        "method": "POST",
+        "params": {
+          "userid": "ID de l'utilisateur",
+          "Method": "readAdsByCriteria"
+        }
+      },
+      {
+        "description": "Démarrer une conversation avec une annonce",
+        "url": "https://test.myreklam.fr/v2/Message.php",
+        "method": "POST",
+        "params": {
+          "senderId": "ID de l'expéditeur",
+          "offreId": "ID de l'annonce",
+          "Method": "start_conversation"
+        }
+      },
+      {
+        "description": "Récupérer la liste des conversations",
+        "url": "https://test.myreklam.fr/v2/Message.php",
+        "method": "POST",
+        "params": {
+          "senderId": "ID de l'expéditeur",
+          "search": "Terme de recherche",
+          "page": "Numéro de page",
+          "pageSize": "Taille de la page",
+          "Method": "get_conversation"
+        }
+      },
+      {
+        "description": "Récupérer les messages d'une conversation",
+        "url": "https://test.myreklam.fr/v2/Message.php",
+        "method": "POST",
+        "params": {
+          "idConversation": "ID de la conversation",
+          "senderId": "ID de l'expéditeur",
+          "page": "Numéro de page",
+          "pageSize": "Taille de la page",
+          "Method": "get_message"
+        }
+      },
+      {
+        "description": "Récupérer les documents d'un utilisateur",
+        "url": "https://test.myreklam.fr/v2/DocumentFiles.php",
+        "method": "POST",
+        "params": {
+          "Method": "get_document_files",
+          "user_id": "ID de l'utilisateur"
+        }
+      },
+      {
+        "description": "Créer un nouveau document",
+        "url": "https://test.myreklam.fr/v2/DocumentFiles.php",
+        "method": "POST",
+        "params": {
+          "Method": "create_document_file",
+          "user_id": "ID de l'utilisateur",
+          "name": "Nom du document",
+          "category": "Catégorie du document",
+          "url": "URL du document",
+          "show_public": "Visibilité publique (1 ou 0)"
+        }
+      },
+      {
+        "description": "Mettre à jour un document existant",
+        "url": "https://test.myreklam.fr/v2/DocumentFiles.php",
+        "method": "POST",
+        "params": {
+          "Method": "update_document_file",
+          "id": "ID du document",
+          "user_id": "ID de l'utilisateur",
+          "name": "Nom du document",
+          "category": "Catégorie du document",
+          "url": "URL du document",
+          "show_public": "Visibilité publique (1 ou 0)"
+        }
+      },
+      {
+        "description": "Supprimer un document existant",
+        "url": "https://test.myreklam.fr/v2/DocumentFiles.php",
+        "method": "POST",
+        "params": {
+          "Method": "delete_document_file",
+          "id": "ID du document",
+          "user_id": "ID de l'utilisateur"
+        }
+      },
+      {
+        "description": "Créer une nouvelle candidature pour une annonce",
+        "url": "https://test.myreklam.fr/v2/DocumentFiles.php",
+        "method": "POST",
+        "params": {
+          "Method": "create_application",
+          "ad_id": "ID de l'annonce",
+          "interested_user_id": "ID de l'utilisateur intéressé",
+          "interested_participant": "Statut de participation (1 par défaut)"
+        }
+      },
+      {
+        "description": "Ajouter un document à une candidature",
+        "url": "https://test.myreklam.fr/v2/DocumentFiles.php",
+        "method": "POST",
+        "params": {
+          "Method": "add_document_to_application",
+          "application_id": "ID de la candidature",
+          "document_file_id": "ID du document"
+        }
+      },
+      {
+        "description": "Créer une notification",
+        "url": "https://test.myreklam.fr/v2/Notification.php",
+        "method": "POST",
+        "params": {
+          "userId": "ID de l'utilisateur",
+          "content": "Contenu de la notification",
+          "type": "Type de notification",
+          "return_url": "URL de retour",
+          "Method": "create"
+        }
+      },
+      {
+        "description": "Supprimer une notification",
+        "url": "https://test.myreklam.fr/v2/Notification.php",
+        "method": "POST",
+        "params": {
+          "userId": "ID de l'utilisateur",
+          "notificationId": "ID de la notification",
+          "Method": "delete"
+        }
+      },
+      {
+        "description": "Supprimer toutes les notifications",
+        "url": "https://test.myreklam.fr/v2/Notification.php",
+        "method": "POST",
+        "params": {
+          "userId": "ID de l'utilisateur",
+          "Method": "delete_all"
+        }
+      },
+      {
+        "description": "Marquer une notification comme lue",
+        "url": "https://test.myreklam.fr/v2/Notification.php",
+        "method": "POST",
+        "params": {
+          "userId": "ID de l'utilisateur",
+          "notificationId": "ID de la notification",
+          "Method": "read"
+        }
+      },
+      {
+        "description": "Marquer toutes les notifications comme lues",
+        "url": "https://test.myreklam.fr/v2/Notification.php",
+        "method": "POST",
+        "params": {
+          "userId": "ID de l'utilisateur",
+          "Method": "read_all"
+        }
+      },
+      {
+        "description": "Récupérer toutes les notifications",
+        "url": "https://test.myreklam.fr/v2/Notification.php",
+        "method": "POST",
+        "params": {
+          "userId": "ID de l'utilisateur",
+          "page": "Numéro de page",
+          "pageSize": "Taille de la page",
+          "Method": "get_notification"
+        }
+      },
+      {
+        "description": "Créer un code d'affiliation",
+        "url": "https://test.myreklam.fr/v2/Affiliates.php",
+        "method": "POST",
+        "params": {
+          "Method": "create_user_affiliate_code",
+          "user_id": "ID de l'utilisateur"
+        }
+      },
+      {
+        "description": "Créer un affilié enfant",
+        "url": "https://test.myreklam.fr/v2/Affiliates.php",
+        "method": "POST",
+        "params": {
+          "Method": "create_affiliate",
+          "user_id": "ID de l'utilisateur",
+          "refParrain": "Code de référence du parrain"
+        }
+      },
+      {
+        "description": "Récupérer le code d'affiliation",
+        "url": "https://test.myreklam.fr/v2/Affiliates.php",
+        "method": "POST",
+        "params": {
+          "Method": "get_affiliate_code",
+          "user_id": "ID de l'utilisateur"
+        }
+      },
+      {
+        "description": "Récupérer la liste des affiliés",
+        "url": "https://test.myreklam.fr/v2/Affiliates.php",
+        "method": "POST",
+        "params": {
+          "Method": "get_referred_ids",
+          "user_id": "ID de l'utilisateur"
+        }
+      },
+      {
+        "description": "Vérifier un compte utilisateur",
+        "url": "https://test.myreklam.fr/v2/LoginUser.php",
+        "method": "POST",
+        "params": {
+          "userEmail": "Email de l'utilisateur",
+          "token": "Token de vérification",
+          "Method": "verify"
+        }
+      },
+      {
+        "description": "Créer un compte utilisateur",
+        "url": "https://test.myreklam.fr/v2/LoginUser.php",
+        "method": "POST",
+        "params": {
+          "userEmail": "Email de l'utilisateur",
+          "userPassword": "Mot de passe de l'utilisateur",
+          "Name": "Nom de l'utilisateur",
+          "Link": "URL de l'origine",
+          "Method": "create",
+          "refParrain": "Code de parrainage (optionnel)"
+        }
+      },
+      {
+        "description": "Connecter un utilisateur",
+        "url": "https://test.myreklam.fr/v2/LoginUser.php",
+        "method": "POST",
+        "params": {
+          "userEmail": "Email de l'utilisateur",
+          "userPassword": "Mot de passe de l'utilisateur",
+          "Method": "read",
+          "Email": "Email de l'utilisateur",
+          "Name": "Nom de l'utilisateur",
+          "Link": "URL de redirection après connexion"
+        }
+      },
+      {
+        "description": "Récupérer les annonces avec candidatures d'un utilisateur",
+        "url": "https://test.myreklam.fr/v2/DocumentFiles.php",
+        "method": "POST",
+        "params": {
+          "Method": "get_applications_by_interested_user_id",
+          "interested_user_id": "ID de l'utilisateur intéressé"
+        }
+      },
+      {
+        "description": "Créer ou mettre à jour une annonce",
+        "url": "https://test.myreklam.fr/v2/Ads.php",
+        "method": "POST",
+        "params": {
+          "userId": "ID de l'utilisateur",
+          "title": "Titre de l'annonce",
+          "description": "Description de l'annonce",
+          "dealType": "Type de bon plan",
+          "dealCategory": "Catégorie de bon plan",
+          "subCategory": "Sous-catégorie",
+          "show": "Afficher l'annonce",
+          "brand": "Marque",
+          "initialPrice": "Prix initial",
+          "discountValue": "Valeur de la réduction",
+          "discountType": "Type de réduction",
+          "finalPrice": "Prix final",
+          "website": "Site web",
+          "isOnline": "Disponible en ligne",
+          "shippingCost": "Frais de livraison",
+          "address": "Adresse",
+          "discountCode": "Code de réduction",
+          "drive": "Drive disponible",
+          "inStore": "En magasin",
+          "isDelivery": "Livraison disponible",
+          "condition": "Condition",
+          "tag": "Tags",
+          "message": "Message",
+          "startDate": "Date de début",
+          "endDate": "Date de fin",
+          "category": "Catégorie principale",
+          "Method": "create ou updateAnnonce",
+          "id": "ID de l'annonce (pour update uniquement)"
+        }
+      },
+      {
+        "description": "Supprimer une annonce",
+        "url": "https://test.myreklam.fr/v2/Ads.php",
+        "method": "POST",
+        "params": {
+          "id": "ID de l'annonce",
+          "Method": "delete"
+        }
+      },
+      {
+        "description": "Ajouter des images à une annonce",
+        "url": "https://test.myreklam.fr/v2/ImageAnnonce.php",
+        "method": "POST",
+        "params": {
+          "annonceId": "ID de l'annonce",
+          "media": "Fichiers média",
+          "Method": "create"
+        }
+      }
+    ]
+  } 

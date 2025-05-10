@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 
 include('./db.php');
+include('./packages/NotificationBrevoAndWeb.php');
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, GET, PUT, DELETE, OPTIONS");
@@ -64,7 +65,7 @@ function handleImageUpload($inputName = 'urlphoto') {
     // ✅ Utilise un chemin absolu basé sur le dossier courant du script
     $targetDir = __DIR__ . '/img/actualites/';
     if (!is_dir($targetDir)) {
-        mkdir($targetDir, 0777, true); // Crée le dossier s’il n’existe pas
+        mkdir($targetDir, 0777, true); // Crée le dossier s'il n'existe pas
     }
 
     $ext = pathinfo($_FILES[$inputName]['name'], PATHINFO_EXTENSION);

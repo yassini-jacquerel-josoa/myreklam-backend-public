@@ -7,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 
 include("./db.php");
+include("./packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -325,6 +326,45 @@ function create_affiliate($referred_id, $affiliate_code)
 
 
         handleEventCoin($user_id, $eventName);
+        
+        // Notifications pour le parrainage
+        $notificationManager = new NotificationBrevoAndWeb($conn);
+        
+        // Récupérer les informations des utilisateurs
+        $query = "SELECT * FROM \"userInfo\" WHERE userid = :user_id";
+        $statement = $conn->prepare($query);
+        $statement->bindValue(':user_id', $user_id);
+        $statement->execute();
+        $parrainInfo = $statement->fetch(PDO::FETCH_ASSOC);
+        
+        $query = "SELECT * FROM \"userInfo\" WHERE userid = :user_id";
+        $statement = $conn->prepare($query);
+        $statement->bindValue(':user_id', $referred_id);
+        $statement->execute();
+        $filleulInfo = $statement->fetch(PDO::FETCH_ASSOC);
+        
+        // Notification pour le parrain
+        if ($parrainInfo) {
+            // Créer notification pour le parrain
+            $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url") 
+                      VALUES (:id, :user_id, :content, :type, :is_read, :return_url)';
+            $statement = $conn->prepare($query);
+            
+            $notifId = generateGUID();
+            $type = "info";
+            $is_read = 0;
+            $content = "Félicitations ! " . ($filleulInfo ? $filleulInfo['pseudo'] : 'Un utilisateur') . " a utilisé votre code de parrainage.";
+            
+            $statement->bindParam(':id', $notifId);
+            $statement->bindParam(':user_id', $user_id);
+            $statement->bindParam(':content', $content);
+            $statement->bindParam(':type', $type);
+            $statement->bindParam(':is_read', $is_read);
+            $statement->bindParam(':return_url', '/profil/parrainage');
+            
+            $statement->execute();
+        }
+        
         echo json_encode(["status" => "success", "message" => "Affiliate created successfully"]);
     } catch (\Throwable $th) {
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);

@@ -861,4 +861,184 @@ class NotificationBrevoAndWeb
         log_debug("GUID généré", "GENERATE_GUID", ["guid" => $guid]);
         return $guid;
     }
+
+    // creation annonce formation
+    public function sendNotificationAdFormation($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_FORMATION", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'formations') {
+            log_info("L'annonce n'est pas une annonce formations", "SEND_NOTIFICATION_AD_FORMATION", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+                'link' => '/annonce/' . $adId
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
+
+    // creation annonce evenements
+    public function sendNotificationAdEvenements($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_EVENEMENTS", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'evenements') {
+            log_info("L'annonce n'est pas une annonce evenements", "SEND_NOTIFICATION_AD_EVENEMENTS", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+                'link' => '/annonce/' . $adId
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
+
+    // creation annonce demandes
+    public function sendNotificationAdDemandes($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_DEMANDES", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'demandes') {
+            log_info("L'annonce n'est pas une annonce demandes", "SEND_NOTIFICATION_AD_DEMANDES", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+                'link' => '/annonce/' . $adId
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
+
+    // creation annonce emplois
+    public function sendNotificationAdEmplois($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);
+        
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_EMPLOIS", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'emplois') {
+            log_info("L'annonce n'est pas une annonce emplois", "SEND_NOTIFICATION_AD_EMPLOIS", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+                'link' => '/annonce/' . $adId
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
+
+    // creation annonce bon plan
+    public function sendNotificationAdBonPlan($userId, $adId): bool
+    {
+        $userInfo = $this->getUserInfo($userId);
+        $ad = GeneralHelper::getFormatedAd($adId);  
+
+        if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+            log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_BON_PLAN", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        if($ad['category'] !== 'bon_plans') {
+            log_info("L'annonce n'est pas une annonce bon plan", "SEND_NOTIFICATION_AD_BON_PLAN", ["userId" => $userId, "ad" => $ad]);
+            return false;
+        }
+
+        $resultWeb = $this->sendNotificationWeb([
+            'user_id' => $userId,
+            'content' => 'Votre annonce a été créée',
+            'return_url' => '/mes-annonces'
+        ]);
+
+        $resultBrevo = $this->sendNotificationBrevo([
+            'email' => $userInfo['email'],
+            'templateId' => $this->getTemplateId(14),
+            'params' => [
+                'username' => $userInfo['username'],
+                'ad.title' => $ad['title'],
+                'ad.type' => strtolower($ad['categoryLabel']),
+                'link' => '/annonce/' . $adId
+            ]
+        ]);
+
+        return $resultWeb || $resultBrevo;
+    }
 }

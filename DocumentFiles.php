@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 
 include("./db.php");
 include("./packages/AmbassadorAction.php");
+include("./packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -180,8 +181,6 @@ if ($method == 'get_ad_document_files') {
     }
 }
 
-
-
 if ($method == 'get_application_documents') {
     try {
         $application_id = $_POST['application_id'];
@@ -205,9 +204,6 @@ if ($method == 'get_application_documents') {
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
 }
-
-
-
 
 if ($method == 'create_application') {
     try {
@@ -254,14 +250,58 @@ if ($method == 'create_application') {
         $statement->bindValue(':interested_participant', $interested_participant, PDO::PARAM_INT);
         $statement->execute();
 
+        // Envoyer des notifications en fonction du type d'annonce
+        $notificationManager = new NotificationBrevoAndWeb($conn);
+        
         if ($ad['category'] == "emplois") {
             $coinEvents = new EventCoinsFacade($conn);
             $coinEvents->applyJobTraining($interested_user_id);
+            
+            // Notification au postulant
+            $notificationManager->sendNotificationAdEmploisPostulant($interested_user_id, $ad_id, $ad['userId']);
+            // Notification au créateur de l'annonce
+            $notificationManager->sendNotificationAdEmploisCandidature($ad['userId'], $ad_id);
         }
         
         if ($ad['category'] == "formations") {
             $coinEvents = new EventCoinsFacade($conn);
             $coinEvents->applyJobTraining($interested_user_id);
+            
+            // Notification au postulant
+            $notificationManager->sendNotificationAdFormationPostulant($interested_user_id, $ad_id, $ad['userId']);
+            
+            // Récupérer le type de profil du créateur de l'annonce
+            $query = "SELECT profiletype FROM userInfo WHERE userid = :user_id";
+            $statement = $conn->prepare($query);
+            $statement->bindValue(':user_id', $ad['userId']);
+            $statement->execute();
+            $userInfo = $statement->fetch(PDO::FETCH_ASSOC);
+            
+            // Envoyer la notification appropriée selon le type de profil
+            if ($userInfo && $userInfo['profiletype'] == 'particulier') {
+                $notificationManager->sendNotificationAdFormationCandidatureParticulier($ad['userId'], $ad_id);
+            } else if ($userInfo && $userInfo['profiletype'] == 'professionnel') {
+                $notificationManager->sendNotificationAdFormationCandidatureProfessionnel($ad['userId'], $ad_id, $interested_user_id);
+            }
+        }
+        
+        if ($ad['category'] == "evenements") {
+            // Notification au participant
+            $notificationManager->sendNotificationAdEvenementsParticipant($interested_user_id, $ad_id);
+            
+            // Planifier un rappel pour 24h avant l'événement
+            // Note: ceci devrait idéalement être fait avec un système de tâches planifiées/cron
+            // mais pour l'exemple, nous allons simplement ajouter un indicateur dans la BD
+            if (!empty($ad['startDate'])) {
+                $eventDate = new DateTime($ad['startDate']);
+                $currentDate = new DateTime();
+                $interval = $currentDate->diff($eventDate);
+                
+                // Si l'événement est dans plus de 24h, enregistrer pour rappel ultérieur
+                if ($interval->days > 1) {
+                    // Code pour enregistrer le rappel (à implémenter selon votre système)
+                }
+            }
         }
         
         echo json_encode([
@@ -399,8 +439,6 @@ if ($method == 'delete_application') {
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
 }
-
-
 
 if ($method == 'get_application_ads_by_interested_user_id') {
     try {

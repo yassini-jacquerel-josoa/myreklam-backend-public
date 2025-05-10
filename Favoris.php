@@ -10,6 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 // Inclure la connexion à la base de données
 include("./db.php");
+include("./packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -76,67 +77,90 @@ function createAd($conn)
     try {
         logToFile("Début de la fonction createAd.");
 
-        // Générer un ID unique pour l'annonce
+        // Générer un ID unique pour le favori
         $id = generateGUID();
-
-        // Préparer les champs à insérer dynamiquement
-        $fields = ['id' => $id];
-        $columns = ['id'];
-        $placeholders = [':id'];
-
-        // Parcourir les données de la requête POST
-        foreach ($_POST as $key => $value) {
-            if ($key !== 'Method' && $value !== null && $value !== '') { // Ajouter uniquement les champs non vides
-                $fields[$key] = $value;
-                $columns[] = '"' . $key . '"'; // Échapper les noms de colonnes
-                $placeholders[] = ':' . $key;
-            }
+        $userid = $_POST['userid'] ?? null;
+        $annonceid = $_POST['annonceid'] ?? null;
+        
+        // Vérifier si les données nécessaires sont présentes
+        if (!$userid || !$annonceid) {
+            throw new Exception("Les champs userid et annonceid sont requis.");
+        }
+        
+        // Vérifier si cet utilisateur a déjà cette annonce en favori
+        $queryCheck = 'SELECT COUNT(*) FROM "favoris" WHERE userid = :userid AND annonceid = :annonceid';
+        $statementCheck = $conn->prepare($queryCheck);
+        $statementCheck->bindParam(':userid', $userid);
+        $statementCheck->bindParam(':annonceid', $annonceid);
+        $statementCheck->execute();
+        
+        if ($statementCheck->fetchColumn() > 0) {
+            throw new Exception("Cette annonce est déjà dans vos favoris.");
         }
 
-        // Encoder correctement les champs JSONB et TEXT[]
-        foreach ($fields as $key => $value) {
-            if (is_array($value)) {
-                if (isAssocArray($value)) {
-                    // Convertir les tableaux associatifs en JSON pour JSONB
-                    $fields[$key] = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-                } else {
-                    // Convertir les tableaux indexés en format TEXT[]
-                    $escapedValues = array_map(function ($item) {
-                        return '"' . str_replace('"', '\\"', $item) . '"';
-                    }, $value);
-                    $fields[$key] = '{' . implode(',', $escapedValues) . '}';
-                }
-            }
+        // Récupérer les informations sur l'annonce
+        $queryAd = 'SELECT * FROM "ads" WHERE id = :id AND deletedat IS NULL';
+        $statementAd = $conn->prepare($queryAd);
+        $statementAd->bindParam(':id', $annonceid);
+        $statementAd->execute();
+        $ad = $statementAd->fetch(PDO::FETCH_ASSOC);
+        
+        if (!$ad) {
+            throw new Exception("L'annonce n'existe pas ou a été supprimée.");
         }
 
-        // Construire la requête d'insertion
-        $query = 'INSERT INTO "favoris" (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
+        // Préparer l'insertion
+        $query = 'INSERT INTO "favoris" (id, userid, annonceid) VALUES (:id, :userid, :annonceid)';
         $statement = $conn->prepare($query);
-
-        // Lier les paramètres
-        foreach ($fields as $key => $value) {
-            // Lier les champs JSONB avec le type correspondant
-            if (is_string($value) && isJson($value)) {
-                $statement->bindValue(':' . $key, $value, PDO::PARAM_STR);
-            } else {
-                $statement->bindValue(':' . $key, $value);
-            }
-        }
-
+        $statement->bindParam(':id', $id);
+        $statement->bindParam(':userid', $userid);
+        $statement->bindParam(':annonceid', $annonceid);
+        
         // Exécuter la requête
         $result = $statement->execute();
 
         setJsonHeader();
         if ($result) {
+            // Si l'annonce correspond à des critères d'alerte de l'utilisateur, envoyer une notification
+            $notificationManager = new NotificationBrevoAndWeb($conn);
+            
+            // Vérifier si l'utilisateur a des alertes configurées
+            $queryAlerts = 'SELECT * FROM "user_alerts" WHERE user_id = :userid';
+            $statementAlerts = $conn->prepare($queryAlerts);
+            $statementAlerts->bindParam(':userid', $userid);
+            $statementAlerts->execute();
+            $alerts = $statementAlerts->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Si l'utilisateur a des alertes, vérifier si l'annonce correspond aux critères
+            if (!empty($alerts)) {
+                foreach ($alerts as $alert) {
+                    $matchesCriteria = false;
+                    
+                    // Logique de correspondance des critères (à adapter selon votre structure)
+                    if (!empty($alert['keywords']) && strpos(strtolower($ad['title']), strtolower($alert['keywords'])) !== false) {
+                        $matchesCriteria = true;
+                    }
+                    
+                    if (!empty($alert['category']) && $ad['category'] == $alert['category']) {
+                        $matchesCriteria = true;
+                    }
+                    
+                    // Si l'annonce correspond aux critères, envoyer une notification
+                    if ($matchesCriteria) {
+                        $notificationManager->sendNotificationAlert($userid, $annonceid, $alert['id']);
+                    }
+                }
+            }
+            
             echo json_encode([
                 "status" => "success",
-                "message" => "Annonce créée avec succès.",
+                "message" => "Favori ajouté avec succès.",
                 "id" => $id
             ]);
         } else {
             echo json_encode([
                 "status" => "failure",
-                "message" => "Échec de la création de l'annonce.",
+                "message" => "Échec de l'ajout du favori.",
                 "error" => $statement->errorInfo()
             ]);
         }
@@ -144,8 +168,7 @@ function createAd($conn)
         setJsonHeader();
         echo json_encode([
             "status" => "error",
-            "message" => "Erreur du serveur.",
-            "details" => $e->getMessage()
+            "message" => $e->getMessage()
         ]);
     }
 }

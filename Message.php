@@ -8,6 +8,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 // Inclure la connexion à la base de données
 require_once './SendMail.php';
 include("./db.php");
+include("./packages/NotificationBrevoAndWeb.php");
 
 
 // Autoriser les requêtes depuis n'importe quel domaine
@@ -230,10 +231,12 @@ if ($method == 'create') {
         $sender = getPseudoUser($conn, $owner_id);
         $receiver = getPseudoUser($conn, $receiver_id);
 
-
-
+        // Envoyer un email
         sendMail($receiver["email"], $receiver["pseudo"], $offre['userId'] == $owner_id ? 8 : 7, ["sender" => $sender["pseudo"], "value" => "Acusation de reception de message"]);
 
+        // Ajouter une notification pour le message reçu
+        $notificationManager = new NotificationBrevoAndWeb($conn);
+        $notificationManager->sendNotificationAdMessage($receiver_id, $offre['id'], $owner_id, $content);
 
         $conn->commit(); // Validation de la transaction
         echo json_encode(["status" => "success"]);

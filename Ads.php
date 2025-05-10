@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 // Inclure la connexion à la base de données
 include("./db.php");
 include("./packages/AmbassadorAction.php");
+include("./packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -133,6 +134,28 @@ function createAd($conn)
             if (!empty($_POST['userId'])) {
                 $coinEvents = new EventCoinsFacade($conn);
                 $coinEvents->publishAd($_POST['userId']);
+                
+                // Envoyer une notification selon la catégorie de l'annonce
+                $notificationManager = new NotificationBrevoAndWeb($conn);
+                $category = $_POST['category'] ?? '';
+                
+                switch ($category) {
+                    case 'bon_plans':
+                        $notificationManager->sendNotificationAdBonPlan($_POST['userId'], $id);
+                        break;
+                    case 'emplois':
+                        $notificationManager->sendNotificationAdEmplois($_POST['userId'], $id);
+                        break;
+                    case 'evenements':
+                        $notificationManager->sendNotificationAdEvenements($_POST['userId'], $id);
+                        break;
+                    case 'formations':
+                        $notificationManager->sendNotificationAdFormation($_POST['userId'], $id);
+                        break;
+                    case 'demandes':
+                        $notificationManager->sendNotificationAdDemandes($_POST['userId'], $id);
+                        break;
+                }
             }
 
             echo json_encode([
@@ -490,11 +513,24 @@ function updateRecord($conn, $id, $data)
 // Fonction pour supprimer un enregistrement
 function deleteRecord($conn, $id)
 {
+    // Récupérer l'ID de l'utilisateur avant de supprimer l'annonce
+    $query = "SELECT userId FROM \"ads\" WHERE id = :id";
+    $statement = $conn->prepare($query);
+    $statement->bindParam(':id', $id);
+    $statement->execute();
+    $ad = $statement->fetch(PDO::FETCH_ASSOC);
+    $userId = $ad['userId'] ?? null;
+    
     $query = "UPDATE \"ads\" SET \"deletedat\" = CURRENT_TIMESTAMP WHERE id = :id";
     $statement = $conn->prepare($query);
     $statement->bindParam(':id', $id);
     $result = $statement->execute();
 
+    // Envoyer une notification de suppression si l'userId existe
+    if ($result && $userId) {
+        $notificationManager = new NotificationBrevoAndWeb($conn);
+        $notificationManager->sendNotificationAdDeleted($userId, $id);
+    }
 
     setJsonHeader();
     // Retourner une réponse JSON en fonction du résultat de l'exécution

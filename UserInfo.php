@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 // Inclure la connexion à la base de données
 include("./db.php");
 include("./packages/AmbassadorAction.php");
+include("./packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -213,6 +214,13 @@ function updateUser($conn)
             throw new Exception("Aucune donnée à mettre à jour.");
         }
 
+        // Récupérer les informations actuelles de l'utilisateur
+        $queryUser = 'SELECT * FROM "userInfo" WHERE "id" = :id';
+        $statementUser = $conn->prepare($queryUser);
+        $statementUser->bindParam(':id', $id);
+        $statementUser->execute();
+        $userInfo = $statementUser->fetch(PDO::FETCH_ASSOC);
+
         // Construire la requête
         $query = 'UPDATE "userInfo" SET ' . implode(', ', $fieldsToUpdate) . ' WHERE "id" = :id';
 
@@ -223,10 +231,25 @@ function updateUser($conn)
 
         setJsonHeader();
         if ($result) {
+            $userid = $_POST['userid'] ?? $userInfo['userid'] ?? null;
 
-            if (!empty($_POST['userid'])) {
+            if (!empty($userid)) {
                 $coinEvents = new EventCoinsFacade($conn);
-                $coinEvents->completeProfile($_POST['userid']);
+                $coinEvents->completeProfile($userid);
+                
+                // Vérifier s'il y a un changement de plan d'abonnement
+                if (isset($_POST['plan']) && $userInfo && $_POST['plan'] != $userInfo['plan']) {
+                    // Envoyer une notification de changement de plan
+                    $notificationManager = new NotificationBrevoAndWeb($conn);
+                    $notificationManager->sendNotificationChangePlan($userid, $_POST['plan']);
+                }
+                
+                // Vérifier s'il y a une annulation d'abonnement
+                if (isset($_POST['subscription_status']) && $userInfo && $_POST['subscription_status'] == 'cancelled' && $userInfo['subscription_status'] != 'cancelled') {
+                    // Envoyer une notification d'annulation d'abonnement
+                    $notificationManager = new NotificationBrevoAndWeb($conn);
+                    $notificationManager->sendNotificationCancelSubscription($userid, $userInfo['plan'] ?? 'standard', date('Y-m-d'));
+                }
             }
 
             echo json_encode([

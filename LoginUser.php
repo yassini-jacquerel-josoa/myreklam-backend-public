@@ -7,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 // Inclure la connexion à la base de données
 include("./db.php");
+include("./packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -171,6 +172,10 @@ function createRecord($conn, $email, $password)
                         // Optionnel : Vérifiez la réponse du fichier SendMail.php
                         $responseData = json_decode($response, true);
                         if (isset($responseData['status']) && $responseData['status'] === "success") {
+                            // Envoyer une notification de bienvenue
+                            // $notificationManager = new NotificationBrevoAndWeb($conn);
+                            // $notificationManager->sendNotificationRegistration($result01['Id']);
+                            
                             echo json_encode(array(
                                 "status" => "success",
                                 "message" => "Utilisateur créé avec succès et email envoyé.",
@@ -756,7 +761,7 @@ if ($method == 'create') {
             exit;
         }
 
-        // Supprimer les fichiers d’images
+        // Supprimer les fichiers d'images
         function deleteFileIfExists($filePath)
         {
             if (!empty($filePath) && file_exists($filePath)) {
@@ -836,6 +841,14 @@ if ($method == 'create') {
 
         // Commit transaction
         $conn->commit();
+
+        // Envoyer une notification de suppression de compte
+        $notificationManager = new NotificationBrevoAndWeb($conn);
+        if ($userInfo['profiletype'] == 'particulier') {
+            $notificationManager->sendNotificationDeleteAccountParticulier($userId);
+        } else if ($userInfo['profiletype'] == 'professionnel') {
+            $notificationManager->sendNotificationDeleteAccountProfessionnel($userId);
+        }
 
         setJsonHeader();
         echo json_encode(["status" => "success", "message" => "Account deleted successfully"]);

@@ -7,6 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 
 include("./db.php");
+include("./packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -145,8 +146,6 @@ function handleEventCoin($userId, $eventName)
 
     echo 2;
     try {
-
-
         $query = "SELECT * FROM \"userInfo\" WHERE userId=:id";
         $statement = $conn->prepare($query);
         $statement->bindValue(':id', $userId);
@@ -221,12 +220,35 @@ function handleEventCoin($userId, $eventName)
         $historyStatement->bindValue(':generateBy', $generateBy);
         $historyStatement->execute();
 
+        // Envoyer une notification à l'utilisateur pour l'informer des coins gagnés
+        $notificationManager = new NotificationBrevoAndWeb($conn);
+        
+        // Créer une notification dans la base de données
+        $notifId = generateGUID();
+        $query = 'INSERT INTO "notifications" ("id", "user_id", "content", "type", "is_read", "return_url") VALUES (:id, :user_id, :content, :type, :is_read, :return_url)';
+        $statement = $conn->prepare($query);
+        
+        $type = "coins";
+        $is_read = 0;
+        $content = "Vous avez gagné " . $valueCoin . " coins pour l'action: " . $description;
+        
+        $statement->bindParam(':id', $notifId);
+        $statement->bindParam(':user_id', $userId);
+        $statement->bindParam(':content', $content);
+        $statement->bindParam(':type', $type);
+        $statement->bindParam(':is_read', $is_read);
+        $statement->bindParam(':return_url', '/profil/coins');
+        
+        $statement->execute();
+
         // Retourner une réponse de succès
         echo json_encode(["status" => "success", "message" => "Event coin handled successfully"]);
     } catch (\Throwable $th) {
-        http_response_code(500);
+        // http_response_code(500);
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
+
+    return false;
 }
 
 
