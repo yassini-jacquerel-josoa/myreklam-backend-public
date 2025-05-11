@@ -8,9 +8,16 @@ if (!class_exists('GeneralHelper')) {
     {
         public static PDO $conn;
 
-        public function __construct(PDO $connection)
+        public static function init(PDO $connection)
         {
             self::$conn = $connection;
+        }
+
+        public function __construct(PDO $connection = null)
+        {
+            if ($connection !== null) {
+                self::$conn = $connection;
+            }
         }
 
         public static function getFormatedAd($adId)
@@ -122,3 +129,9 @@ if (!class_exists('GeneralHelper')) {
         }
     }
 }
+
+// Initialiser la connexion statique avec la connexion globale
+if (isset($conn)) {
+    GeneralHelper::init($conn);
+}
+
