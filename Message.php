@@ -7,8 +7,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 // Inclure la connexion à la base de données
 require_once './SendMail.php';
-include("./db.php");
-include("./packages/NotificationBrevoAndWeb.php");
+include_once("./db.php");
+include_once("./packages/NotificationBrevoAndWeb.php");
 
 
 // Autoriser les requêtes depuis n'importe quel domaine

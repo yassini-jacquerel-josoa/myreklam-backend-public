@@ -9,9 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
     exit;
 }
 // Inclure la connexion à la base de données
-include("./db.php");
-include("./packages/AmbassadorAction.php");
-include("./packages/NotificationBrevoAndWeb.php");
+include_once("./db.php");
+include_once("./packages/AmbassadorAction.php");
+include_once("./packages/NotificationBrevoAndWeb.php");
 
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");

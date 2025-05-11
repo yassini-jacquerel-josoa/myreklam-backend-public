@@ -1,8 +1,8 @@
 <?php
 
-include("./db.php");
-include("./logger.php");
-include("./GeneralHelper.php");
+include_once("./db.php");
+include_once("./logger.php");
+include_once("./GeneralHelper.php");
 
 class NotificationBrevoAndWeb
 {

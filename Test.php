@@ -1,6 +1,6 @@
 <?php
 
-include("./packages/NotificationBrevoAndWeb.php");
+include_once("./packages/NotificationBrevoAndWeb.php");
 
 $userId = $_POST['userId'];
 

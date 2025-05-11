@@ -9,9 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
     exit;
 }
 // Inclure la connexion à la base de données
-include("./db.php");
-include("./packages/AmbassadorAction.php");
-include("./packages/NotificationBrevoAndWeb.php");
+include_once("./db.php");
+include_once("./packages/AmbassadorAction.php");
+include_once("./packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -403,104 +403,6 @@ function readRecord($conn, $id)
         ]);
     }
 }
-// function readAdsByCriteria($conn) {
-//             try {
-//                 // Récupérer les données POST
-//                 $postData = json_decode(file_get_contents('php://input'), true);
-
-//                 if (!$postData) {
-//                     http_response_code(400); // Mauvaise requête
-//                     echo json_encode(["status" => "error", "message" => "Invalid or missing criteria in request body."]);
-//                     echo json_encode(["status" => "error", "message" => "Invalid or missing criteria in request body.", "postData" => $postData]);
-//                     return;
-//                 }
-
-//                 $query = 'SELECT * FROM userInfo WHERE 1=1'; // Base de la requête
-//                 $params = [];
-
-//                 // Ajouter les conditions dynamiques
-//                 foreach ($postData as $column => $value) {
-//                     if (!is_null($value)) { // Ignorer les valeurs nulles
-//                         $query .= ' AND "' . $column . '" LIKE :' . $column;
-//                         $params[$column] = '%' . $value . '%';
-//                     }
-//                 }
-
-//                 $statement = $conn->prepare($query);
-//                 foreach ($params as $param => $value) {
-//                     $statement->bindValue(':' . $param, $value);
-//                 }
-
-//                 $statement->execute();
-//                 $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-//                 setJsonHeader();
-//                 if ($result) {
-//                     echo json_encode(["status" => "success", "userInfo" => $result]);
-//                 } else {
-//                     http_response_code(404); // Aucun résultat
-//                     echo json_encode(["status" => "failure", "message" => "No userInfo found matching the criteria."]);
-//                 }
-//             } catch (Exception $e) {
-//                 setJsonHeader();
-//                 http_response_code(500); // Erreur interne
-//                 echo json_encode(["status" => "error", "message" => $e->getMessage()]);
-//             }
-//         }
-
-
-// function readAdsByCriteria($conn) {
-//     try {
-//         // Récupérer les données POST
-//         foreach ($_POST as $key => $value) {
-//             if ($key !== 'Method' && !empty($value)) { // Ajouter uniquement les champs non vides et ignorer le paramètre 'Method'
-//                 $fields[$key] = $value;
-//                 $columns[] = $key;
-//                 $placeholders[] = ':' . $key;
-//             }
-//         }
-
-//         // Vérifier si des critères ont été envoyés
-//         if (empty($fields)) {
-//             http_response_code(400); // Mauvaise requête
-//             echo json_encode(["status" => "error", "message" => "Invalid or missing criteria in request body."]);
-//             return;
-//         }
-
-//         $query = 'SELECT * FROM userInfo WHERE 1=1'; // Base de la requête
-//         $params = [];
-
-//         // Ajouter les conditions dynamiques
-//         foreach ($fields as $column => $value) {
-//             if (!is_null($value)) { // Ignorer les valeurs nulles
-//                 $query .= ' AND "' . $column . '" LIKE :' . $column;
-//                 $params[$column] = '%' . $value . '%';
-//             }
-//         }
-
-//         // Préparer et exécuter la requête
-//         $statement = $conn->prepare($query);
-//         foreach ($params as $param => $value) {
-//             $statement->bindValue(':' . $param, $value);
-//         }
-
-//         $statement->execute();
-//         $result = $statement->fetchAll(PDO::FETCH_ASSOC);
-
-//         setJsonHeader();
-//         if ($result) {
-//             echo json_encode(["status" => "success", "userInfo" => $result]);
-//         } else {
-//             http_response_code(404); // Aucun résultat
-//             echo json_encode(["status" => "failure", "message" => "No userInfo found matching the criteria."]);
-//         }
-//     } catch (Exception $e) {
-//         setJsonHeader();
-//         http_response_code(500); // Erreur interne
-//         echo json_encode(["status" => "error", "message" => $e->getMessage()]);
-//     }
-// }
-
 
 function readAdsByCriteria($conn)
 {
@@ -831,7 +733,6 @@ if ($method == 'create') {
     setJsonHeader();
     echo json_encode(["status" => "success", "message" => "Settings successfully updated"]);
 } elseif ($method == 'readAdsByCriteria') {
-    // readRecordsByUserId($conn, $id);
     readAdsByCriteria($conn);
 } elseif ($method == 'read') {
     readRecord($conn, $id);

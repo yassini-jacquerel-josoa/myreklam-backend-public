@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-include("./db.php");
+include_once("./db.php");
  
 $method = $_POST['Method']; // "create", "read", "update" ou "delete"
 $type = $_POST['type'];  

@@ -7,8 +7,8 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 
-include("./db.php");
-include("./packages/AmbassadorAction.php");
+include_once("./db.php");
+include_once("./packages/AmbassadorAction.php");
 
 // Si la méthode n'est pas POST, retourner un message simple et quitter
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {

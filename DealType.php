@@ -6,7 +6,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
     exit;
 }
     // Inclure la connexion à la base de données
-    include("./db.php");
+    include_once("./db.php");
 
     // Autoriser les requêtes depuis n'importe quel domaine
     header("Access-Control-Allow-Origin: *");

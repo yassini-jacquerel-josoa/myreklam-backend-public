@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 
 // Inclure la connexion à la base de données
-include("./db.php");
+include_once("./db.php");
 
 // En-têtes CORS
 header("Access-Control-Allow-Origin: *"); // Autoriser tous les domaines (peut être restreint pour plus de sécurité)
