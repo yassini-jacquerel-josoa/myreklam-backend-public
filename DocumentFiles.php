@@ -271,7 +271,7 @@ if ($method == 'create_application') {
             $notificationManager->sendNotificationAdFormationPostulant($interested_user_id, $ad_id, $ad['userId']);
             
             // Récupérer le type de profil du créateur de l'annonce
-            $query = "SELECT profiletype FROM userInfo WHERE userid = :user_id";
+            $query = "SELECT profiletype FROM \"userInfo\" WHERE userid = :user_id";
             $statement = $conn->prepare($query);
             $statement->bindValue(':user_id', $ad['userId']);
             $statement->execute();
