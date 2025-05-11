@@ -9,8 +9,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
     exit;
 }
 // Inclure la connexion à la base de données
-include_once("./db.php");
-include_once("./logger.php");
+include_once(__DIR__ . "/db.php");
+include_once(__DIR__ . "/logger.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");

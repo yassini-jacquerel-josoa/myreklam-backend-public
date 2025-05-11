@@ -7,7 +7,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 }
 
 // Inclure la connexion à la base de données
-include_once("./db.php");
+include_once(__DIR__ . "/db.php");
 
 // En-têtes CORS
 header("Access-Control-Allow-Origin: *"); // Autoriser tous les domaines (peut être restreint pour plus de sécurité)
@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 }
 
 // Stripe SDK
-require 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 \Stripe\Stripe::setApiKey('sk_test_51KEdn8LjQlGQsbAnaApChiGcpV1NcpfX7nJSFzZGBnnlRPqb5P5FlNVCtLhK0uqO26wddWEVNI9KQWpHtOlX9P0g009pMas4Tn');
 
 header('Content-Type: application/json');

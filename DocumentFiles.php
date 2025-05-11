@@ -6,9 +6,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
     exit;
 }
 
-include_once("./db.php");
-include_once("./packages/AmbassadorAction.php");
-include_once("./packages/NotificationBrevoAndWeb.php");
+include_once(__DIR__ . "/db.php");
+include_once(__DIR__ . "/packages/AmbassadorAction.php");
+include_once(__DIR__ . "/packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");

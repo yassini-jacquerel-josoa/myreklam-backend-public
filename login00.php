@@ -2,7 +2,7 @@
 
 <?php
 	// Connect to database
-	include_once("db.php");
+	include_once(__DIR__ . "/db.php");
 	$request_method = $_SERVER["REQUEST_METHOD"];
 	
 	// Autoriser les requêtes depuis n'importe quel domaine
