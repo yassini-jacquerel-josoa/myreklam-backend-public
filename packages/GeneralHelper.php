@@ -1,7 +1,7 @@
 <?php
 
-include_once(__DIR__ . "/db.php");
-include_once(__DIR__ . "/logger.php");
+include_once(__DIR__ . "/../db.php");
+include_once(__DIR__ . "/../logger.php");
 
 if (!class_exists('GeneralHelper')) {
     class GeneralHelper
