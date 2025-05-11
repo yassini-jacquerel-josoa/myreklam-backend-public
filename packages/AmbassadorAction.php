@@ -225,20 +225,20 @@ if (!class_exists('EventCoinsFacade')) {
                 // Record in history
                 $historyQuery = "
                 INSERT INTO history_coins 
-                    (id, userId, valueCoin, eventName, description, createdAt, generateBy) 
+                    (id, userid, valuecoin, eventname, description, createdat, generateby) 
                 VALUES 
-                    (:id, :userId, :valueCoin, :eventName, :description, :createdAt, :generateBy)
+                    (:id, :userid, :valuecoin, :eventname, :description, :createdat, :generateby)
             ";
 
                 $historyId = $this->generateGUID();
                 $historyStmt = $this->conn->prepare($historyQuery);
                 $historyStmt->bindValue(':id', $historyId, PDO::PARAM_STR);
-                $historyStmt->bindValue(':userId', $userId, PDO::PARAM_STR);
-                $historyStmt->bindValue(':valueCoin', $coinsToAdd, PDO::PARAM_INT);
-                $historyStmt->bindValue(':eventName', $slug, PDO::PARAM_STR);
+                $historyStmt->bindValue(':userid', $userId, PDO::PARAM_STR);
+                $historyStmt->bindValue(':valuecoin', $coinsToAdd, PDO::PARAM_INT);
+                $historyStmt->bindValue(':eventname', $slug, PDO::PARAM_STR);
                 $historyStmt->bindValue(':description', 'Coins added for: ' . $slug, PDO::PARAM_STR);
-                $historyStmt->bindValue(':createdAt', $currentDate);
-                $historyStmt->bindValue(':generateBy', 'system_event', PDO::PARAM_STR);
+                $historyStmt->bindValue(':createdat', $currentDate);
+                $historyStmt->bindValue(':generateby', 'system_event', PDO::PARAM_STR);
 
                 $result = $historyStmt->execute();
 
