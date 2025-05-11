@@ -226,7 +226,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             $offreUserInfo = $this->getUserInfo($offreUserId);
 
             if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category']) || empty($offreUserInfo)) {
-                log_info("Informations manquantes", "SEND_NOTIFICATION_AD_EMPLOIS_POSTULANT", ["userId" => $userId, "ad" => $ad]);
+                log_info("Informations manquantes", "SEND_NOTIFICATION_AD_EMPLOIS_POSTULANT", ["userId" => $userId, "ad" => $ad, "offreUserInfo" => $offreUserInfo]);
                 return false;
             }
 
@@ -342,7 +342,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             $offreUserInfo = $this->getUserInfo($offreUserId);
 
             if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category']) || empty($offreUserInfo)) {
-                log_info("Informations manquantes", "SEND_NOTIFICATION_AD_FORMATION_POSTULANT", ["userId" => $userId, "ad" => $ad]);
+                log_info("Informations manquantes", "SEND_NOTIFICATION_AD_FORMATION_POSTULANT", ["userId" => $userId, "ad" => $ad, "offreUserInfo" => $offreUserInfo]);
                 return false;
             }
 
@@ -414,7 +414,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             $applicantInfo = $this->getUserInfo($applicantId);
 
             if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category']) || empty($applicantInfo)) {
-                log_info("Informations manquantes", "SEND_NOTIFICATION_AD_FORMATION_CANDIDATURE_PROFESSIONNEL", ["userId" => $userId, "ad" => $ad]);
+                log_info("Informations manquantes", "SEND_NOTIFICATION_AD_FORMATION_CANDIDATURE_PROFESSIONNEL", ["userId" => $userId, "ad" => $ad, "applicantInfo" => $applicantInfo]);
                 return false;
             }
 
@@ -576,7 +576,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             $reviewerInfo = $this->getUserInfo($reviewerId);
 
             if (empty($userInfo) || empty($reviewerInfo)) {
-                log_info("Informations des utilisateurs non trouvées", "SEND_NOTIFICATION_REVIEW", ["userId" => $userId, "reviewerId" => $reviewerId]);
+                log_info("Informations des utilisateurs non trouvées", "SEND_NOTIFICATION_REVIEW", ["userId" => $userId, "reviewerId" => $reviewerId, "userInfo" => $userInfo, "reviewerInfo" => $reviewerInfo]);
                 return false;
             }
 
@@ -599,7 +599,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             $userInfo = $this->getUserInfo($userId);
 
             if (empty($userInfo)) {
-                log_info("Informations de l'utilisateur non trouvées", "SEND_NOTIFICATION_ALERT", ["userId" => $userId]);
+                log_info("Informations de l'utilisateur non trouvées", "SEND_NOTIFICATION_ALERT", ["userId" => $userId, "userInfo" => $userInfo]);
                 return false;
             }
 
@@ -623,7 +623,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             $senderInfo = $this->getUserInfo($senderId);
 
             if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($senderInfo)) {
-                log_info("Informations manquantes", "SEND_NOTIFICATION_AD_MESSAGE", ["userId" => $userId, "ad" => $ad]);
+                log_info("Informations manquantes", "SEND_NOTIFICATION_AD_MESSAGE", ["userId" => $userId, "ad" => $ad, "senderInfo" => $senderInfo]);
                 return false;
             }
 
@@ -655,7 +655,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             $ad = GeneralHelper::getFormatedAd($adId);
 
             if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
-                log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_DELETED", ["userId" => $userId, "ad" => $ad]);
+                log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_DELETED", ["userId" => $userId, "ad" => $ad, "userInfo" => $userInfo]);
                 return false;
             }
 
@@ -870,12 +870,12 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             $ad = GeneralHelper::getFormatedAd($adId);
 
             if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
-                log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_FORMATION", ["userId" => $userId, "ad" => $ad]);
+                log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_FORMATION", ["userId" => $userId, "ad" => $ad, "userInfo" => $userInfo]);
                 return false;
             }
 
             if ($ad['category'] !== 'formations') {
-                log_info("L'annonce n'est pas une annonce formations", "SEND_NOTIFICATION_AD_FORMATION", ["userId" => $userId, "ad" => $ad]);
+                log_info("L'annonce n'est pas une annonce formations", "SEND_NOTIFICATION_AD_FORMATION", ["userId" => $userId, "ad" => $ad, "userInfo" => $userInfo]);
                 return false;
             }
 
