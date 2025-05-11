@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 // Inclure la connexion à la base de données
 include_once(__DIR__ . "/db.php");
 include_once(__DIR__ . "/packages/AmbassadorAction.php");
+include_once(__DIR__ . "/packages/NotificationBrevoAndWeb.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -132,6 +133,9 @@ function createParticipation($conn)
             if (!empty($_POST['userid'])) {
                 $coinEvents = new EventCoinsFacade($conn);
                 $coinEvents->attendEvent($_POST['userid']);
+
+                $notification = new NotificationBrevoAndWeb($conn);
+                $notification->sendNotificationAdEvenementsParticipant($_POST['userid'], $annonceid);
             }
 
             echo json_encode([
