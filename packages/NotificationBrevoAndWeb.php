@@ -13,156 +13,188 @@ if (!class_exists('NotificationBrevoAndWeb')) {
         public array $templates = [
             [
                 "templateId" => 1,
+                "templateSlug" => "ad-deleted",
                 "variables" => ['username', 'ad.title ', 'ad.category']
             ],
             [
                 "templateId" => 2,
+                "templateSlug" => "welcome",
                 "variables" => ['username']
             ],
             [
                 "templateId" => 3,
+                "templateSlug" => "ad-published",
                 "variables" => ['username', 'ad.title', 'ad.category']
             ],
             [
                 "templateId" => 4,
                 "templateName" => "Mail via site",
+                "templateSlug" => "mail-via-site",
                 "variables" => ['username', 'mail_name', 'sender_email', 'recipient_email']
             ],
             [
                 "templateId" => 5,
                 "templateName" => "Résilisation",
+                "templateSlug" => "resiliation",
                 "variables" => ['plan_name', 'resiliation_date']
             ],
             [
                 "templateId" => 6,
                 "templateName" => "Changement de plan",
+                "templateSlug" => "plan-change",
                 "variables" => []
             ],
             [
                 "templateId" => 7,
+                "templateSlug" => "new-message",
                 "variables" => ['username', 'sender', 'message_content']
             ],
             [
                 "templateId" => 8,
                 "templateName" => "Message reçu pour une annonce",
+                "templateSlug" => "ad-message-received",
                 "variables" => ['username', 'sender', 'ad.title', 'value', 'link']
             ],
             [
                 "templateId" => 9,
                 "templateName" => "Nouveau commentaire",
+                "templateSlug" => "new-comment",
                 "variables" => ['username', 'comment.username', 'ad.title', 'comment.content']
             ],
             [
                 "templateId" => 10,
                 "templateName" => "Réponse à un commentaire",
+                "templateSlug" => "comment-reply",
                 "variables" => ['username', 'ad.title', 'comment.username', 'comment.content', 'response.content', 'link']
             ],
             [
                 "templateId" => 11,
+                "templateSlug" => "account-created",
                 "variables" => ['username']
             ],
             [
                 "templateId" => 12,
                 "templateName" => "suppression compte particulier",
+                "templateSlug" => "delete-account-personal",
                 "variables" => ['username']
             ],
             [
                 "templateId" => 13,
                 "templateName" => "suppression compte professionnel gratuit",
+                "templateSlug" => "delete-account-professional",
                 "variables" => ['username']
             ],
             [
                 "templateId" => 14,
                 "templateName" => "Annonce mise en ligne",
+                "templateSlug" => "ad-created",
                 "variables" => ['username', 'ad.title', 'ad.type', 'link']
             ],
             [
                 "templateId" => 15,
                 "templateName" => "Information postulant",
+                "templateSlug" => "applicant-info",
                 "variables" => ['username', 'ad.type', 'ad.title', 'organization.name']
             ],
             [
                 "templateId" => 16,
                 "templateName" => "Candidature reçue",
+                "templateSlug" => "application-received",
                 "variables" => ['username', 'applicant.username', 'ad.title']
             ],
             [
                 "templateId" => 17,
                 "templateName" => "Mail évènement",
+                "templateSlug" => "event-registration",
                 "variables" => ['username', 'event', 'organizator', 'dateStart', 'hoursStart', 'address', 'price', 'link']
             ],
             [
                 "templateId" => 18,
                 "templateName" => "Mail rappel évènement",
+                "templateSlug" => "event-reminder",
                 "variables" => ['username', 'ad.title', 'ad.organizator', 'startDate', 'startHours', 'localisation', 'price']
             ],
             [
                 "templateId" => 19,
                 "templateName" => "Inscription professionnel gratuit",
+                "templateSlug" => "registration-professional-free",
                 "variables" => ['username']
             ],
             [
                 "templateId" => 20,
                 "templateName" => "Inscription professionnel mensuel",
+                "templateSlug" => "registration-professional-monthly",
                 "variables" => ['username']
             ],
             [
                 "templateId" => 21,
                 "templateName" => "Inscription professionnel annuel",
+                "templateSlug" => "registration-professional-yearly",
                 "variables" => ['username']
             ],
             [
                 "templateId" => 22,
                 "templateName" => "Connexion",
+                "templateSlug" => "login",
                 "variables" => ['link']
             ],
             [
                 "templateId" => 23,
                 "templateName" => "Signalement",
+                "templateSlug" => "report",
                 "variables" => ['username']
             ],
             [
                 "templateId" => 24,
                 "templateName" => "Bannissement",
+                "templateSlug" => "ban",
                 "variables" => ['username', 'reason', 'endDate']
             ],
             [
                 "templateId" => 25,
                 "templateName" => "Mot de passe oublié",
+                "templateSlug" => "forgot-password",
                 "variables" => ['link']
             ],
             [
                 "templateId" => 26,
+                "templateSlug" => "general-notification",
                 "variables" => []
             ],
             [
                 "templateId" => 27,
                 "templateName" => "Mot de passe modifié avec succès !",
+                "templateSlug" => "password-changed",
                 "variables" => []
             ],
             [
                 "templateId" => 28,
                 "templateName" => "",
+                "templateSlug" => "empty-template",
                 "variables" => []
             ],
             [
                 "templateId" => 29,
                 "templateName" => "Information postulant FORMATION",
+                "templateSlug" => "formation-applicant-info",
                 "variables" => ['username', 'ad.type', 'ad.title', 'organization.name']
             ],
             [
                 "templateId" => 30,
                 "templateName" => "Candidature reçue FORMATION particulier",
+                "templateSlug" => "formation-application-received-personal",
                 "variables" => ['username', 'ad.type', 'ad.title']
             ],
             [
                 "templateId" => 31,
                 "templateName" => "Candidature reçue FORMATION professionnel",
+                "templateSlug" => "formation-application-received-professional",
                 "variables" => ['username', 'applicant.username', 'ad.title',]
             ],
             [
                 "templateId" => 32,
                 "templateName" => "Alerte Annonce correspondant reçu",
+                "templateSlug" => "alert-ad-match",
                 "variables" => ['username', 'link']
             ],
         ];
@@ -173,10 +205,10 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             log_info("Connection initialisée   =>", "SYSTEM");
         }
 
-        public function getTemplateId($templateName): int | null
+        public function getTemplateId($templateSlug): int | null
         {
             foreach ($this->templates as $template) {
-                if ($template['templateName'] === $templateName) {
+                if (isset($template['templateSlug']) && $template['templateSlug'] === $templateSlug) {
                     return $template['templateId'];
                 }
             }
@@ -207,7 +239,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Candidature reçue"),
+                'templateId' => $this->getTemplateId("application-received"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'applicant.username' => 'Candidat', // Nécessite de récupérer l'info du candidat
@@ -243,7 +275,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Information postulant"),
+                'templateId' => $this->getTemplateId("applicant-info"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.type' => strtolower($ad['categoryLabel']),
@@ -279,7 +311,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Mail évènement"),
+                'templateId' => $this->getTemplateId("event-registration"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'event' => $ad['title'],
@@ -319,7 +351,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Mail rappel évènement"),
+                'templateId' => $this->getTemplateId("event-reminder"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.title' => $ad['title'],
@@ -359,7 +391,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Information postulant FORMATION"),
+                'templateId' => $this->getTemplateId("formation-applicant-info"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.type' => strtolower($ad['categoryLabel']),
@@ -395,7 +427,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Candidature reçue FORMATION particulier"),
+                'templateId' => $this->getTemplateId("formation-application-received-personal"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.type' => strtolower($ad['categoryLabel']),
@@ -431,7 +463,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Candidature reçue FORMATION professionnel"),
+                'templateId' => $this->getTemplateId("formation-application-received-professional"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'applicant.username' => $applicantInfo['username'],
@@ -460,13 +492,13 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $templateId = null;
             if ($planType === 'free') {
-                $templateId = $this->getTemplateId("Inscription professionnel gratuit");
+                $templateId = $this->getTemplateId("registration-professional-free");
             } elseif ($planType === 'monthly') {
-                $templateId = $this->getTemplateId("Inscription professionnel mensuel");
+                $templateId = $this->getTemplateId("registration-professional-monthly");
             } elseif ($planType === 'yearly') {
-                $templateId = $this->getTemplateId("Inscription professionnel annuel");
+                $templateId = $this->getTemplateId("registration-professional-yearly");
             } else {
-                $templateId = $this->getTemplateId("Inscription professionnel gratuit"); // Par défaut
+                $templateId = $this->getTemplateId("registration-professional-free"); // Par défaut
             }
 
             $resultBrevo = $this->sendNotificationBrevo([
@@ -492,7 +524,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("suppression compte particulier"),
+                'templateId' => $this->getTemplateId("delete-account-personal"),
                 'params' => [
                     'username' => $userInfo['username']
                 ]
@@ -513,7 +545,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("suppression compte professionnel gratuit"),
+                'templateId' => $this->getTemplateId("delete-account-professional"),
                 'params' => [
                     'username' => $userInfo['username']
                 ]
@@ -534,7 +566,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Changement de plan"),
+                'templateId' => $this->getTemplateId("plan-change"),
                 'params' => []
             ]);
 
@@ -559,7 +591,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Résilisation"),
+                'templateId' => $this->getTemplateId("resiliation"),
                 'params' => [
                     'plan_name' => $planName,
                     'resiliation_date' => $resiliationDate
@@ -582,7 +614,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Nouveau commentaire"),
+                'templateId' => $this->getTemplateId("new-comment"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'comment.username' => $reviewerInfo['username'],
@@ -605,7 +637,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Alerte Annonce correspondant reçu"),
+                'templateId' => $this->getTemplateId("alert-ad-match"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'link' => '/alerte/' . $alertId
@@ -635,7 +667,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId("Message reçu pour une annonce"),
+                'templateId' => $this->getTemplateId("ad-message-received"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'sender' => $senderInfo['username'],
@@ -667,7 +699,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId(1),
+                'templateId' => $this->getTemplateId("ad-deleted"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.title' => $ad['title'],
@@ -696,7 +728,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             ]);
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId(19),
+                'templateId' => $this->getTemplateId("registration-professional-free"),
                 'params' => [
                     'username' => $userInfo['username'],
                 ]
@@ -887,7 +919,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId(14),
+                'templateId' => $this->getTemplateId("ad-created"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.title' => $ad['title'],
@@ -923,7 +955,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId(14),
+                'templateId' => $this->getTemplateId("ad-created"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.title' => $ad['title'],
@@ -959,7 +991,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId(14),
+                'templateId' => $this->getTemplateId("ad-created"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.title' => $ad['title'],
@@ -995,7 +1027,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId(14),
+                'templateId' => $this->getTemplateId("ad-created"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.title' => $ad['title'],
@@ -1031,7 +1063,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
             $resultBrevo = $this->sendNotificationBrevo([
                 'email' => $userInfo['email'],
-                'templateId' => $this->getTemplateId(14),
+                'templateId' => $this->getTemplateId("ad-created"),
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.title' => $ad['title'],
