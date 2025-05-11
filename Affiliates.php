@@ -444,35 +444,35 @@ function handleEventCoin($userId, $eventName): bool
         if ($userCoin) {
             // Mettre à jour les points de l'utilisateur
             $newValue = floatval($userCoin['value']) + floatval($valueCoin);
-            $updateQuery = "UPDATE user_coins SET value = :value, updateAt = :updateAt WHERE id = :id";
+            $updateQuery = "UPDATE user_coins SET value = :value, updateat = :updateat WHERE id = :id";
             $updateStatement = $conn->prepare($updateQuery);
             $updateStatement->bindValue(':value', $newValue);
-            $updateStatement->bindValue(':updateAt', $createdAt);
+            $updateStatement->bindValue(':updateat', $createdAt);
             $updateStatement->bindValue(':id', $userCoin['id']);
             $updateStatement->execute();
         } else {
             // Créer une nouvelle entrée pour l'utilisateur
             $userCoinId = generateGUID();
-            $insertQuery = "INSERT INTO user_coins (id, userId, value, updateAt, lastConversionAt) VALUES (:id, :userId, :value, :updateAt, :lastConversionAt)";
+            $insertQuery = "INSERT INTO user_coins (id, userid, value, updateat, lastconversionat) VALUES (:id, :userid, :value, :updateat, :lastconversionat)";
             $insertStatement = $conn->prepare($insertQuery);
             $insertStatement->bindValue(':id', $userCoinId);
-            $insertStatement->bindValue(':userId', $userId);
+            $insertStatement->bindValue(':userid', $userId);
             $insertStatement->bindValue(':value', $valueCoin);
-            $insertStatement->bindValue(':updateAt', $createdAt);
-            $insertStatement->bindValue(':lastConversionAt', $createdAt); // Initialiser avec la même date
+            $insertStatement->bindValue(':updateat', $createdAt);
+            $insertStatement->bindValue(':lastconversionat', $createdAt); // Initialiser avec la même date
             $insertStatement->execute();
         }
 
         // 2. Ajouter une entrée dans `history_coins`
-        $historyQuery = "INSERT INTO history_coins (id, userId, valueCoin, eventName, description, createdAt, generateBy) VALUES (:id, :userId, :valueCoin, :eventName, :description, :createdAt, :generateBy)";
+        $historyQuery = "INSERT INTO history_coins (id, userid, valuecoin, eventname, description, createdat, generateby) VALUES (:id, :userid, :valuecoin, :eventname, :description, :createdat, :generateby)";
         $historyStatement = $conn->prepare($historyQuery);
         $historyStatement->bindValue(':id', $historyId);
-        $historyStatement->bindValue(':userId', $userId);
-        $historyStatement->bindValue(':valueCoin', $valueCoin);
-        $historyStatement->bindValue(':eventName', $eventName);
+        $historyStatement->bindValue(':userid', $userId);
+        $historyStatement->bindValue(':valuecoin', $valueCoin);
+        $historyStatement->bindValue(':eventname', $eventName);
         $historyStatement->bindValue(':description', $description);
-        $historyStatement->bindValue(':createdAt', $createdAt);
-        $historyStatement->bindValue(':generateBy', $generateBy);
+        $historyStatement->bindValue(':createdat', $createdAt);
+        $historyStatement->bindValue(':generateby', $generateBy);
         $historyStatement->execute();
 
         return true;

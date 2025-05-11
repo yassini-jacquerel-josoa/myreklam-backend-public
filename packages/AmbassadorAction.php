@@ -117,7 +117,7 @@ if (!class_exists('EventCoinsFacade')) {
 
                 $stmt = $this->conn->prepare('
                 SELECT 1 FROM history_coins 
-                WHERE userId = :userId AND eventName = :eventName
+                WHERE userId = :userId AND eventname = :eventName
                 LIMIT 1
             ');
                 $stmt->bindValue(':userId', $userId, PDO::PARAM_STR);

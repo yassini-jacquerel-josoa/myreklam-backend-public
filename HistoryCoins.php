@@ -81,9 +81,9 @@ if ($method == 'get_all_history_coins') {
         $query = "
             SELECT hc.*, ec.title AS eventTitle 
             FROM history_coins hc
-            JOIN \"userInfo\" u ON hc.userId = u.userId
-            LEFT JOIN event_coins ec ON hc.eventName = ec.slug
-            ORDER BY hc.createdAt DESC
+            JOIN \"userInfo\" u ON hc.userid = u.userid
+            LEFT JOIN event_coins ec ON hc.eventname = ec.slug
+            ORDER BY hc.createdat DESC
             LIMIT :limit OFFSET :offset
         ";
         $statement = $conn->prepare($query);
@@ -129,15 +129,15 @@ if ($method == 'create_history_coin') {
         $createdAt = $_POST['createdAt'];
         $generateBy = $_POST['generateBy'];
 
-        $query = "INSERT INTO history_coins (id, userId, valueCoin, eventName, description, createdAt, generateBy) VALUES (:id, :userId, :valueCoin, :eventName, :description, :createdAt, :generateBy)";
+        $query = "INSERT INTO history_coins (id, userid, valuecoin, eventname, description, createdat, generateby) VALUES (:id, :userid, :valuecoin, :eventname, :description, :createdat, :generateby)";
         $statement = $conn->prepare($query);
         $statement->bindValue(':id', $id);
-        $statement->bindValue(':userId', $userId);
-        $statement->bindValue(':valueCoin', $valueCoin);
-        $statement->bindValue(':eventName', $eventName);
+        $statement->bindValue(':userid', $userId);
+        $statement->bindValue(':valuecoin', $valueCoin);
+        $statement->bindValue(':eventname', $eventName);
         $statement->bindValue(':description', $description);
-        $statement->bindValue(':createdAt', $createdAt);
-        $statement->bindValue(':generateBy', $generateBy);
+        $statement->bindValue(':createdat', $createdAt);
+        $statement->bindValue(':generateby', $generateBy);
         $statement->execute();
 
         echo json_encode(["status" => "success", "message" => "History coin created successfully"]);
@@ -157,15 +157,15 @@ if ($method == 'update_history_coin') {
         $createdAt = $_POST['createdAt'];
         $generateBy = $_POST['generateBy'];
 
-        $query = "UPDATE history_coins SET userId = :userId, valueCoin = :valueCoin, eventName = :eventName, description = :description, createdAt = :createdAt, generateBy = :generateBy WHERE id = :id";
+        $query = "UPDATE history_coins SET userid = :userid, valuecoin = :valuecoin, eventname = :eventname, description = :description, createdat = :createdat, generateby = :generateby WHERE id = :id";
         $statement = $conn->prepare($query);
         $statement->bindValue(':id', $idHistoryCoin);
-        $statement->bindValue(':userId', $userId);
-        $statement->bindValue(':valueCoin', $valueCoin);
-        $statement->bindValue(':eventName', $eventName);
+        $statement->bindValue(':userid', $userId);
+        $statement->bindValue(':valuecoin', $valueCoin);
+        $statement->bindValue(':eventname', $eventName);
         $statement->bindValue(':description', $description);
-        $statement->bindValue(':createdAt', $createdAt);
-        $statement->bindValue(':generateBy', $generateBy);
+        $statement->bindValue(':createdat', $createdAt);
+        $statement->bindValue(':generateby', $generateBy);
         $statement->execute();
 
         echo json_encode(["status" => "success", "message" => "History coin updated successfully"]);
