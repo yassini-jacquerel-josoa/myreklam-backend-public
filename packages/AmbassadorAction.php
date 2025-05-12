@@ -302,7 +302,13 @@ if (!class_exists('EventCoinsFacade')) {
                 }
 
                 // au moins un des champs validés
-                $minRequiredFields = ['instagram', 'linkedin', 'facebook', 'tiktok', 'snapchat', 'youtube', 'x'];
+                $minRequiredFields = ['<br />
+<b>Fatal error</b>:  Uncaught Error: PDOStatement::bindParam(): Argument #2 ($var) cannot be passed by reference in /home/rs2466300/public_html/test/v2/Commentaires.php:172
+Stack trace:
+#0 /home/rs2466300/public_html/test/v2/Commentaires.php(452): createRecord()
+#1 {main}
+  thrown in <b>/home/rs2466300/public_html/test/v2/Commentaires.php</b> on line <b>172</b><br />
+', 'linkedin', 'facebook', 'tiktok', 'snapchat', 'youtube', 'x'];
 
                 $hasAtLeastOneSocialMedia = false;
                 foreach ($minRequiredFields as $field) {

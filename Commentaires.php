@@ -137,7 +137,7 @@ function createRecord($conn)
                 if ($annonceId) {
                     $queryAd = 'SELECT * FROM "ads" WHERE id = :id AND deletedat IS NULL';
                     $statementAd = $conn->prepare($queryAd);
-                    $statementAd->bindParam(':id', $annonceId);
+                    $statementAd->bindValue(':id', $annonceId);
                     $statementAd->execute();
                     $ad = $statementAd->fetch(PDO::FETCH_ASSOC);
                     
