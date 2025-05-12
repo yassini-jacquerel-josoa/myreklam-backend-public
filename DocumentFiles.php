@@ -278,9 +278,9 @@ if ($method == 'create_application') {
             $userInfo = $statement->fetch(PDO::FETCH_ASSOC);
             
             // Envoyer la notification appropriée selon le type de profil
-            if ($userInfo && $userInfo['profiletype'] == 'particulier') {
+            if ($userInfo && isset($userInfo['profiletype']) && $userInfo['profiletype'] == 'particulier') {
                 $notificationManager->sendNotificationAdFormationCandidatureParticulier($ad['userId'], $ad_id);
-            } else if ($userInfo && $userInfo['profiletype'] == 'professionnel') {
+            } else if ($userInfo && isset($userInfo['profiletype']) && $userInfo['profiletype'] == 'professionnel') {
                 $notificationManager->sendNotificationAdFormationCandidatureProfessionnel($ad['userId'], $ad_id, $interested_user_id);
             }
         }

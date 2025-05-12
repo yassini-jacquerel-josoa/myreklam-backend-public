@@ -207,11 +207,14 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
         public function getTemplateId($templateSlug): int | null
         {
+            log_info("Recherche du template ID pour le slug : " . $templateSlug, "SYSTEM");
             foreach ($this->templates as $template) {
                 if (isset($template['templateSlug']) && $template['templateSlug'] === $templateSlug) {
+                    log_info("Template trouvé : " . $template['templateId'], "SYSTEM");
                     return $template['templateId'];
                 }
             }
+            log_info("Aucun template trouvé pour le slug : " . $templateSlug, "SYSTEM");
             return null;
         }
 
