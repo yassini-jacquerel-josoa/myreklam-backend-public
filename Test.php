@@ -8,28 +8,12 @@ $userId = $_POST['userId'];
 
 try {
     $notification = new NotificationBrevoAndWeb($conn);
+    $notification->sendNotificationSubscriptionFree($userId);
  
-    echo json_encode([ 
-        'getTemplateParams' => $notification->getTemplateParams(19),
-        'sendNotificationBrevo' => $notification->sendNotificationBrevo([
-            'email' => 'jooyassini@gmail.com',
-            'templateId' => 19,
-            'params' => [
-                'username' => 'JOOYASSINI',
-            ]
-        ])
+    echo json_encode([
+        'status' => 'success',
+        'message' => 'Notification envoyée avec succès', 
     ]);
-
-    echo "getTemplateParams : 4";
-
-    // $notification->sendNotificationSubscriptionFree($userId);
-
-    // // response
-    // echo json_encode([
-    //     'status' => 'success',
-    //     'message' => 'Notification envoyée avec succès',
-    //     // 'templateId' => $notification->getTemplateId("registration-professional-free")
-    // ]);
 
 } catch (\Throwable $th) {
     echo json_encode([
