@@ -12,7 +12,7 @@ try {
     echo json_encode([
         'status' => 'success',
         'message' => 'Notification envoyée avec succès',
-        'templateId' => $notification->getTemplateId("registration-professional-free")
+        // 'templateId' => $notification->getTemplateId("registration-professional-free")
     ]);
 } catch (\Throwable $th) {
     echo json_encode([
