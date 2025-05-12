@@ -6,6 +6,11 @@ $userId = $_POST['userId'];
 
 try {
     $notification = new NotificationBrevoAndWeb($conn);
+
+    echo json_encode([
+        'getUserInfo' => $notification->getUserInfo($userId), 
+    ]);
+
     $notification->sendNotificationSubscriptionFree($userId);
 
     // response

@@ -741,7 +741,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
         }
 
         // Méthode pour récupérer les informations de l'utilisateur
-        private function getUserInfo($userId): array | null
+        public function getUserInfo($userId): array | null
         {
             try {
                 $query = 'SELECT * FROM "users" WHERE "Id" = :id';
