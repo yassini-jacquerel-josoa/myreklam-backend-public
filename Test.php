@@ -1,36 +1,41 @@
 <?php
 
-include_once(__DIR__ . "/packages/NotificationBrevoAndWeb.php");
 
-$userId = $_POST['userId'];
+echo "getTemplateParams : ";
 
-try {
-    $notification = new NotificationBrevoAndWeb($conn);
+exit();
 
-    echo "getTemplateParams : ";
-    
-    echo json_encode([ 
-        'getTemplateParams' => $notification->getTemplateParams(19),
-        // 'sendNotificationBrevo' => $notification->sendNotificationBrevo([
-        //     'email' => 'jooyassini@gmail.com',
-        //     'templateId' => 19,
-        //     'params' => [
-        //         'username' => 'JOOYASSINI',
-        //     ]
-        // ])
-    ]);
+// include_once(__DIR__ . "/packages/NotificationBrevoAndWeb.php");
 
-    // $notification->sendNotificationSubscriptionFree($userId);
+// $userId = $_POST['userId'];
 
-    // // response
-    // echo json_encode([
-    //     'status' => 'success',
-    //     'message' => 'Notification envoyée avec succès',
-    //     // 'templateId' => $notification->getTemplateId("registration-professional-free")
-    // ]);
-} catch (\Throwable $th) {
-    echo json_encode([
-        'status' => 'error',
-        'message' => $th->getMessage()
-    ]);
-}
+// try {
+//     $notification = new NotificationBrevoAndWeb($conn);
+
+//     echo "getTemplateParams : ";
+
+//     echo json_encode([ 
+//         'getTemplateParams' => $notification->getTemplateParams(19),
+//         // 'sendNotificationBrevo' => $notification->sendNotificationBrevo([
+//         //     'email' => 'jooyassini@gmail.com',
+//         //     'templateId' => 19,
+//         //     'params' => [
+//         //         'username' => 'JOOYASSINI',
+//         //     ]
+//         // ])
+//     ]);
+
+//     // $notification->sendNotificationSubscriptionFree($userId);
+
+//     // // response
+//     // echo json_encode([
+//     //     'status' => 'success',
+//     //     'message' => 'Notification envoyée avec succès',
+//     //     // 'templateId' => $notification->getTemplateId("registration-professional-free")
+//     // ]);
+// } catch (\Throwable $th) {
+//     echo json_encode([
+//         'status' => 'error',
+//         'message' => $th->getMessage()
+//     ]);
+// }
