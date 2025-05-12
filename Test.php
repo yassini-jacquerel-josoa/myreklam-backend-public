@@ -8,7 +8,7 @@ try {
     $notification = new NotificationBrevoAndWeb($conn);
 
     echo json_encode([ 
-        'getTemplateParams' => $notification->getTemplateParams("registration-professional-free"),
+        'getTemplateParams' => $notification->getTemplateParams(19),
         'sendNotificationBrevo' => $notification->sendNotificationBrevo([
             'email' => 'jooyassini@gmail.com',
             'templateId' => 19,
