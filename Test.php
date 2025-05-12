@@ -38,7 +38,7 @@ try {
     //     'message' => 'Notification envoyée avec succès',
     //     // 'templateId' => $notification->getTemplateId("registration-professional-free")
     // ]);
-    
+
 } catch (\Throwable $th) {
     echo json_encode([
         'status' => 'error',

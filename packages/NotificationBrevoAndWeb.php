@@ -220,9 +220,6 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
         public function getTemplateParams($templateId): array | null
         {
-
-            echo "getTemplateParams : ";
-
             log_info("Recherche des params pour le templateId : " . $templateId, "SYSTEM");
             foreach ($this->templates as $template) {
                 if (isset($template['templateId']) && $template['templateId'] === $templateId) {
@@ -881,13 +878,13 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
                 // Construction des paramètres requis
                 $params = [];
-                if (isset($this->getTemplateParams($templateId)) && is_array($this->getTemplateParams($templateId))) {
-                    foreach ($this->getTemplateParams($templateId) as $variable) {
-                        if (isset($paramsData[$variable])) {
-                            $params[$variable] = $paramsData[$variable];
-                        }
-                    }
-                }
+                // if (isset($this->getTemplateParams($templateId)) && is_array($this->getTemplateParams($templateId))) {
+                //     foreach ($this->getTemplateParams($templateId) as $variable) {
+                //         if (isset($paramsData[$variable])) {
+                //             $params[$variable] = $paramsData[$variable];
+                //         }
+                //     }
+                // }
 
                 log_info("sendNotificationBrevo 3");
 
