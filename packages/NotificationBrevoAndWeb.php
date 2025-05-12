@@ -751,7 +751,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
                 $user = $statement->fetch(PDO::FETCH_ASSOC);
 
                 if (empty($user)) {
-                    log_error("Utilisateur non trouvé", "GET_USER", ["userId" => $userId]);
+                    log_info("Utilisateur non trouvé", "GET_USER", ["userId" => $userId]);
                     return null;
                 }
 
@@ -762,7 +762,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
                 $userInfo = $statement->fetch(PDO::FETCH_ASSOC);
 
                 if (empty($userInfo)) {
-                    log_error("Informations de l'utilisateur non trouvées", "GET_USER_INFO", ["userId" => $userId]);
+                    log_info("Informations de l'utilisateur non trouvées", "GET_USER_INFO", ["userId" => $userId]);
                     return null;
                 }
 
@@ -771,7 +771,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
                 return $userInfo;
             } catch (Exception $e) {
-                log_error("Exception lors de la récupération des informations de l'utilisateur", "GET_USER_INFO", ["message" => $e->getMessage()]);
+                log_info("Exception lors de la récupération des informations de l'utilisateur", "GET_USER_INFO", ["message" => $e->getMessage()]);
                 return null;
             }
         }
@@ -781,7 +781,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
         {
             try {
                 if (empty($data['user_id']) || empty($data['content'])) {
-                    log_error("User ID ou content manquant", "SEND_NOTIFICATION_WEB", ["data" => $data]);
+                    log_info("User ID ou content manquant", "SEND_NOTIFICATION_WEB", ["data" => $data]);
                     return false;
                 }
 
@@ -819,11 +819,11 @@ if (!class_exists('NotificationBrevoAndWeb')) {
                     return true;
                 }
 
-                log_error("Échec de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["user_id" => $data['user_id']]);
+                log_info("Échec de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["user_id" => $data['user_id']]);
                 return false;
             } catch (Exception $e) {
                 echo "Exception lors de l'envoi de la notification web" . $e->getMessage();
-                log_error("Exception lors de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["message" => $e->getMessage()]);
+                log_info("Exception lors de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["message" => $e->getMessage()]);
                 return false;
             }
         }
@@ -838,7 +838,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
                 $paramsData = $data['params'] ?? [];
 
                 if (empty($email) || empty($templateId) || empty($paramsData)) {
-                    log_error("Email ou templateId manquant", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
+                    log_info("Email ou templateId manquant", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                     return false;
                 }
 
@@ -848,7 +848,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
                 // Vérification si le templateId est valide
                 if (!array_key_exists($templateId, $this->templates)) {
-                    log_error("TemplateId non reconnu", "SEND_NOTIFICATION_BREVO", ["templateId" => $templateId]);
+                    log_info("TemplateId non reconnu", "SEND_NOTIFICATION_BREVO", ["templateId" => $templateId]);
                     return false;
                 }
 
@@ -881,11 +881,11 @@ if (!class_exists('NotificationBrevoAndWeb')) {
                     log_info("Email envoyé avec succès", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                     return true;
                 } else {
-                    log_error("Échec de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
+                    log_info("Échec de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["email" => $email, "templateId" => $templateId]);
                     return false;
                 }
             } catch (Exception $e) {
-                log_error("Exception lors de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["message" => $e->getMessage()]);
+                log_info("Exception lors de l'envoi d'email", "SEND_NOTIFICATION_BREVO", ["message" => $e->getMessage()]);
                 return false;
             }
         }
