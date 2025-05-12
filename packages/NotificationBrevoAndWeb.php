@@ -218,6 +218,19 @@ if (!class_exists('NotificationBrevoAndWeb')) {
             return null;
         }
 
+        public function getTemplateParams($templateSlug): array | null
+        {
+            log_info("Recherche des params pour le slug : " . $templateSlug, "SYSTEM");
+            foreach ($this->templates as $template) {
+                if (isset($template['templateSlug']) && $template['templateSlug'] === $templateSlug) {
+                    log_info("Params trouvés : " . $template['params'], "SYSTEM");
+                    return $template['variables'];
+                }
+            }
+            log_info("Aucun template trouvé pour le slug : " . $templateSlug, "SYSTEM");
+            return null;
+        }
+
         // candidature "emplois" : celui a poster l'offre
         public function sendNotificationAdEmploisCandidature($userId, $adId): bool
         {
@@ -865,11 +878,13 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
                 // Construction des paramètres requis
                 $params = [];
-                foreach ($this->templates[$templateId] as $variable) {
-                    if (isset($paramsData[$variable])) {
-                        $params[$variable] = $paramsData[$variable];
+                if (isset($this->getTemplateParams($templateId)) && is_array($this->getTemplateParams($templateId))) {
+                    foreach ($this->getTemplateParams($templateId) as $variable) {
+                        if (isset($paramsData[$variable])) {
+                            $params[$variable] = $paramsData[$variable];
+                        }
                     }
-                }
+                } 
 
                 log_info("sendNotificationBrevo 3");
 
