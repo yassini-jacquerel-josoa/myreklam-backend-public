@@ -202,25 +202,31 @@ if (!class_exists('EventCoinsFacade')) {
                     // Mise à jour si l'utilisateur existe
                     $query = '
                     UPDATE user_coins 
-                    SET value = value + :value, 
-                        updateat = :updateat 
-                    WHERE userid = :id
-                ';
+                        SET value = value + :value, 
+                            updateat = :updateat 
+                        WHERE userid = :id
+                    ';
+
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->bindValue(':value', $coinsToAdd, PDO::PARAM_INT);
+                    $stmt->bindValue(':updateat', $currentDate);
+                    $stmt->execute();
                 } else {
                     // Insertion si l'utilisateur n'existe pas
                     $query = '
                     INSERT INTO user_coins 
-                        (userid, value, updateat) 
-                    VALUES 
-                        (:id, :value, :updateat)
-                ';
-                }
+                            (id, userid, value, updateat) 
+                        VALUES 
+                            (:id, :userid, :value, :updateat)
+                    ';
 
-                $stmt = $this->conn->prepare($query);
-                $stmt->bindValue(':id', $userId, PDO::PARAM_STR);
-                $stmt->bindValue(':value', $coinsToAdd, PDO::PARAM_INT);
-                $stmt->bindValue(':updateat', $currentDate);
-                $stmt->execute();
+                    $stmt = $this->conn->prepare($query);
+                    $stmt->bindValue(':id', $userId, PDO::PARAM_STR);
+                    $stmt->bindValue(':userid', $userId, PDO::PARAM_STR);
+                    $stmt->bindValue(':value', $coinsToAdd, PDO::PARAM_INT);
+                    $stmt->bindValue(':updateat', $currentDate);
+                    $stmt->execute();
+                }
 
                 // Record in history
                 $historyQuery = "
