@@ -219,15 +219,12 @@ if (!class_exists('NotificationBrevoAndWeb')) {
         }
 
         public function getTemplateParams($templateId): array | null
-        {
-            log_info("Recherche des params pour le templateId : " . $templateId, "SYSTEM");
+        { 
             foreach ($this->templates as $template) {
-                if (isset($template['templateId']) && $template['templateId'] === $templateId) {
-                    log_info("Params trouvés : " . $template['variables'], "SYSTEM");
+                if (isset($template['templateId']) && $template['templateId'] === $templateId) { 
                     return (isset($template['variables']) && is_array($template['variables'])) ? $template['variables'] : [];
                 }
-            }
-            log_info("Aucun template trouvé pour le templateId : " . $templateId, "SYSTEM");
+            } 
             return null;
         }
 
