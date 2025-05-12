@@ -19,13 +19,13 @@ try {
 
     echo json_encode([ 
         'getTemplateParams' => $notification->getTemplateParams(19),
-        // 'sendNotificationBrevo' => $notification->sendNotificationBrevo([
-        //     'email' => 'jooyassini@gmail.com',
-        //     'templateId' => 19,
-        //     'params' => [
-        //         'username' => 'JOOYASSINI',
-        //     ]
-        // ])
+        'sendNotificationBrevo' => $notification->sendNotificationBrevo([
+            'email' => 'jooyassini@gmail.com',
+            'templateId' => 19,
+            'params' => [
+                'username' => 'JOOYASSINI',
+            ]
+        ])
     ]);
 
     echo "getTemplateParams : 4";
