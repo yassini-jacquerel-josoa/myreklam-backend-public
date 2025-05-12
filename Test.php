@@ -1,22 +1,14 @@
 <?php
 
-
-echo "getTemplateParams : 0";
  
 
 include_once(__DIR__ . "/packages/NotificationBrevoAndWeb.php");
-
-echo "getTemplateParams : 1";
-
-$userId = $_POST['userId'];
-
-echo "getTemplateParams : 2";
+ 
+$userId = $_POST['userId']; 
 
 try {
     $notification = new NotificationBrevoAndWeb($conn);
-
-    echo "getTemplateParams : 3";
-
+ 
     echo json_encode([ 
         'getTemplateParams' => $notification->getTemplateParams(19),
         'sendNotificationBrevo' => $notification->sendNotificationBrevo([
