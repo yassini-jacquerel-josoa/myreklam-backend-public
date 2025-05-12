@@ -7,8 +7,14 @@ $userId = $_POST['userId'];
 try {
     $notification = new NotificationBrevoAndWeb($conn);
 
-    echo json_encode([
-        'getUserInfo' => $notification->getUserInfo($userId), 
+    echo json_encode([ 
+        'sendNotificationBrevo' => $notification->sendNotificationBrevo([
+            'email' => 'jooyassini@gmail.com',
+            'templateId' => 19,
+            'params' => [
+                'username' => 'JOOYASSINI',
+            ]
+        ])
     ]);
 
     $notification->sendNotificationSubscriptionFree($userId);
