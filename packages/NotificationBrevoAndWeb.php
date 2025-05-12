@@ -803,27 +803,24 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
                 $id = $this->generateGUID();
 
-                // defaut value
-                if (!isset($data['type'])) {
-                    $data['type'] = "info";
-                }
-                if (!isset($data['is_read'])) {
-                    $data['is_read'] = $data['is_read'] ? 1 : 0;
-                }
-                if (!isset($data['return_url'])) {
-                    $data['return_url'] = null;
-                }
-                if (!isset($data['metadata'])) {
-                    $data['metadata'] = null;
+                // Valeurs par défaut
+                $type = $data['type'] ?? 'info';
+                $isRead = isset($data['is_read']) ? ($data['is_read'] ? 1 : 0) : 0;
+                $returnUrl = $data['return_url'] ?? null;
+
+                // Gestion du metadata (convertir en JSON si c'est un tableau)
+                $metadata = $data['metadata'] ?? null;
+                if (is_array($metadata)) {
+                    $metadata = json_encode($metadata, JSON_UNESCAPED_UNICODE);
                 }
 
                 $statement->bindParam(':id', $id);
                 $statement->bindParam(':user_id', $data['user_id']);
                 $statement->bindParam(':content', $data['content']);
-                $statement->bindParam(':type', $data['type']);
-                $statement->bindParam(':is_read', $data['is_read']);
-                $statement->bindParam(':return_url', $data['return_url']);
-                $statement->bindParam(':metadata', $data['metadata']);
+                $statement->bindParam(':type', $type);
+                $statement->bindParam(':is_read', $isRead, PDO::PARAM_INT);
+                $statement->bindParam(':return_url', $returnUrl);
+                $statement->bindParam(':metadata', $metadata);
 
                 $result = $statement->execute();
 
@@ -834,8 +831,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
 
                 log_info("Échec de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["user_id" => $data['user_id']]);
                 return false;
-            } catch (Exception $e) {
-                echo "Exception lors de l'envoi de la notification web" . $e->getMessage();
+            } catch (Exception $e) { 
                 log_info("Exception lors de l'envoi de la notification web", "SEND_NOTIFICATION_WEB", ["message" => $e->getMessage()]);
                 return false;
             }
