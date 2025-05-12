@@ -154,7 +154,7 @@ function createRecord($conn)
                         // Obtenir les informations sur l'utilisateur qui commente
                         $queryUser = 'SELECT * FROM "userInfo" WHERE userid = :id';
                         $statementUser = $conn->prepare($queryUser);
-                        $statementUser->bindParam(':id', $userId);
+                        $statementUser->bindValue(':id', $userId);
                         $statementUser->execute();
                         $user = $statementUser->fetch(PDO::FETCH_ASSOC);
                         
@@ -164,12 +164,13 @@ function createRecord($conn)
                         $type = "review";
                         $is_read = 0;
                         
-                        $statementNotif->bindParam(':id', $notifId);
-                        $statementNotif->bindParam(':user_id', $ad['userId']);
-                        $statementNotif->bindParam(':content', $content);
-                        $statementNotif->bindParam(':type', $type);
-                        $statementNotif->bindParam(':is_read', $is_read);
-                        $statementNotif->bindParam(':return_url', '/annonce/' . $annonceId);
+                        $statementNotif->bindValue(':id', $notifId);
+                        $statementNotif->bindValue(':user_id', $ad['userId']);
+                        $statementNotif->bindValue(':content', $content);
+                        $statementNotif->bindValue(':type', $type);
+                        $statementNotif->bindValue(':is_read', $is_read);
+                        $return_url = '/annonce/' . $annonceId;
+                        $statementNotif->bindValue(':return_url', $return_url);
                         
                         $statementNotif->execute();
                     }
