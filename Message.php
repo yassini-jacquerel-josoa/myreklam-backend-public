@@ -634,7 +634,7 @@ if ($method == 'get_conversation') {
                 ],
                 "announcement" => $offer ? [
                     "id" => $offer['id'],
-                    "name" => $offer['title'],
+                    "name" => $offer['category'] == "demandes" ? $offer['inquiryTitle'] : $offer['title'],
                     "status" => "valid"
                 ] : [
                     "id" => null,
@@ -743,36 +743,41 @@ if ($method == 'get_message') {
             exit;
         }
 
-        // 2. Récupération des informations de l'interlocuteur
-        $queryUserInfo = "
-            SELECT u.*, 
-                   COALESCE(NULLIF(u.nomsociete, ''), u.pseudo) AS interlocutor_username
-            FROM \"userInfo\" u
-            WHERE u.userid = :interlocutorId
-        ";
+        // 2.2 Interlocuteur
+        $query = "
+                SELECT *
+                FROM \"userInfo\"   u WHERE u.userid = :interlocutorId
+                ";
 
-        $statementUserInfo = $conn->prepare($queryUserInfo);
-        $statementUserInfo->bindValue(':interlocutorId', $interlocutorId, PDO::PARAM_STR);
-        $statementUserInfo->execute();
-        $userInfo = $statementUserInfo->fetch(PDO::FETCH_ASSOC);
+        $statement = $conn->prepare($query);
+        $statement->bindValue(':interlocutorId', $interlocutorId);
+        $statement->execute();
+        $interlocutor = $statement->fetch(PDO::FETCH_ASSOC);
+        $userInfo = null;
 
-        // 3. Récupération de l'email pour déterminer le pseudo si nécessaire
-        $queryUsers = 'SELECT "Email" FROM "users" WHERE "Id" = :interlocutorId';
-        $statementUsers = $conn->prepare($queryUsers);
-        $statementUsers->bindValue(':interlocutorId', $interlocutorId, PDO::PARAM_STR);
-        $statementUsers->execute();
-        $userData = $statementUsers->fetch(PDO::FETCH_ASSOC);
+        $query0 = 'SELECT * FROM "users" WHERE "Id" = :interlocutorId;';
 
-        // Détermination du nom d'utilisateur
-        $interlocutorUserName = "";
+        $statement = $conn->prepare($query0);
+        $statement->bindValue(':interlocutorId', $interlocutorId);
+        $statement->execute();
+        $userInfo = $statement->fetch(PDO::FETCH_ASSOC);
 
-        if (!empty($userData['Email'])) {
-            $interlocutorUserName = explode('@', $userData['Email'])[0];
+        $interlocutorUserName = "Pseudo";
+        // Si l'interlocuteur est trouvé dans userInfo, on peut alors chercher son pseudo ou nom
+        if ($interlocutor) {
+            if (isset($interlocutor['profiletype']) && $interlocutor['profiletype'] === "professionnel") {
+                $interlocutorUserName = $interlocutor['nomsociete'] ?? $interlocutor['pseudo'];
+            } else {
+                $interlocutorUserName = $interlocutor['pseudo'];
+            }
+        } else {
+            // Vérification de l'email pour définir le nom d'utilisateur
+            if ($userInfo && isset($userInfo['Email'])) {
+                $interlocutorUserName = explode('@', $userInfo['Email'])[0];
+            }
         }
 
-        if (!$interlocutorUserName && $userInfo) {
-            $interlocutorUserName = $userInfo['interlocutor_username'] ?? "Utilisateur inconnu";
-        }
+
 
         // 4. Récupération des messages de la conversation
         $queryMessages = "
@@ -833,7 +838,7 @@ if ($method == 'get_message') {
             "messages" => $messages,
             "announcement" => $offre ? [
                 "id" => $offre['id'],
-                "name" => $offre['title'],
+                "name" => $offre['category'] == "demandes" ? $offre['inquiryTitle'] : $offre['title'],
                 "status" => "valid"
             ] : [
                 "id" => null,
@@ -914,16 +919,16 @@ function setJsonHeader()
 {
     header('Content-Type: application/json');
 }
- 
- 
- 
- 
- function getPseudoUser($conn, $userId)
+
+
+
+
+function getPseudoUser($conn, $userId)
 {
     $pseudo = "";
 
     // Première requête : vérifier si le pseudo existe dans userInfo
-     $query = 'SELECT * FROM "userInfo" WHERE userid = :id';
+    $query = 'SELECT * FROM "userInfo" WHERE userid = :id';
     $statement = $conn->prepare($query);
     $statement->bindParam(':id', $userId);
     $statement->execute();
@@ -940,24 +945,24 @@ function setJsonHeader()
 
     if (!$resultUserInfo || !$resultUserInfo["pseudo"]) {
 
-      if ($result && isset($result["email"])) {
+        if ($result && isset($result["email"])) {
 
             $pseudo = explode('@', $email)[0];
-    }
+        }
     } else {
-       $pseudo = $resultUserInfo['nomsociete'] ??  $resultUserInfo["pseudo"];
+        $pseudo = $resultUserInfo['nomsociete'] ??  $resultUserInfo["pseudo"];
     }
 
- return ["pseudo" => $pseudo, "email" => $email];
+    return ["pseudo" => $pseudo, "email" => $email];
 }
 
-if($method == "get_pseudo"){
-   try {
- 
+if ($method == "get_pseudo") {
+    try {
 
-    $resultat = getPseudoUser( $conn , $userId);
-    print_r($resultat);
-   } catch (\Throwable $th) {
-    echo $th->getMessage();
-  }
+
+        $resultat = getPseudoUser($conn, $userId);
+        print_r($resultat);
+    } catch (\Throwable $th) {
+        echo $th->getMessage();
+    }
 }
