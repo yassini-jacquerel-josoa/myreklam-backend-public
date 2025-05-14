@@ -833,7 +833,7 @@ if ($method == 'get_message') {
             "interlocutor" => [
                 "id" => $interlocutorId,
                 "username" => $interlocutorUserName,
-                "photo" => $userInfo['photoprofilurl']
+                "photo" => $interlocutor['photoprofilurl']
             ],
             "messages" => $messages,
             "announcement" => $offre ? [
