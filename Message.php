@@ -490,6 +490,7 @@ if ($method == 'get_conversation') {
             SELECT c.id AS conversation_id, c.offre_id
             FROM \"conversations\" c
             LEFT JOIN \"conversation_participants\" cp ON cp.conversation_id = c.id
+            INNER JOIN \"messages\" m ON m.conversation_id = c.id
             WHERE (c.owner_id = :myId OR cp.user_id = :myId)
               AND NOT EXISTS (
                   SELECT 1
