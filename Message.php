@@ -386,11 +386,8 @@ if ($method == 'start_conversation') {
 
 
 if ($method == 'delete') {
-
     try {
         if ($idConversation) {
-
-
             // Vérifier si l'utilisateur a déjà démarré une conversation sur cette offre
             $query = "SELECT * FROM \"conversations\" WHERE id = :id";
             $statement = $conn->prepare($query);
@@ -422,21 +419,12 @@ if ($method == 'delete') {
                 'deleteDate' => date("Y-m-d H:i:s")
             ]);
 
-            // Supprimer la conversation
-            $deleteQuery = "DELETE FROM \"conversations\" WHERE id = :id";
-            $deleteStmt = $conn->prepare($deleteQuery);
-            $deleteStmt->bindValue(':id', $idConversation);
-
-            if (!$deleteStmt->execute()) {
-                throw new Exception("Échec de la suppression de la conversation");
-            }
-
             // Tout s'est bien passé, on valide la transaction
             $conn->commit();
 
             echo json_encode([
                 "status" => "success",
-                "message" => "Conversation supprimée avec succès"
+                "message" => "Conversation masquée avec succès"
             ]);
         } else {
             http_response_code(404); // Ressource non trouvée
