@@ -490,14 +490,23 @@ if ($method == 'get_conversation') {
             SELECT c.id AS conversation_id, c.offre_id
             FROM \"conversations\" c
             LEFT JOIN \"conversation_participants\" cp ON cp.conversation_id = c.id
-            INNER JOIN \"messages\" m ON m.conversation_id = c.id
-            WHERE (c.owner_id = :myId OR cp.user_id = :myId)
-              AND NOT EXISTS (
-                  SELECT 1
-                  FROM \"conversation_deleted\" cd
-                  WHERE cd.conversation_id = c.id
-                    AND cd.participant_user_id = :myId
-              )
+            WHERE (
+                -- Le créateur voit toujours la conversation
+                c.owner_id = :myId
+                OR 
+                -- L'interlocuteur ne voit la conversation que s'il y a des messages
+                (cp.user_id = :myId AND EXISTS (
+                    SELECT 1 
+                    FROM \"messages\" m 
+                    WHERE m.conversation_id = c.id
+                ))
+            )
+            AND NOT EXISTS (
+                SELECT 1
+                FROM \"conversation_deleted\" cd
+                WHERE cd.conversation_id = c.id
+                AND cd.participant_user_id = :myId
+            )
             GROUP BY c.id, c.offre_id
             ORDER BY c.updated_at DESC
             LIMIT :pageSize OFFSET :offset
