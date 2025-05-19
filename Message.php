@@ -485,11 +485,6 @@ if ($method == 'get_conversation') {
         // Calcul de l'offset
         $offset = ($page - 1) * $pageSize;
 
-        // SELECT c.id AS conversation_id, c.offre_id
-        // FROM \"conversations\" c
-        // LEFT JOIN \"conversation_participants\" cp ON cp.conversation_id = c.id
-        // WHERE (c.owner_id = :myId OR cp.user_id = :myId)
-        // LIMIT :pageSize OFFSET :offset
         // 1. Récupération des conversations
         $query = "
             SELECT c.id AS conversation_id, c.offre_id
@@ -502,6 +497,8 @@ if ($method == 'get_conversation') {
                   WHERE cd.conversation_id = c.id
                     AND cd.participant_user_id = :myId
               )
+            GROUP BY c.id, c.offre_id
+            ORDER BY c.updated_at DESC
             LIMIT :pageSize OFFSET :offset
             ";
         $statement = $conn->prepare($query);
