@@ -531,7 +531,19 @@ function deleteRecord($conn, $id)
     // Envoyer une notification de suppression si l'userId existe
     if ($result && $userId) {
         $notificationManager = new NotificationBrevoAndWeb($conn);
+        
+        // Désactiver temporairement l'affichage des erreurs
+        $oldErrorReporting = error_reporting();
+        $oldDisplayErrors = ini_get('display_errors');
+        error_reporting(0);
+        ini_set('display_errors', 0);
+        
+        // Appeler la méthode qui génère les warnings
         $notificationManager->sendNotificationAdDeleted($userId, $id, $category, $title);
+        
+        // Rétablir les paramètres d'erreur
+        error_reporting($oldErrorReporting);
+        ini_set('display_errors', $oldDisplayErrors);
     }
 
     setJsonHeader();
