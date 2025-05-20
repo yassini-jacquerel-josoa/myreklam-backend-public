@@ -22,7 +22,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // Stripe SDK
 require_once __DIR__ . '/vendor/autoload.php';
-\Stripe\Stripe::setApiKey('sk_test_51KEdn8LjQlGQsbAnaApChiGcpV1NcpfX7nJSFzZGBnnlRPqb5P5FlNVCtLhK0uqO26wddWEVNI9KQWpHtOlX9P0g009pMas4Tn');
+// \Stripe\Stripe::setApiKey('sk_test_51KEdn8LjQlGQsbAnaApChiGcpV1NcpfX7nJSFzZGBnnlRPqb5P5FlNVCtLhK0uqO26wddWEVNI9KQWpHtOlX9P0g009pMas4Tn');
+\Stripe\Stripe::setApiKey('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');
 
 header('Content-Type: application/json');
 
