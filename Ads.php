@@ -514,7 +514,7 @@ function updateRecord($conn, $id, $data)
 function deleteRecord($conn, $id)
 {
     // Récupérer l'ID de l'utilisateur avant de supprimer l'annonce
-    $query = "SELECT userId FROM \"ads\" WHERE id = :id";
+    $query = "SELECT \"userId\" FROM \"ads\" WHERE id = :id";
     $statement = $conn->prepare($query);
     $statement->bindParam(':id', $id);
     $statement->execute();
