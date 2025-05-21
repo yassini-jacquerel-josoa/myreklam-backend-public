@@ -694,19 +694,32 @@ if (!class_exists('NotificationBrevoAndWeb')) {
         }
 
         // Méthode pour envoyer une notification lors de la suppression d'annonce supprimée
-        public function sendNotificationAdDeleted($userId, $adId): bool
+        public function sendNotificationAdDeleted($userId, $adId, $category = '', $title = ''): bool
         {
             $userInfo = $this->getUserInfo($userId);
             $ad = GeneralHelper::getFormatedAd($adId);
 
-            if (empty($userInfo) || empty($ad) || empty($ad['title']) || empty($ad['category'])) {
-                log_info("Informations de l'utilisateur ou de l'annonce non trouvées", "SEND_NOTIFICATION_AD_DELETED", ["userId" => $userId, "ad" => $ad, "userInfo" => $userInfo]);
+            // Si les informations ne sont pas trouvées dans l'appel à getFormatedAd, 
+            // on utilise les valeurs passées en paramètres
+            if (empty($ad) || empty($ad['title']) || empty($ad['category'])) {
+                $ad = [
+                    'title' => $title,
+                    'category' => $category,
+                    'categoryLabel' => $category // On utilise la catégorie comme label par défaut
+                ];
+            }
+
+            if (empty($userInfo)) {
+                log_info("Informations de l'utilisateur non trouvées", "SEND_NOTIFICATION_AD_DELETED", ["userId" => $userId, "ad" => $ad, "userInfo" => $userInfo]);
                 return false;
             }
 
+            // S'assurer que categoryLabel existe et n'est pas null
+            $categoryLabel = isset($ad['categoryLabel']) && $ad['categoryLabel'] ? $ad['categoryLabel'] : $ad['category'];
+
             $resultWeb = $this->sendNotificationWeb([
                 'user_id' => $userId,
-                'content' => 'Votre annonce a été supprimée ' . $ad['title'] . ' dans la catégorie ' . strtolower($ad['categoryLabel']),
+                'content' => 'Votre annonce a été supprimée ' . $ad['title'] . ' dans la catégorie ' . strtolower($categoryLabel),
                 'return_url' => '/mes-annonces'
             ]);
 
@@ -716,7 +729,7 @@ if (!class_exists('NotificationBrevoAndWeb')) {
                 'params' => [
                     'username' => $userInfo['username'],
                     'ad.title' => $ad['title'],
-                    'ad.category' => strtolower($ad['categoryLabel'])
+                    'ad.category' => strtolower($categoryLabel)
                 ]
             ]);
 

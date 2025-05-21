@@ -513,13 +513,15 @@ function updateRecord($conn, $id, $data)
 // Fonction pour supprimer un enregistrement
 function deleteRecord($conn, $id)
 {
-    // Récupérer l'ID de l'utilisateur avant de supprimer l'annonce
-    $query = "SELECT userId FROM \"ads\" WHERE id = :id";
+    // Récupérer les informations de l'annonce avant de la supprimer
+    $query = "SELECT \"userId\", \"category\", \"title\" FROM \"ads\" WHERE id = :id";
     $statement = $conn->prepare($query);
     $statement->bindParam(':id', $id);
     $statement->execute();
     $ad = $statement->fetch(PDO::FETCH_ASSOC);
     $userId = $ad['userId'] ?? null;
+    $category = $ad['category'] ?? '';
+    $title = $ad['title'] ?? '';
     
     $query = "UPDATE \"ads\" SET \"deletedat\" = CURRENT_TIMESTAMP WHERE id = :id";
     $statement = $conn->prepare($query);
@@ -529,7 +531,19 @@ function deleteRecord($conn, $id)
     // Envoyer une notification de suppression si l'userId existe
     if ($result && $userId) {
         $notificationManager = new NotificationBrevoAndWeb($conn);
-        $notificationManager->sendNotificationAdDeleted($userId, $id);
+        
+        // Désactiver temporairement l'affichage des erreurs
+        $oldErrorReporting = error_reporting();
+        $oldDisplayErrors = ini_get('display_errors');
+        error_reporting(0);
+        ini_set('display_errors', 0);
+        
+        // Appeler la méthode qui génère les warnings
+        $notificationManager->sendNotificationAdDeleted($userId, $id, $category, $title);
+        
+        // Rétablir les paramètres d'erreur
+        error_reporting($oldErrorReporting);
+        ini_set('display_errors', $oldDisplayErrors);
     }
 
     setJsonHeader();
