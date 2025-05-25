@@ -53,7 +53,6 @@ if ($method == 'get_history_coins') {
             SELECT ec.*
             FROM history_coins hc
             JOIN \"event_coins\" ec ON hc.eventname = ec.slug
-            JOIN \"userInfo\" u ON hc.userid = u.userid
             WHERE hc.userid = :userid
         ";
         $statement = $conn->prepare($query);
