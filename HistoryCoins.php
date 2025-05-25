@@ -47,17 +47,18 @@ function generateGUID()
 
 if ($method == 'get_history_coins') {
     try {
-        $userId = $_POST['userId']; // Récupérer l'ID de l'utilisateur
+        $userid = $_POST['userid']; // Récupérer l'ID de l'utilisateur
 
         // Jointure avec la table `users` pour récupérer des informations supplémentaires
         $query = "
-            SELECT hc.*
+            SELECT ec.*,
             FROM history_coins hc
-            JOIN \"userInfo\" u ON hc.userId = u.userId
-            WHERE hc.userId = :userId
+            JOIN \"event_coins\" ec ON hc.eventname = ec.slug
+            JOIN \"userInfo\" u ON hc.userid = u.userid
+            WHERE hc.userid = :userid
         ";
         $statement = $conn->prepare($query);
-        $statement->bindValue(':userId', $userId);
+        $statement->bindValue(':userid', $userId);
         $statement->execute();
         $historyCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
 
