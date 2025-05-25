@@ -60,7 +60,7 @@ if ($method == 'get_history_coins') {
         $statement->execute();
         $historyCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(["status" => "success", "history_coins" => $historyCoins]);
+        echo json_encode(["status" => "success", "history_coins" => $historyCoins, "query" => $statement->queryString]);
     } catch (\Throwable $th) {
         http_response_code(500);
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
