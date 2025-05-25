@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
     http_response_code(404);
     exit;
 }
- 
+
 include_once(__DIR__ . "/db.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
@@ -18,11 +18,11 @@ header("Access-Control-Allow-Headers: Content-Type");
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(404);
     exit;
-}   
+}
 
-$method = $_POST['Method']; 
+$method = $_POST['Method'];
 $idEventCoin = $_POST['idEventCoin'];
-$idHistoryCoin = $_POST['idHistoryCoin']; 
+$idHistoryCoin = $_POST['idHistoryCoin'];
 
 function generateGUID()
 {
@@ -42,7 +42,7 @@ function generateGUID()
         );
     }
 }
-  
+
 //  History Coins
 
 if ($method == 'get_history_coins') {
@@ -52,7 +52,7 @@ if ($method == 'get_history_coins') {
         $query = "
             SELECT ec.*
             FROM history_coins hc
-            JOIN \"event_coins\" ec ON hc.eventname = ec.slug
+            JOIN event_coins ec ON hc.eventname = ec.slug
             WHERE hc.userid = :userid
         ";
         $statement = $conn->prepare($query);
@@ -148,7 +148,7 @@ if ($method == 'create_history_coin') {
 
 if ($method == 'update_history_coin') {
     try {
-   
+
         $userId = $_POST['userId'];
         $valueCoin = $_POST['valueCoin'];
         $eventName = $_POST['eventName'];
@@ -194,4 +194,3 @@ function setJsonHeader()
 {
     header('Content-Type: application/json');
 }
- 
