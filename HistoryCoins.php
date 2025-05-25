@@ -48,10 +48,9 @@ function generateGUID()
 if ($method == 'get_history_coins') {
     try {
         $userid = $_POST['userid']; // Récupérer l'ID de l'utilisateur
-
         // Jointure avec la table `users` pour récupérer des informations supplémentaires
         $query = "
-            SELECT ec.*,
+            SELECT ec.*
             FROM history_coins hc
             JOIN \"event_coins\" ec ON hc.eventname = ec.slug
             JOIN \"userInfo\" u ON hc.userid = u.userid
