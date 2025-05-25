@@ -44,23 +44,24 @@ function generateGUID()
 }
 
 //  History Coins
-
 if ($method == 'get_history_coins') {
     try {
-        $userid = $_POST['userid']; // Récupérer l'ID de l'utilisateur
-        // Jointure avec la table `users` pour récupérer des informations supplémentaires
+        $userid = $_POST['userid']; // Assurez-vous que c'est bien reçu (ex: 'cab8da0c-7699-46fe-befb-71c56a153c5f')
+        
         $query = "
             SELECT ec.*
             FROM history_coins hc
             JOIN event_coins ec ON hc.eventname = ec.slug
-            WHERE hc.userid = 'cab8da0c-7699-46fe-befb-71c56a153c5f'
+            WHERE hc.userid = :userid
         ";
+        
         $statement = $conn->prepare($query);
-        // $statement->bindValue(':userid', $userId);
+        $statement->bindValue(':userid', $userid, PDO::PARAM_STR); // Spécifiez le type (UUID = string)
         $statement->execute();
-        $historyCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(["status" => "success", "history_coins" => $historyCoins]);
+        $historyCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(["status" => "success", "history_coins" => $historyCoins, "userid" => $userid]);
+
     } catch (\Throwable $th) {
         http_response_code(500);
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
