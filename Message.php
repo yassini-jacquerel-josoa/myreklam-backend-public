@@ -551,7 +551,7 @@ if ($method == 'get_conversation') {
             
             $stmtLastMessage = $conn->prepare($queryLastMessage);
             $stmtLastMessage->bindValue(':conversationId', $conversation['conversation_id']);
-            $stmtLastMessage->bindValue(':deletedUntil', $conversation['user_deleted_until'] ?? null);
+            $stmtLastMessage->bindValue(':deletedUntil', $conversation['user_deleted_until'] ?? null, PDO::PARAM_STR);
             $stmtLastMessage->execute();
             $message = $stmtLastMessage->fetch(PDO::FETCH_ASSOC);
 
@@ -752,7 +752,7 @@ if ($method == 'get_message') {
         
         $stmtMessages = $conn->prepare($queryMessages);
         $stmtMessages->bindValue(':conversationId', $idConversation);
-        $stmtMessages->bindValue(':deletedUntil', $deletedUntil);
+        $stmtMessages->bindValue(':deletedUntil', $deletedUntil, PDO::PARAM_STR);
         $stmtMessages->bindValue(':pageSize', $pageSize, PDO::PARAM_INT);
         $stmtMessages->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmtMessages->execute();
