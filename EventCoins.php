@@ -6,6 +6,8 @@ header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 include_once(__DIR__ . "/db.php");
+include_once(__DIR__ . "/packages/GeneralHelper.php");
+include_once(__DIR__ . "/packages/AmbassadorAction.php");
 
 $method = $_POST['Method'];
 $idEventCoin = $_POST['id'];
@@ -43,6 +45,15 @@ if ($method == 'get_event_coins') {
             return $item;
         }, $eventCoins);
 
+        // Verifier si l'utilisateur est un professionnel premium
+        $generalHelper = new GeneralHelper($conn);
+        $isPremium = $generalHelper->isPremium($user_id);
+
+        if ($isPremium) {
+            $ambassadorAction = new EventCoinsFacade($conn);
+            $ambassadorAction->sponsorCompanyPremium($user_id);
+        }
+        
         // En-têtes corrects + encodage JSON
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([

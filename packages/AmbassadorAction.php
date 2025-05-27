@@ -71,7 +71,23 @@ if (!class_exists('EventCoinsFacade')) {
         public function leaveReviewCompany(string $userId): bool
         {
             return $this->processEvent($userId, 'leave_review_company', true);
+        } 
+
+        public function sponsorCompanyPremium(string $userId): bool
+        {
+            return $this->processEvent($userId, 'sponsor_company_premium');
         }
+
+        public function sponsorCompanyFree(string $userId): bool
+        {
+            return $this->processEvent($userId, 'sponsor_company_free');
+        }
+
+        public function sponsorIndividual(string $userId): bool
+        {
+            return $this->processEvent($userId, 'sponsor_individual');
+        }
+
 
 
 
@@ -210,6 +226,7 @@ if (!class_exists('EventCoinsFacade')) {
                     $stmt = $this->conn->prepare($query);
                     $stmt->bindValue(':value', $coinsToAdd, PDO::PARAM_INT);
                     $stmt->bindValue(':updateat', $currentDate);
+                    $stmt->bindValue(':id', $userId, PDO::PARAM_STR);
                     $stmt->execute();
                 } else {
                     // Insertion si l'utilisateur n'existe pas
@@ -302,13 +319,7 @@ if (!class_exists('EventCoinsFacade')) {
                 }
 
                 // au moins un des champs validés
-                $minRequiredFields = ['<br />
-<b>Fatal error</b>:  Uncaught Error: PDOStatement::bindParam(): Argument #2 ($var) cannot be passed by reference in /home/rs2466300/public_html/test/v2/Commentaires.php:172
-Stack trace:
-#0 /home/rs2466300/public_html/test/v2/Commentaires.php(452): createRecord()
-#1 {main}
-  thrown in <b>/home/rs2466300/public_html/test/v2/Commentaires.php</b> on line <b>172</b><br />
-', 'linkedin', 'facebook', 'tiktok', 'snapchat', 'youtube', 'x'];
+                $minRequiredFields = ['instagram', 'linkedin', 'facebook', 'tiktok', 'snapchat', 'youtube', 'x'];
 
                 $hasAtLeastOneSocialMedia = false;
                 foreach ($minRequiredFields as $field) {

@@ -83,7 +83,7 @@ try {
             $stmt->execute([$id, $userId, $authorId, $rating, $comment]);
 
             $coinEvents = new EventCoinsFacade($conn);
-            $coinEvents->leaveReviewCompany($userId);
+            $coinEvents->leaveReviewCompany($authorId);
 
             echo json_encode(["status" => "success", "message" => "Avis ajouté avec succès"]);
             break;

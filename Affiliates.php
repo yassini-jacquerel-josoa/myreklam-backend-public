@@ -8,6 +8,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET' && basename(__FILE__) == basename($_SER
 
 include_once(__DIR__ . "/db.php");
 include_once(__DIR__ . "/packages/NotificationBrevoAndWeb.php");
+include_once(__DIR__ . "/packages/AmbassadorAction.php");
+include_once(__DIR__ . "/packages/GeneralHelper.php");
 
 // Autoriser les requêtes depuis n'importe quel domaine
 header("Access-Control-Allow-Origin: *");
@@ -77,8 +79,18 @@ if ($method == 'get_referred_ids') {
         // Récupérer les referred_id liés au user_id
         $referredIds = getReferredIdsByUserId($user_id);
 
+        // Verifier si l'utilisateur est un professionnel premium
+        $generalHelper = new GeneralHelper($conn);
+        $isPremium = $generalHelper->isPremium($user_id);
+
+        if ($isPremium) {
+            $ambassadorAction = new EventCoinsFacade($conn);
+            $ambassadorAction->sponsorCompanyPremium($user_id);
+        }
+        
+
         // Retourner les résultats en JSON
-        echo json_encode(["status" => "success", "referred_ids" => $referredIds]);
+        echo json_encode(["status" => "success", "referred_ids" => $referredIds, "isPremium" => $isPremium]);
     } catch (\Throwable $th) {
         http_response_code(500);
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
@@ -266,8 +278,8 @@ function create_affiliate($referred_id, $affiliate_code)
         $eventName = "sponsor_individual";
         if ($default_type != 'none') {
             if ($default_type == "professionnel") {
-                $eventName = "sponsor_company";
-                $query = "SELECT * FROM \"event_coins\" WHERE slug = 'sponsor_company' ";
+                $eventName = "sponsor_company_free";
+                $query = "SELECT * FROM \"event_coins\" WHERE slug = 'sponsor_company_free' ";
                 $statement = $conn->prepare($query);
                 $statement->execute();
                 $eventCoins = $statement->fetch(PDO::FETCH_ASSOC);

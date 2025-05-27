@@ -20,6 +20,58 @@ if (!class_exists('GeneralHelper')) {
             }
         }
 
+
+        function isPremium($userId): bool
+        {
+            global $conn;
+            
+            try {
+                // Récupérer les informations de l'utilisateur
+                $query = 'SELECT profiletype, pseudo FROM "userInfo" WHERE userid = :id';
+                $statement = $conn->prepare($query);
+                $statement->bindParam(':id', $userId);
+                $statement->execute();
+                $resultUserInfo = $statement->fetch(PDO::FETCH_ASSOC);
+        
+                if (!$resultUserInfo) {
+                    return false;
+                }
+         
+                // Récupérer les informations d'abonnement
+                $query = 'SELECT typeabo, dateabo FROM "abonnement" WHERE userid = :id ORDER BY dateabo DESC';
+                $statement = $conn->prepare($query);
+                $statement->bindParam(':id', $userId);
+                $statement->execute();
+                $resultAbonnement = $statement->fetch(PDO::FETCH_ASSOC);
+        
+                if ($resultAbonnement) {
+                    $dateAbonnement = new DateTime($resultAbonnement['dateabo']);
+                    $dateAujourdhui = new DateTime();
+                
+                    if ($resultAbonnement['typeabo'] == 'annuel') {
+                        // Vérifier si l'abonnement annuel est toujours valide
+                        $dateAbonnement->modify('+1 year');
+                        if ($dateAujourdhui > $dateAbonnement) {
+                            $resultAbonnement = null; // L'abonnement a expiré
+                        }
+                    } else  {
+                        // if ($resultAbonnement['typeabo'] == 'mensuel')
+                        // Vérifier si l'abonnement mensuel est toujours valide
+                        $dateAbonnement->modify('+1 month');
+                        if ($dateAujourdhui > $dateAbonnement) {
+                            $resultAbonnement = null; // L'abonnement a expiré
+                        }
+                    }
+                }
+                
+                return $resultAbonnement ? true : false;
+        
+            } catch (\Throwable $th) {
+                return false;
+            }
+        }
+        
+        
         public static function getFormatedAd($adId)
         {
             $query = 'SELECT * FROM "ads" WHERE "id" = :id';
