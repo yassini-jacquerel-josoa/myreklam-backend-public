@@ -511,20 +511,22 @@ if ($method == 'get_conversation') {
     $offset = ($page - 1) * $pageSize;
 
     try {
-        // Récupération des conversations avec la nouvelle logique de suppression
+        // Récupération de toutes les conversations de l'utilisateur
         $query = "
-            SELECT c.id AS conversation_id, c.offre_id, c.updated_at,
-                   cd.deleted_until AS user_deleted_until
+            SELECT 
+                c.id AS conversation_id, 
+                c.offre_id, 
+                c.updated_at,
+                cd.deleted_until AS user_deleted_until,
+                cp.user_id,
+                cp.owner_id
             FROM \"conversations\" c
-            LEFT JOIN \"conversation_participants\" cp ON cp.conversation_id = c.id
-            LEFT JOIN \"conversation_deleted\" cd ON cd.conversation_id = c.id AND cd.participant_user_id = :myId
-            WHERE (
-                c.owner_id = :myId OR 
-                (cp.user_id = :myId AND EXISTS (
-                    SELECT 1 FROM \"messages\" m WHERE m.conversation_id = c.id
-                ))
-            )
-            GROUP BY c.id, c.offre_id, c.updated_at, cd.deleted_until
+            JOIN \"conversation_participants\" cp ON cp.conversation_id = c.id
+            LEFT JOIN \"conversation_deleted\" cd ON 
+                cd.conversation_id = c.id AND 
+                cd.participant_user_id = :myId
+            WHERE (c.owner_id = :myId OR cp.user_id = :myId)
+            GROUP BY c.id, c.offre_id, c.updated_at, cd.deleted_until, cp.user_id, cp.owner_id
             ORDER BY c.updated_at DESC
             LIMIT :pageSize OFFSET :offset
         ";
@@ -539,44 +541,32 @@ if ($method == 'get_conversation') {
         $conversationData = [];
 
         foreach ($conversations as $conversation) {
-            // Récupérer le dernier message après la date de suppression (si elle existe)
             $deletedUntil = $conversation['user_deleted_until'] ?? null;
             
-            if ($deletedUntil) {
-                $queryLastMessage = "
-                    SELECT m.id, m.content, m.status, m.created_at
-                    FROM \"messages\" m
-                    WHERE m.conversation_id = :conversationId
-                    AND m.created_at > :deletedUntil
-                    ORDER BY m.created_at DESC
-                    LIMIT 1
-                ";
-                $stmtLastMessage = $conn->prepare($queryLastMessage);
-                $stmtLastMessage->bindValue(':conversationId', $conversation['conversation_id']);
-                $stmtLastMessage->bindValue(':deletedUntil', $deletedUntil);
-            } else {
-                $queryLastMessage = "
-                    SELECT m.id, m.content, m.status, m.created_at
-                    FROM \"messages\" m
-                    WHERE m.conversation_id = :conversationId
-                    ORDER BY m.created_at DESC
-                    LIMIT 1
-                ";
-                $stmtLastMessage = $conn->prepare($queryLastMessage);
-                $stmtLastMessage->bindValue(':conversationId', $conversation['conversation_id']);
-            }
-            
+            // Récupérer le dernier message (même s'il est avant deleted_until)
+            $queryLastMessage = "
+                SELECT 
+                    m.id, 
+                    m.content, 
+                    m.status, 
+                    m.created_at,
+                    m.sender_id
+                FROM \"messages\" m
+                WHERE m.conversation_id = :conversationId
+                ORDER BY m.created_at DESC
+                LIMIT 1
+            ";
+            $stmtLastMessage = $conn->prepare($queryLastMessage);
+            $stmtLastMessage->bindValue(':conversationId', $conversation['conversation_id']);
             $stmtLastMessage->execute();
             $message = $stmtLastMessage->fetch(PDO::FETCH_ASSOC);
 
-            // Si aucun message n'est visible, sauter cette conversation
-            if (!$message) {
-                continue;
-            }
+            // Déterminer si les messages sont masqués
+            $messagesHidden = ($deletedUntil && (!$message || $message['created_at'] <= $deletedUntil));
 
-            // Récupérer les pièces jointes
+            // Récupérer les pièces jointes seulement pour les messages visibles
             $attachments = [];
-            if ($message) {
+            if ($message && (!$deletedUntil || $message['created_at'] > $deletedUntil)) {
                 $queryAttachments = "
                     SELECT * FROM \"attachments\"
                     WHERE message_id = :messageId
@@ -588,11 +578,15 @@ if ($method == 'get_conversation') {
             }
 
             // Récupérer l'interlocuteur
-            $interlocutorId = getInterlocutorId($conversation['conversation_id'], $userId);
+            $interlocutorId = ($conversation['owner_id'] == $userId) 
+                ? $conversation['user_id'] 
+                : $conversation['owner_id'];
+
             $interlocutor = null;
             $userInfo = null;
 
             if ($interlocutorId) {
+                // Récupérer les infos de l'interlocuteur
                 $queryInterlocutor = "
                     SELECT * FROM \"userInfo\" WHERE userid = :interlocutorId
                 ";
@@ -608,7 +602,8 @@ if ($method == 'get_conversation') {
                 $userInfo = $stmtUserInfo->fetch(PDO::FETCH_ASSOC);
             }
 
-            $interlocutorUserName = "Pseudo";
+            // Déterminer le nom d'affichage de l'interlocuteur
+            $interlocutorUserName = "Utilisateur";
             if ($interlocutor) {
                 if (isset($interlocutor['profiletype']) && $interlocutor['profiletype'] === "professionnel") {
                     $interlocutorUserName = $interlocutor['nomsociete'] ?? $interlocutor['pseudo'];
@@ -619,11 +614,17 @@ if ($method == 'get_conversation') {
                 $interlocutorUserName = explode('@', $userInfo['Email'])[0];
             }
 
-            // Récupérer l'offre
+            // Récupérer l'offre associée
             $offer = null;
             if ($conversation['offre_id']) {
                 $queryOffer = "
-                    SELECT * FROM \"ads\"
+                    SELECT 
+                        id, 
+                        category, 
+                        inquiryTitle, 
+                        title, 
+                        userId 
+                    FROM \"ads\"
                     WHERE id = :offreId AND deletedat IS NULL
                 ";
                 $stmtOffer = $conn->prepare($queryOffer);
@@ -632,15 +633,10 @@ if ($method == 'get_conversation') {
                 $offer = $stmtOffer->fetch(PDO::FETCH_ASSOC);
             }
 
-            $conversationData[] = [
+            // Préparer les données de la conversation
+            $conversationEntry = [
                 "id" => $conversation['conversation_id'],
-                "message" => $message ? [
-                    "id" => $message['id'],
-                    "content" => $message['content'],
-                    "status" => $message['status'],
-                    "created_at" => $message['created_at'],
-                    "attachments" => $attachments
-                ] : null,
+                "messages_hidden" => $messagesHidden,
                 "interlocutor" => [
                     "id" => $interlocutorId,
                     "username" => $interlocutorUserName,
@@ -649,19 +645,45 @@ if ($method == 'get_conversation') {
                 "announcement" => $offer ? [
                     "id" => $offer['id'],
                     "name" => $offer['category'] == "demandes" ? $offer['inquiryTitle'] : $offer['title'],
-                    "status" => "valid"
+                    "status" => "valid",
+                    "owner_id" => $offer['userId']
                 ] : [
                     "id" => null,
                     "name" => null,
-                    "status" => "deleted"
+                    "status" => "deleted",
+                    "owner_id" => null
                 ]
             ];
+
+            // Ajouter les infos du message seulement s'il est visible
+            if ($message && !$messagesHidden) {
+                $conversationEntry["message"] = [
+                    "id" => $message['id'],
+                    "content" => $message['content'],
+                    "status" => $message['status'],
+                    "created_at" => $message['created_at'],
+                    "sender_id" => $message['sender_id'],
+                    "attachments" => $attachments
+                ];
+            } else {
+                $conversationEntry["message"] = null;
+            }
+
+            $conversationData[] = $conversationEntry;
         }
 
-        echo json_encode(["status" => "success", "conversations" => $conversationData]);
+        echo json_encode([
+            "status" => "success", 
+            "conversations" => $conversationData,
+            "has_more" => count($conversationData) >= $pageSize
+        ]);
     } catch (\Throwable $th) {
         http_response_code(500);
-        echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
+        echo json_encode([
+            "status" => "failure", 
+            "message" => $th->getMessage(),
+            "trace" => $th->getTraceAsString()
+        ]);
     }
 }
 
