@@ -388,7 +388,7 @@ if ($method == 'start_conversation') {
 if ($method == 'delete') {
     try {
         if ($idConversation) {
-            // Vérifier si l'utilisateur a déjà démarré une conversation sur cette offre
+            // Vérifier si la conversation existe
             $query = "SELECT * FROM \"conversations\" WHERE id = :id";
             $statement = $conn->prepare($query);
             $statement->bindValue(':id', $idConversation);
@@ -396,7 +396,7 @@ if ($method == 'delete') {
             $existingConversation = $statement->fetch(PDO::FETCH_ASSOC);
 
             if (!$existingConversation) {
-                http_response_code(404); // Not Found
+                http_response_code(404);
                 echo json_encode([
                     "status" => "failure",
                     "message" => "Conversation introuvable"
@@ -407,19 +407,50 @@ if ($method == 'delete') {
             // Démarrer une transaction
             $conn->beginTransaction();
 
-            // Insérer une trace dans conversation_deleted
-            $insertQuery = "
-                INSERT INTO \"conversation_deleted\" (id, conversation_id, participant_user_id, date) 
-                VALUES (:deleteId, :idConversation, :participantUserId, :deleteDate)";
-            $insertStmt = $conn->prepare($insertQuery);
-            $insertStmt->execute([
-                'deleteId' => generateGUID(),
-                'idConversation' => $idConversation,
-                'participantUserId' => $userId,
-                'deleteDate' => date("Y-m-d H:i:s")
+            // Vérifier si l'utilisateur a déjà une entrée de suppression
+            $checkQuery = "
+                SELECT * FROM \"conversation_deleted\" 
+                WHERE conversation_id = :conversationId 
+                AND participant_user_id = :userId
+            ";
+            $checkStmt = $conn->prepare($checkQuery);
+            $checkStmt->execute([
+                'conversationId' => $idConversation,
+                'userId' => $userId
             ]);
+            $existingDeletion = $checkStmt->fetch(PDO::FETCH_ASSOC);
 
-            // Tout s'est bien passé, on valide la transaction
+            $currentDate = date("Y-m-d H:i:s");
+
+            if ($existingDeletion) {
+                // Mettre à jour la date de suppression existante
+                $updateQuery = "
+                    UPDATE \"conversation_deleted\"
+                    SET deleted_until = :deletedUntil
+                    WHERE id = :id
+                ";
+                $updateStmt = $conn->prepare($updateQuery);
+                $updateStmt->execute([
+                    'deletedUntil' => $currentDate,
+                    'id' => $existingDeletion['id']
+                ]);
+            } else {
+                // Créer une nouvelle entrée de suppression
+                $insertQuery = "
+                    INSERT INTO \"conversation_deleted\" 
+                    (id, conversation_id, participant_user_id, deleted_until) 
+                    VALUES (:deleteId, :idConversation, :participantUserId, :deletedUntil)
+                ";
+                $insertStmt = $conn->prepare($insertQuery);
+                $insertStmt->execute([
+                    'deleteId' => generateGUID(),
+                    'idConversation' => $idConversation,
+                    'participantUserId' => $userId,
+                    'deletedUntil' => $currentDate
+                ]);
+            }
+
+            // Valider la transaction
             $conn->commit();
 
             echo json_encode([
@@ -427,16 +458,15 @@ if ($method == 'delete') {
                 "message" => "Conversation masquée avec succès"
             ]);
         } else {
-            http_response_code(404); // Ressource non trouvée
+            http_response_code(404);
             echo json_encode(["status" => "failure", "message" => "Conversation not found"]);
         }
     } catch (\Throwable $th) {
-        // Annuler la transaction en cas d'erreur
         if ($conn->inTransaction()) {
             $conn->rollBack();
         }
 
-        http_response_code(500); // Erreur de serveur interne
+        http_response_code(500);
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
 }
@@ -471,144 +501,123 @@ function getInterlocutorId($conversationId, $userId)
 
 
 if ($method == 'get_conversation') {
-    $search = $_POST["search"] ?? ""; // Recherche par nom
+    $search = $_POST["search"] ?? "";
     $page = filter_var($_POST["page"] ?? 1, FILTER_VALIDATE_INT);
     $pageSize = filter_var($_POST["pageSize"] ?? 20, FILTER_VALIDATE_INT);
     $userId = filter_var($owner_id ?? 1);
 
-    // Validation des données
     $page = $page > 0 ? $page : 1;
     $pageSize = $pageSize > 0 ? $pageSize : 20;
+    $offset = ($page - 1) * $pageSize;
 
     try {
-
-        // Calcul de l'offset
-        $offset = ($page - 1) * $pageSize;
-
-        // 1. Récupération des conversations
+        // Récupération des conversations avec la nouvelle logique de suppression
         $query = "
-            SELECT c.id AS conversation_id, c.offre_id
+            SELECT c.id AS conversation_id, c.offre_id, c.updated_at,
+                   cd.deleted_until AS user_deleted_until
             FROM \"conversations\" c
             LEFT JOIN \"conversation_participants\" cp ON cp.conversation_id = c.id
+            LEFT JOIN \"conversation_deleted\" cd ON cd.conversation_id = c.id AND cd.participant_user_id = :myId
             WHERE (
-                -- Le créateur voit toujours la conversation
-                c.owner_id = :myId
-                OR 
-                -- L'interlocuteur ne voit la conversation que s'il y a des messages
+                c.owner_id = :myId OR 
                 (cp.user_id = :myId AND EXISTS (
-                    SELECT 1 
-                    FROM \"messages\" m 
-                    WHERE m.conversation_id = c.id
+                    SELECT 1 FROM \"messages\" m WHERE m.conversation_id = c.id
                 ))
             )
-            AND NOT EXISTS (
-                SELECT 1
-                FROM \"conversation_deleted\" cd
-                WHERE cd.conversation_id = c.id
-                AND cd.participant_user_id = :myId
-            )
-            GROUP BY c.id, c.offre_id
+            GROUP BY c.id, c.offre_id, c.updated_at, cd.deleted_until
             ORDER BY c.updated_at DESC
             LIMIT :pageSize OFFSET :offset
-            ";
+        ";
+        
         $statement = $conn->prepare($query);
         $statement->bindValue(':myId', $userId);
-        $statement->bindValue(':pageSize', $pageSize);
-        $statement->bindValue(':offset', $offset);
+        $statement->bindValue(':pageSize', $pageSize, PDO::PARAM_INT);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
         $statement->execute();
         $conversations = $statement->fetchAll(PDO::FETCH_ASSOC);
 
-        $uniqueConversations = [];
+        $conversationData = [];
 
         foreach ($conversations as $conversation) {
-            $conversationId = $conversation['conversation_id'];
-            if (!isset($uniqueConversations[$conversationId])) {
-                $uniqueConversations[$conversationId] = $conversation;
-            }
-        }
-
-
-        // 2. Pour chaque conversation, récupérer le dernier message, les participants et l'offre
-        foreach ($uniqueConversations as $conversation) {
-            // 2.1 Dernier message
-            $query = "
-                SELECT id, content, status, created_at
-                FROM \"messages\"
-                WHERE conversation_id = :conversationId
-                ORDER BY created_at DESC
+            // Récupérer le dernier message après la date de suppression (si elle existe)
+            $queryLastMessage = "
+                SELECT m.id, m.content, m.status, m.created_at
+                FROM \"messages\" m
+                WHERE m.conversation_id = :conversationId
+                AND (:deletedUntil IS NULL OR m.created_at > :deletedUntil)
+                ORDER BY m.created_at DESC
                 LIMIT 1
             ";
-            $statement = $conn->prepare($query);
-            $statement->bindValue(':conversationId', $conversation['conversation_id']);
-            $statement->execute();
-            $message = $statement->fetch(PDO::FETCH_ASSOC);
+            
+            $stmtLastMessage = $conn->prepare($queryLastMessage);
+            $stmtLastMessage->bindValue(':conversationId', $conversation['conversation_id']);
+            $stmtLastMessage->bindValue(':deletedUntil', $conversation['user_deleted_until'] ?? null);
+            $stmtLastMessage->execute();
+            $message = $stmtLastMessage->fetch(PDO::FETCH_ASSOC);
 
+            // Si aucun message n'est visible, sauter cette conversation
+            if (!$message) {
+                continue;
+            }
+
+            // Récupérer les pièces jointes
             $attachments = [];
-
             if ($message) {
-                // 2.1.1 Récupération des pièces jointes associées au message
-                $query = "
+                $queryAttachments = "
                     SELECT * FROM \"attachments\"
                     WHERE message_id = :messageId
                 ";
-                $statement = $conn->prepare($query);
-                $statement->bindValue(':messageId', $message['id']);
-                $statement->execute();
-                $attachments = $statement->fetchAll(PDO::FETCH_ASSOC);
+                $stmtAttachments = $conn->prepare($queryAttachments);
+                $stmtAttachments->bindValue(':messageId', $message['id']);
+                $stmtAttachments->execute();
+                $attachments = $stmtAttachments->fetchAll(PDO::FETCH_ASSOC);
             }
 
-            // 2.2 Interlocuteur
-            $query = "
-                SELECT *
-                FROM \"userInfo\"   u WHERE u.userid = :interlocutorId
-                ";
-
-            // Définir l'interlocuteur (utiliser cp.user_id ou cp.owner_id en fonction de la logique)
-            $interlocutorId = getInterlocutorId($conversation['conversation_id'], $userId);  // Ajoutez une fonction pour obtenir l'interlocuteur
-            $statement = $conn->prepare($query);
-            $statement->bindValue(':interlocutorId', $interlocutorId);
-            $statement->execute();
-            $interlocutor = $statement->fetch(PDO::FETCH_ASSOC);
+            // Récupérer l'interlocuteur
+            $interlocutorId = getInterlocutorId($conversation['conversation_id'], $userId);
+            $interlocutor = null;
             $userInfo = null;
 
-            $query0 = 'SELECT * FROM "users" WHERE "Id" = :interlocutorId;';
+            if ($interlocutorId) {
+                $queryInterlocutor = "
+                    SELECT * FROM \"userInfo\" WHERE userid = :interlocutorId
+                ";
+                $stmtInterlocutor = $conn->prepare($queryInterlocutor);
+                $stmtInterlocutor->bindValue(':interlocutorId', $interlocutorId);
+                $stmtInterlocutor->execute();
+                $interlocutor = $stmtInterlocutor->fetch(PDO::FETCH_ASSOC);
 
-            $statement = $conn->prepare($query0);
-            $statement->bindValue(':interlocutorId', $interlocutorId);
-            $statement->execute();
-            $userInfo = $statement->fetch(PDO::FETCH_ASSOC);
-
+                $queryUserInfo = 'SELECT * FROM "users" WHERE "Id" = :interlocutorId';
+                $stmtUserInfo = $conn->prepare($queryUserInfo);
+                $stmtUserInfo->bindValue(':interlocutorId', $interlocutorId);
+                $stmtUserInfo->execute();
+                $userInfo = $stmtUserInfo->fetch(PDO::FETCH_ASSOC);
+            }
 
             $interlocutorUserName = "Pseudo";
-            // Si l'interlocuteur est trouvé dans userInfo, on peut alors chercher son pseudo ou nom
             if ($interlocutor) {
                 if (isset($interlocutor['profiletype']) && $interlocutor['profiletype'] === "professionnel") {
                     $interlocutorUserName = $interlocutor['nomsociete'] ?? $interlocutor['pseudo'];
                 } else {
                     $interlocutorUserName = $interlocutor['pseudo'];
                 }
-            } else {
-                // Vérification de l'email pour définir le nom d'utilisateur
-                if ($userInfo && isset($userInfo['Email'])) {
-                    $interlocutorUserName = explode('@', $userInfo['Email'])[0];
-                }
+            } elseif ($userInfo && isset($userInfo['Email'])) {
+                $interlocutorUserName = explode('@', $userInfo['Email'])[0];
             }
 
+            // Récupérer l'offre
+            $offer = null;
+            if ($conversation['offre_id']) {
+                $queryOffer = "
+                    SELECT * FROM \"ads\"
+                    WHERE id = :offreId AND deletedat IS NULL
+                ";
+                $stmtOffer = $conn->prepare($queryOffer);
+                $stmtOffer->bindValue(':offreId', $conversation['offre_id']);
+                $stmtOffer->execute();
+                $offer = $stmtOffer->fetch(PDO::FETCH_ASSOC);
+            }
 
-
-
-            // 2.3 Offre
-            $query = "
-                SELECT *
-                FROM \"ads\"
-                WHERE id = :offreId AND deletedat IS NULL
-            ";
-            $statement = $conn->prepare($query);
-            $statement->bindValue(':offreId', $conversation['offre_id']);
-            $statement->execute();
-            $offer = $statement->fetch(PDO::FETCH_ASSOC);
-            // echo json_encode([$conversation, $offer, $conversation['offre_id']]);
-            // Combinez les données obtenues dans une réponse
             $conversationData[] = [
                 "id" => $conversation['conversation_id'],
                 "message" => $message ? [
@@ -618,14 +627,10 @@ if ($method == 'get_conversation') {
                     "created_at" => $message['created_at'],
                     "attachments" => $attachments
                 ] : null,
-                "interlocutor" => $interlocutor ? [
-                    "id" => $interlocutor['userid'],
+                "interlocutor" => [
+                    "id" => $interlocutorId,
                     "username" => $interlocutorUserName,
-                    "photo" => $interlocutor['photoprofilurl']
-                ] : [
-                    "id" => $userInfo['Id'],
-                    "username" => $interlocutorUserName,
-                    "photo" => null
+                    "photo" => $interlocutor['photoprofilurl'] ?? null
                 ],
                 "announcement" => $offer ? [
                     "id" => $offer['id'],
@@ -639,218 +644,171 @@ if ($method == 'get_conversation') {
             ];
         }
 
-        // 3. Retour de la réponse JSON
         echo json_encode(["status" => "success", "conversations" => $conversationData]);
     } catch (\Throwable $th) {
-        http_response_code(500); // Erreur de serveur interne
+        http_response_code(500);
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
 }
 
 if ($method == 'get_message') {
-    // Récupération et validation des paramètres
     $page = filter_var($_POST["page"] ?? 1, FILTER_VALIDATE_INT);
     $pageSize = filter_var($_POST["pageSize"] ?? 20, FILTER_VALIDATE_INT);
     $idConversation = filter_var($_POST["idConversation"] ?? null);
+    $userId = filter_var($owner_id ?? null);
 
-    // Vérification des paramètres
     $page = max(1, $page);
     $pageSize = max(1, $pageSize);
 
-    if (!$idConversation) {
+    if (!$idConversation || !$userId) {
         http_response_code(400);
-        echo json_encode(["status" => "failure", "message" => "Conversation ID is required"]);
+        echo json_encode(["status" => "failure", "message" => "Conversation ID and User ID are required"]);
         exit;
     }
 
     try {
-
-
-
-
-        // Vérifier si l'utilisateur a déjà démarré une conversation sur cette offre
-        $query = "
-            SELECT * FROM \"conversations\" WHERE id = :id 
-            ";
-        $statement = $conn->prepare($query);
-        $statement->bindValue(':id', $idConversation);
-
-        $statement->execute();
-
-        $existingConversation = $statement->fetch(PDO::FETCH_ASSOC);
+        // Vérifier si la conversation existe
+        $queryConversation = "
+            SELECT * FROM \"conversations\" WHERE id = :id
+        ";
+        $stmtConversation = $conn->prepare($queryConversation);
+        $stmtConversation->bindValue(':id', $idConversation);
+        $stmtConversation->execute();
+        $existingConversation = $stmtConversation->fetch(PDO::FETCH_ASSOC);
 
         if (!$existingConversation) {
-            http_response_code(500); // Forbidden (Accès interdit)
-            echo json_encode([
-                "status" => "failure",
-                "message" => "Conversation introuvable"
-            ]);
+            http_response_code(404);
+            echo json_encode(["status" => "failure", "message" => "Conversation introuvable"]);
             exit;
         }
 
-
-
-        $query = "SELECT * FROM \"ads\" WHERE id = :offre_id AND deletedat IS NULL";
-        $statement = $conn->prepare($query);
-        $statement->bindValue(':offre_id', $existingConversation["offre_id"]);
-        $statement->execute();
-
-        $offre = $statement->fetch(PDO::FETCH_ASSOC);
-
-        if (!$offre) {
-            http_response_code(500); // Erreur interne
-            echo json_encode([
-                "status" => "failure",
-                "message" => "Offre introuvable"
-            ]);
-            exit;
-        }
-
-
-        // Calcul de l'offset
-        $offset = ($page - 1) * $pageSize;
-
-        // 1. Récupération de l'interlocuteur depuis conversation_participants
-        $queryInterlocutor = "
-            SELECT owner_id, user_id 
-            FROM \"conversation_participants\"
-            WHERE conversation_id = :idConversation
-            LIMIT 1;
+        // Récupérer la date jusqu'à laquelle l'utilisateur a supprimé les messages
+        $queryDeletion = "
+            SELECT deleted_until FROM \"conversation_deleted\"
+            WHERE conversation_id = :conversationId AND participant_user_id = :userId
         ";
+        $stmtDeletion = $conn->prepare($queryDeletion);
+        $stmtDeletion->bindValue(':conversationId', $idConversation);
+        $stmtDeletion->bindValue(':userId', $userId);
+        $stmtDeletion->execute();
+        $deletionInfo = $stmtDeletion->fetch(PDO::FETCH_ASSOC);
+        $deletedUntil = $deletionInfo['deleted_until'] ?? null;
 
-        $statementInterlocutor = $conn->prepare($queryInterlocutor);
-        $statementInterlocutor->bindValue(':idConversation', $idConversation, PDO::PARAM_STR);
-        $statementInterlocutor->execute();
-        $interlocutor = $statementInterlocutor->fetch(PDO::FETCH_ASSOC);
-
-        if (!$interlocutor) {
-            http_response_code(404);
-            echo json_encode(["status" => "failure", "message" => "Conversation not found"]);
-            exit;
-        }
-
-        // Définition de l'ID de l'interlocuteur
-        $interlocutorId = ($interlocutor['user_id'] === $owner_id) ? $interlocutor['owner_id'] : $interlocutor['user_id'];
-
-        if (!$interlocutorId) {
-            http_response_code(404);
-            echo json_encode(["status" => "failure", "message" => "Interlocutor not found"]);
-            exit;
-        }
-
-        // 2.2 Interlocuteur
-        $query = "
-                SELECT *
-                FROM \"userInfo\"   u WHERE u.userid = :interlocutorId
-                ";
-
-        $statement = $conn->prepare($query);
-        $statement->bindValue(':interlocutorId', $interlocutorId);
-        $statement->execute();
-        $interlocutor = $statement->fetch(PDO::FETCH_ASSOC);
+        // Récupérer l'interlocuteur
+        $interlocutorId = getInterlocutorId($idConversation, $userId);
+        $interlocutor = null;
         $userInfo = null;
 
-        $query0 = 'SELECT * FROM "users" WHERE "Id" = :interlocutorId;';
+        if ($interlocutorId) {
+            $queryInterlocutor = "
+                SELECT * FROM \"userInfo\" WHERE userid = :interlocutorId
+            ";
+            $stmtInterlocutor = $conn->prepare($queryInterlocutor);
+            $stmtInterlocutor->bindValue(':interlocutorId', $interlocutorId);
+            $stmtInterlocutor->execute();
+            $interlocutor = $stmtInterlocutor->fetch(PDO::FETCH_ASSOC);
 
-        $statement = $conn->prepare($query0);
-        $statement->bindValue(':interlocutorId', $interlocutorId);
-        $statement->execute();
-        $userInfo = $statement->fetch(PDO::FETCH_ASSOC);
+            $queryUserInfo = 'SELECT * FROM "users" WHERE "Id" = :interlocutorId';
+            $stmtUserInfo = $conn->prepare($queryUserInfo);
+            $stmtUserInfo->bindValue(':interlocutorId', $interlocutorId);
+            $stmtUserInfo->execute();
+            $userInfo = $stmtUserInfo->fetch(PDO::FETCH_ASSOC);
+        }
 
         $interlocutorUserName = "Pseudo";
-        // Si l'interlocuteur est trouvé dans userInfo, on peut alors chercher son pseudo ou nom
         if ($interlocutor) {
             if (isset($interlocutor['profiletype']) && $interlocutor['profiletype'] === "professionnel") {
                 $interlocutorUserName = $interlocutor['nomsociete'] ?? $interlocutor['pseudo'];
             } else {
                 $interlocutorUserName = $interlocutor['pseudo'];
             }
-        } else {
-            // Vérification de l'email pour définir le nom d'utilisateur
-            if ($userInfo && isset($userInfo['Email'])) {
-                $interlocutorUserName = explode('@', $userInfo['Email'])[0];
-            }
+        } elseif ($userInfo && isset($userInfo['Email'])) {
+            $interlocutorUserName = explode('@', $userInfo['Email'])[0];
         }
 
+        // Récupérer l'offre
+        $offer = null;
+        if ($existingConversation['offre_id']) {
+            $queryOffer = "
+                SELECT * FROM \"ads\"
+                WHERE id = :offreId AND deletedat IS NULL
+            ";
+            $stmtOffer = $conn->prepare($queryOffer);
+            $stmtOffer->bindValue(':offreId', $existingConversation['offre_id']);
+            $stmtOffer->execute();
+            $offer = $stmtOffer->fetch(PDO::FETCH_ASSOC);
+        }
 
-
-        // 4. Récupération des messages de la conversation
+        // Récupérer les messages (seulement ceux après la date de suppression si elle existe)
+        $offset = ($page - 1) * $pageSize;
         $queryMessages = "
             SELECT id, sender_id, receiver_id, content, status, created_at
             FROM \"messages\"
-            WHERE conversation_id = :idConversation
-            ORDER BY created_at ASC
-            LIMIT :pageSize OFFSET :offset;
+            WHERE conversation_id = :conversationId
+            AND (:deletedUntil IS NULL OR created_at > :deletedUntil)
+            ORDER BY created_at DESC
+            LIMIT :pageSize OFFSET :offset
         ";
+        
+        $stmtMessages = $conn->prepare($queryMessages);
+        $stmtMessages->bindValue(':conversationId', $idConversation);
+        $stmtMessages->bindValue(':deletedUntil', $deletedUntil);
+        $stmtMessages->bindValue(':pageSize', $pageSize, PDO::PARAM_INT);
+        $stmtMessages->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmtMessages->execute();
+        $messages = $stmtMessages->fetchAll(PDO::FETCH_ASSOC);
 
-        $statementMessages = $conn->prepare($queryMessages);
-        $statementMessages->bindValue(':idConversation', $idConversation, PDO::PARAM_STR);
-        $statementMessages->bindValue(':pageSize', $pageSize, PDO::PARAM_INT);
-        $statementMessages->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $statementMessages->execute();
-
-        $messages = $statementMessages->fetchAll(PDO::FETCH_ASSOC);
-
-        // 5. Mise à jour du statut des messages et récupération des pièces jointes
+        // Mettre à jour le statut des messages non lus et récupérer les pièces jointes
         foreach ($messages as &$message) {
-            if ($message["status"] === $statusSent && $owner_id == $message["receiver_id"]) {
-                $idMessage = $message["id"];
-
-                // Mise à jour du statut en "lu"
+            if ($message["status"] === $statusSent && $userId == $message["receiver_id"]) {
                 $updateQuery = "
                     UPDATE \"messages\"
                     SET status = :statusRead
-                    WHERE id = :idMessage
+                    WHERE id = :messageId
                 ";
-                $updateStatement = $conn->prepare($updateQuery);
-                $updateStatement->bindValue(':statusRead', $statusRead, PDO::PARAM_STR);
-                $updateStatement->bindValue(':idMessage', $idMessage, PDO::PARAM_STR);
-                $updateStatement->execute();
-
+                $updateStmt = $conn->prepare($updateQuery);
+                $updateStmt->bindValue(':statusRead', $statusRead);
+                $updateStmt->bindValue(':messageId', $message['id']);
+                $updateStmt->execute();
+                
                 $message["status"] = $statusRead;
             }
 
-            // Récupération des pièces jointes
-            $queryFile = "
+            // Récupérer les pièces jointes
+            $queryAttachments = "
                 SELECT * FROM \"attachments\"
-                WHERE message_id = :idMessage;
+                WHERE message_id = :messageId
             ";
-            $statementFile = $conn->prepare($queryFile);
-            $statementFile->bindValue(':idMessage', $message["id"], PDO::PARAM_STR);
-            $statementFile->execute();
-            $attachments = $statementFile->fetchAll(PDO::FETCH_ASSOC);
-
-            $message["attachments"] = $attachments;
+            $stmtAttachments = $conn->prepare($queryAttachments);
+            $stmtAttachments->bindValue(':messageId', $message['id']);
+            $stmtAttachments->execute();
+            $message["attachments"] = $stmtAttachments->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        // 6. Structuration de la réponse JSON
+        // Inverser l'ordre pour avoir les plus anciens en premier
+        $messages = array_reverse($messages);
+
+        // Préparer la réponse
         $response = [
             "interlocutor" => [
                 "id" => $interlocutorId,
                 "username" => $interlocutorUserName,
-                "photo" => $interlocutor['photoprofilurl']
+                "photo" => $interlocutor['photoprofilurl'] ?? null
             ],
             "messages" => $messages,
-            "announcement" => $offre ? [
-                "id" => $offre['id'],
-                "name" => $offre['category'] == "demandes" ? $offre['inquiryTitle'] : $offre['title'],
+            "announcement" => $offer ? [
+                "id" => $offer['id'],
+                "name" => $offer['category'] == "demandes" ? $offer['inquiryTitle'] : $offer['title'],
                 "status" => "valid"
             ] : [
                 "id" => null,
                 "name" => null,
                 "status" => "deleted"
             ]
-
         ];
 
-        setJsonHeader();
         echo json_encode(["status" => "success", "data" => $response]);
     } catch (\Throwable $th) {
-        // Gestion des erreurs
-        if ($conn->inTransaction()) {
-            $conn->rollBack();
-        }
-
         http_response_code(500);
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
