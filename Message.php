@@ -602,6 +602,10 @@ if ($method == 'get_conversation') {
                 $userInfo = $stmtUserInfo->fetch(PDO::FETCH_ASSOC);
             }
 
+            if(!$userInfo){
+                continue;
+            }
+
             // Déterminer le nom d'affichage de l'interlocuteur
             $interlocutorUserName = "Utilisateur";
             if ($interlocutor) {
