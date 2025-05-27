@@ -147,8 +147,8 @@ function handleEventCoin($userId, $eventName)
             case 'complete_profile':
                 $result = $eventCoinsFacade->completeProfile($userId);
                 break;
-            case 'share_ad_social_media':
-                $result = $eventCoinsFacade->shareAdSocialMedia($userId);
+            case 'recommend_an_ad':
+                $result = $eventCoinsFacade->recommendAnAd($userId);
                 break;
             case 'post_google_review':
                 $result = $eventCoinsFacade->postGoogleReview($userId);

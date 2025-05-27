@@ -30,6 +30,11 @@ if (!class_exists('EventCoinsFacade')) {
             return $this->processEvent($userId, 'share_ad_social_media');
         }
 
+        public function recommendAnAd(string $userId): bool
+        {
+            return $this->processEvent($userId, 'recommend_an_ad', true);
+        }
+
         public function postGoogleReview(string $userId): bool
         {
             return $this->processEvent($userId, 'post_google_review');

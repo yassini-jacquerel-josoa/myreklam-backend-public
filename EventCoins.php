@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 // CORS
 header("Access-Control-Allow-Origin: *");
@@ -40,7 +40,7 @@ if ($method == 'get_event_coins') {
         $eventCoins = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         // Nettoyage des données avant encodage
-        $eventCoins = array_map(function($item) {
+        $eventCoins = array_map(function ($item) {
             $item['id'] = trim($item['id']); // Supprime les espaces/tabulations
             return $item;
         }, $eventCoins);
@@ -53,14 +53,13 @@ if ($method == 'get_event_coins') {
             $ambassadorAction = new EventCoinsFacade($conn);
             $ambassadorAction->sponsorCompanyPremium($user_id);
         }
-        
+
         // En-têtes corrects + encodage JSON
         header('Content-Type: application/json; charset=utf-8');
         echo json_encode([
             "status" => "success",
             "event_coins" => $eventCoins
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
     } catch (\Throwable $th) {
         http_response_code(500);
         header('Content-Type: application/json');
@@ -195,6 +194,24 @@ if ($method == 'delete_event_coin_by_slug') {
         echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
     }
 }
+
+
+
+
+if ($method == 'add_points_for_recommend_ad') {
+    try {
+        $userid = $_POST['userid'];
+        $ambassadorAction = new EventCoinsFacade($conn);
+        $ambassadorAction->recommendAnAd($userid);
+
+        echo json_encode(["status" => "success", "message" => "Points added successfully"]);
+    } catch (\Throwable $th) {
+        http_response_code(500);
+        echo json_encode(["status" => "failure", "message" => $th->getMessage()]);
+    }
+}
+
+
 
 
 // Fonction pour définir le type de contenu JSON
