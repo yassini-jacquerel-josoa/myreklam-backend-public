@@ -540,18 +540,32 @@ if ($method == 'get_conversation') {
 
         foreach ($conversations as $conversation) {
             // Récupérer le dernier message après la date de suppression (si elle existe)
-            $queryLastMessage = "
-                SELECT m.id, m.content, m.status, m.created_at
-                FROM \"messages\" m
-                WHERE m.conversation_id = :conversationId
-                AND (:deletedUntil IS NULL OR m.created_at > :deletedUntil)
-                ORDER BY m.created_at DESC
-                LIMIT 1
-            ";
+            $deletedUntil = $conversation['user_deleted_until'] ?? null;
             
-            $stmtLastMessage = $conn->prepare($queryLastMessage);
-            $stmtLastMessage->bindValue(':conversationId', $conversation['conversation_id']);
-            $stmtLastMessage->bindValue(':deletedUntil', $conversation['user_deleted_until'] ?? null, PDO::PARAM_STR);
+            if ($deletedUntil) {
+                $queryLastMessage = "
+                    SELECT m.id, m.content, m.status, m.created_at
+                    FROM \"messages\" m
+                    WHERE m.conversation_id = :conversationId
+                    AND m.created_at > :deletedUntil
+                    ORDER BY m.created_at DESC
+                    LIMIT 1
+                ";
+                $stmtLastMessage = $conn->prepare($queryLastMessage);
+                $stmtLastMessage->bindValue(':conversationId', $conversation['conversation_id']);
+                $stmtLastMessage->bindValue(':deletedUntil', $deletedUntil);
+            } else {
+                $queryLastMessage = "
+                    SELECT m.id, m.content, m.status, m.created_at
+                    FROM \"messages\" m
+                    WHERE m.conversation_id = :conversationId
+                    ORDER BY m.created_at DESC
+                    LIMIT 1
+                ";
+                $stmtLastMessage = $conn->prepare($queryLastMessage);
+                $stmtLastMessage->bindValue(':conversationId', $conversation['conversation_id']);
+            }
+            
             $stmtLastMessage->execute();
             $message = $stmtLastMessage->fetch(PDO::FETCH_ASSOC);
 
@@ -741,20 +755,35 @@ if ($method == 'get_message') {
 
         // Récupérer les messages (seulement ceux après la date de suppression si elle existe)
         $offset = ($page - 1) * $pageSize;
-        $queryMessages = "
-            SELECT id, sender_id, receiver_id, content, status, created_at
-            FROM \"messages\"
-            WHERE conversation_id = :conversationId
-            AND (:deletedUntil IS NULL OR created_at > :deletedUntil)
-            ORDER BY created_at DESC
-            LIMIT :pageSize OFFSET :offset
-        ";
         
-        $stmtMessages = $conn->prepare($queryMessages);
-        $stmtMessages->bindValue(':conversationId', $idConversation);
-        $stmtMessages->bindValue(':deletedUntil', $deletedUntil, PDO::PARAM_STR);
-        $stmtMessages->bindValue(':pageSize', $pageSize, PDO::PARAM_INT);
-        $stmtMessages->bindValue(':offset', $offset, PDO::PARAM_INT);
+        if ($deletedUntil) {
+            $queryMessages = "
+                SELECT id, sender_id, receiver_id, content, status, created_at
+                FROM \"messages\"
+                WHERE conversation_id = :conversationId
+                AND created_at > :deletedUntil
+                ORDER BY created_at DESC
+                LIMIT :pageSize OFFSET :offset
+            ";
+            $stmtMessages = $conn->prepare($queryMessages);
+            $stmtMessages->bindValue(':conversationId', $idConversation);
+            $stmtMessages->bindValue(':deletedUntil', $deletedUntil);
+            $stmtMessages->bindValue(':pageSize', $pageSize, PDO::PARAM_INT);
+            $stmtMessages->bindValue(':offset', $offset, PDO::PARAM_INT);
+        } else {
+            $queryMessages = "
+                SELECT id, sender_id, receiver_id, content, status, created_at
+                FROM \"messages\"
+                WHERE conversation_id = :conversationId
+                ORDER BY created_at DESC
+                LIMIT :pageSize OFFSET :offset
+            ";
+            $stmtMessages = $conn->prepare($queryMessages);
+            $stmtMessages->bindValue(':conversationId', $idConversation);
+            $stmtMessages->bindValue(':pageSize', $pageSize, PDO::PARAM_INT);
+            $stmtMessages->bindValue(':offset', $offset, PDO::PARAM_INT);
+        }
+        
         $stmtMessages->execute();
         $messages = $stmtMessages->fetchAll(PDO::FETCH_ASSOC);
 
